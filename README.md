@@ -1,24 +1,24 @@
 # SupplySync
 
-Trabalho da matéria de Oficinas de Integração 2. Desenvolvimento de um sistema de gerenciamento de robôs dentro de um armazém para automatização de processos.
+Assignment for the subject Integration Workshops 2: Development of a robot management system within a warehouse for process automation.
 
 <img src="./imgs/SuppluSyncLogo.jpg" height=300px>
 
-## Índice
+## Index
 
 - <a>Blog</a>
 - <a href="https://github.com/IshikawaRasoto/SupplySync/tree/dev">Repositório e Código</a>
 - <a>Cronograma</a>
 - <a>Proposta</a>
 
-## Inspiração e proposta
+## Inspiration and Project Proposal
 
-Usando como inspiração os sistemas utilizados pela Amazon e pelo Mercado Livre em seus armazéns com a utilização de robôs para transporte, a equipe pretende desenvolver um sistema que permite o transporte de itens dentro de um armazém de maneira quase automatizada, desenvolvendo tanto os drones e sua eletrônicas, além de um aplicativo para ser a interface com o usuário e um servidor para armazenar as informações e controlar os drones.
+Inspired by systems used by Amazon and Mercado Livre in their warehouses, where robots are employed for transport, our team aims to develop a system that enables item transportation within a warehouse in a nearly fully automated manner. This project involves designing both the drones and their electronics, as well as developing an app to serve as a user interface and a server to store information and control the drones.
 
 <img src="https://www.tecnologistica.com.br/up/2024/06/06/66bfc06f-d6ba-4c65-89e7-3fb7f64b17b6_re_1200.jpg" width=500px> <img src="https://startse-uploader.s3.us-east-2.amazonaws.com/amazon_proteus_2_849728cba0.webp" width=500px>
 
 <img src="./imgs/presentation/PorpostaDoSistema.png">
 
-## Ferramentas a serem utilizadas
+## Tools to Be Used 
 
 <img src="./imgs/presentation/FerramentasUtilizadas.png">
