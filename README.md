@@ -7,9 +7,9 @@ Assignment for the subject Integration Workshops 2: Development of a robot manag
 ## Index
 
 - <a>Blog</a>
-- <a href="https://github.com/IshikawaRasoto/SupplySync/tree/dev">Repositório e Código</a>
-- <a>Cronograma</a>
-- <a>Proposta</a>
+- <a href="https://github.com/IshikawaRasoto/SupplySync/tree/dev">Repository & Code</a>
+- <a>Schedule</a>
+- <a>Proposal</a>
 
 ## Inspiration and Project Proposal
 
