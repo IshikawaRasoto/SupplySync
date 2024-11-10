@@ -1,0 +1,15 @@
+# To generate use the following commands:
+# flutter pub get
+# dart run flutter_native_splash:create --path=flutter_native_splash.yaml
+
+flutter_native_splash:
+  color: "#DAD4C6"
+  image: assets/images/appIcon.png
+
+  android_12:
+    image: assets/images/appIcon.png
+    color: "#DAD4C6"
+
+  android: true
+  ios: false
+  web: false
