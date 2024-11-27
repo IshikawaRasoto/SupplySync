@@ -55,7 +55,7 @@ timeline
 
 ## Kanban
 
-```
+``` mermaid
 kanban
   column1[Column Title]
     task1[Task Description]
