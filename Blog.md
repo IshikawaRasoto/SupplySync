@@ -24,7 +24,7 @@ Abaixo consta as atualizações do projeto.
 - Iniciando os estudos de identificação dos cruzamentos.
 
 > [!NOTE]
-> O início do desenvolvimento da eletrônica do drone se deve ao fato do aluno Rafael Rasoto ter participado da competição BAJA SAE representando a UTFPR na 3ª semana.
+> O atraso no início do desenvolvimento da eletrônica do drone se deve ao fato do aluno Rafael Rasoto ter participado da competição BAJA SAE representando a UTFPR na 3ª semana.
 
 ## Dezembro
 
