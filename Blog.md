@@ -27,3 +27,9 @@ Abaixo consta as atualizações do projeto.
 > O início do desenvolvimento da eletrônica do drone se deve ao fato do aluno Rafael Rasoto ter participado da competição BAJA SAE representando a UTFPR na 3ª semana.
 
 ## Dezembro
+
+### Semana 1
+
+- Continuacao do desenvolvimento da PCB. Foi optado pela troca do software de desenvolvimento do Hardware do Altium para o EasyEDA pelo fator da equipe ter optado por componentes chineses da LCSC pelo custo, e devido a ausencia dos modelos no Altium, o desenvolvimento esta sendo no software distribuido em parceria com a LCSC.
+
+
