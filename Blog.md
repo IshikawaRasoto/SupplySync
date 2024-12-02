@@ -32,4 +32,4 @@ Abaixo consta as atualizações do projeto.
 
 - Continuacao do desenvolvimento da PCB. Foi optado pela troca do software de desenvolvimento do Hardware do Altium para o EasyEDA pelo fator da equipe ter optado por componentes chineses da LCSC pelo custo, e devido a ausencia dos modelos no Altium, o desenvolvimento esta sendo no software distribuido em parceria com a LCSC.
 
-
+![Schematic_SupplySync_2024-12-02](https://github.com/user-attachments/assets/479ed12d-3bf8-410b-a54e-18f8baed6b0e)
