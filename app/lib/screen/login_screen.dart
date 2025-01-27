@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:supplysync/repository/data_storage.dart';
+import 'package:supplysync/repository/secure_data_storage.dart';
 
 import '../api/api_service.dart';
+import '../constants/constants.dart';
 import '../helper/ui_helper.dart';
 import '../models/user.dart';
 import 'widgets/logo_and_help_widget.dart';
@@ -17,6 +21,13 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   late User _user;
   final ApiService apiService = ApiService();
+  final SecureDataStorage _secureDataStorage = SecureDataStorage();
+  final DataStorage _dataStorage = DataStorage();
+  final LocalAuthentication _localAuth = LocalAuthentication();
+
+  String? _savedUserName;
+  String? _savedPassword;
+  List<BiometricType> _availableBiometrics = [];
 
   // Form
   final _formKey = GlobalKey<FormState>();
@@ -24,28 +35,27 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _obscureText = true;
 
-  Future<void> _login() async {
-    if (await _user.fakeLogin()) {
-      if (mounted) context.go('/home');
-    }
-    try {
-      if (_formKey.currentState!.validate()) {
-        if (context.mounted) {
-          UIHelper.showSnackBar(context, 'Realizando login...');
-        }
-        // if (await _user.login(
-        //     _userNameController.text, _passwordController.text)) {
-        //   if (mounted) context.go('/home');
-        // }
-      }
-    } catch (e) {
-      if (mounted) UIHelper.showErrorSnackBar(context, e.toString());
-    }
-  }
-
   @override
   void initState() {
     _user = Provider.of<User>(context, listen: false);
+    _localAuth.isDeviceSupported().then((value) {
+      if (value) {
+        _localAuth.getAvailableBiometrics().then((value) {
+          if (mounted) setState(() => _availableBiometrics = value);
+        });
+      }
+    });
+    _secureDataStorage.readData(SecureDataKeys.userName).then((value) {
+      _savedUserName = value;
+      if (value != null && mounted) {
+        setState(() {
+          _userNameController.text = value;
+        });
+      }
+    });
+    _secureDataStorage
+        .readData(SecureDataKeys.password)
+        .then((value) => _savedPassword = value);
     super.initState();
   }
 
@@ -54,6 +64,40 @@ class _LoginScreenState extends State<LoginScreen> {
     _userNameController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _login({bool biometric = false}) async {
+    if (await _user.fakeLogin(_userNameController.text)) {
+      if (mounted) context.go('/home');
+    }
+    try {
+      String username = '';
+      String password = '';
+      if (biometric &&
+          _savedUserName != null &&
+          _savedPassword != null &&
+          await _localAuth.authenticate(
+            localizedReason: 'Faça a autenticação facial para continuar',
+            options: const AuthenticationOptions(
+              biometricOnly: true,
+            ),
+          )) {
+        username = _savedUserName!;
+        password = _savedPassword!;
+      } else if (_formKey.currentState!.validate()) {
+        username = _userNameController.text;
+        password = _passwordController.text;
+      }
+      if (await _user.login(username, password)) {
+        await _secureDataStorage.writeData(SecureDataKeys.userName, username);
+        if (await _dataStorage.readBool(DataKeys.savePassword) ?? false) {
+          await _secureDataStorage.writeData(SecureDataKeys.password, password);
+        }
+        if (mounted) context.go('/home');
+      }
+    } catch (e) {
+      if (mounted) UIHelper.showErrorSnackBar(context, e.toString());
+    }
   }
 
   @override
@@ -72,10 +116,8 @@ class _LoginScreenState extends State<LoginScreen> {
         minimum: EdgeInsets.only(top: 16),
         child: Column(
           children: [
-            Expanded(
-              flex: 3,
-              child: LogoAndHelpWidget(),
-            ),
+            LogoAndHelpWidget(),
+            SizedBox(height: MediaQuery.of(context).size.height * 0.05),
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -139,15 +181,34 @@ class _LoginScreenState extends State<LoginScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            ElevatedButton(
-                              onPressed: () => _login(),
-                              child: const Text('Facial'),
-                            ),
+                            _availableBiometrics.contains(BiometricType.face) ||
+                                    _availableBiometrics
+                                        .contains(BiometricType.iris)
+                                ? ElevatedButton(
+                                    onPressed: () => _login(biometric: true),
+                                    child: const Text('Facial'),
+                                  )
+                                : ElevatedButton(
+                                    onPressed: () {},
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.grey,
+                                    ),
+                                    child: const Text('Facial'),
+                                  ),
                             const SizedBox(width: 8),
-                            ElevatedButton(
-                              onPressed: () => _login(),
-                              child: const Text('Biometria'),
-                            ),
+                            _availableBiometrics
+                                    .contains(BiometricType.fingerprint)
+                                ? ElevatedButton(
+                                    onPressed: () => _login(biometric: true),
+                                    child: const Text('Biometria'),
+                                  )
+                                : ElevatedButton(
+                                    onPressed: () {},
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.grey,
+                                    ),
+                                    child: const Text('Biometria'),
+                                  ),
                             const SizedBox(width: 8),
                             ElevatedButton(
                               onPressed: () => _login(),
@@ -172,10 +233,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ],
               ),
-            ),
-            const Spacer(
-              flex: 2,
-            ),
+            )
           ],
         ),
       ),

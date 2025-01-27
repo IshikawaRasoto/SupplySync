@@ -1,8 +1,16 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--Permissions for Camera usage-->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <!--Permissions for Internet usage-->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Permission for Biometric authentication -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
     <application
         android:label="SupplySync"
         android:name="${applicationName}"
-        android:icon="@mipmap/supplysync">
+        android:icon="@mipmap/supplysync"
+        android:allowBackup="false"
+        android:fullBackupContent="false">
         <activity
             android:name=".MainActivity"
             android:exported="true"

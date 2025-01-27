@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 import '../api/api_service.dart';
@@ -42,8 +44,8 @@ class User with ChangeNotifier {
         _password = password,
         _jwtToken = jwtToken;
 
-  Future<bool> fakeLogin() async {
-    _userName = 'HBWho';
+  Future<bool> fakeLogin(String userName) async {
+    _userName = userName.isEmpty ? 'HBWho' : userName;
     _email = 'alexei@gmail.com';
     _password = 'teste123';
     _fullName = 'Alexei Lara';
@@ -54,7 +56,17 @@ class User with ChangeNotifier {
     return true;
   }
 
+  Future<bool> register({List<UserRoles>? roles}) async {
+    if (userName.isEmpty ||
+        password.isEmpty ||
+        email.isEmpty ||
+        fullName.isEmpty) return false;
+    _roles = roles ?? [UserRoles.user];
+    return await apiService.registerNewUser(this);
+  }
+
   Future<bool> login(String userName, String password) async {
+    if (userName.isEmpty || password.isEmpty) return false;
     try {
       _userName = userName;
       _password = password;
@@ -62,11 +74,11 @@ class User with ChangeNotifier {
       _email = response[ApiBodyParts.email.name];
       _jwtToken = response[ApiBodyParts.jwt_token.name];
       _fullName = response[ApiBodyParts.name.name];
-      _roles = (response[ApiBodyParts.roles.name] as List<String>)
-          .map((role) => UserRoles.values
-              .firstWhere((element) => element.toString() == role))
-          .toList()
-        ..addAll(_roles.isEmpty ? [UserRoles.user] : []);
+      _roles = jsonDecode(response[ApiBodyParts.roles.name])
+          .map((role) => UserRoles.values.firstWhere(
+              (element) => element.toString() == role,
+              orElse: () => UserRoles.none))
+          .toList();
       _lastLogin = DateTime.now();
       notifyListeners();
       return _jwtToken.isNotEmpty;
@@ -109,15 +121,13 @@ class User with ChangeNotifier {
   }
 
   Future<bool> checkIfUserIsLoggedIn() async {
-    if (_jwtToken.isEmpty ||
-        _lastLogin == null ||
-        DateTime.now().difference(_lastLogin!) < Duration(minutes: 10)) {
-      return false;
+    if (_jwtToken.isNotEmpty &&
+        _lastLogin != null &&
+        DateTime.now().difference(_lastLogin!) <= Duration(minutes: 30)) {
+      return true;
     }
     try {
-      // TODO
-      // return await login(_email, _password);
-      return await fakeLogin();
+      return await login(_email, _password);
     } catch (e) {
       return false;
     }

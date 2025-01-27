@@ -5,7 +5,12 @@ class MainConstants {
   static const String companyName = 'SupplySync';
 }
 
+enum SecureDataKeys { userName, password }
+
+enum DataKeys { apiUrl, companyName, savePassword }
+
 enum UserRoles {
+  none,
   admin,
   armazem,
   doca,

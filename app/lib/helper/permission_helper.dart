@@ -15,7 +15,6 @@ class PermissionHelper {
   }
 
   static bool checkUserRolePermission(User user, UserPermissions permission) {
-    print('Cachorro all user info: ${user.userName} | ${user.roles}');
     if (user.roles.isEmpty) return false;
     if (user.roles.contains(UserRoles.admin)) return true;
     return RolesPermissions.permissions[user.roles.first]

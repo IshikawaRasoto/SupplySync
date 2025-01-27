@@ -37,6 +37,29 @@ class ApiService {
     }
   }
 
+  Future<bool> registerNewUser(User user) async {
+    try {
+      final response = await postData(user, ApiEndpoints.user, {
+        'username': user.userName,
+        'password': user.password,
+        'email': user.email,
+        'name': user.fullName,
+        'roles': jsonEncode(user.roles.map((e) => e.toString()).toList()),
+      });
+      if (response.containsKey('jwt_token')) {
+        _logger.i('User registered successfully');
+        return true;
+      } else {
+        _logger.e(
+            'Failed to register user. Status code: ${response['statusCode']}');
+        throw HttpExceptionCustom(response['statusCode'].toString());
+      }
+    } catch (e) {
+      _logger.e('An error occurred while registering user: $e');
+      rethrow;
+    }
+  }
+
   Future<Map<String, dynamic>> fetchData(User user, ApiEndpoints requestType,
       {Map<String, String>? header, Map<String, String>? pathParams}) async {
     final uri = Uri.parse(

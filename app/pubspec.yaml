@@ -14,23 +14,27 @@ dependencies:
     sdk: flutter
 
   # Main dependencies
-  go_router: ^14.4.1
-  provider: ^6.0.3
+  go_router: ^14.4.1 # Navigation
+  flutter_bloc: ^9.0.0 # State management
+  get_it: ^8.0.3 # Dependency injection
+  flutter_secure_storage: ^9.2.2 # Secure storage
+  shared_preferences: ^2.3.3 # Shared preferences
 
   # External communication dependencies
-  http: ^1.1.2
-  permission_handler: ^11.3.1
+  http: ^1.1.2 # HTTP requests
+  permission_handler: ^11.3.1 # Permission handler
+  local_auth: ^2.3.0 # Biometric authentication
 
   # Video, Camera, and Image dependencies
-  mobile_scanner: ^6.0.2 #New QR_Code reader
+  mobile_scanner: ^6.0.2 # New QR_Code reader
 
   # UI dependencies
-  cupertino_icons: ^1.0.8
-  responsive_builder: ^0.7.1 #Help make the app responsive
-  flutter_native_splash: ^2.4.2 #To create splash screen
+  cupertino_icons: ^1.0.8 # Cupertino icons
+  responsive_builder: ^0.7.1 # Help make the app responsive
+  flutter_native_splash: ^2.4.2 # To create splash screen
 
   # Debug dependencies
-  logger: ^2.1.0
+  logger: ^2.1.0 # Logger
 
 dev_dependencies:
   flutter_test:

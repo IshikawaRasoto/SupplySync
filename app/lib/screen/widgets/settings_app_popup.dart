@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supplysync/repository/data_storage.dart';
 
 import '../../constants/api_constants.dart';
 import '../../constants/constants.dart';
@@ -14,17 +15,32 @@ class SettingsAppPopup extends StatefulWidget {
 }
 
 class _SettingsAppPopupState extends State<SettingsAppPopup> {
+  final DataStorage _dataStorage = DataStorage();
+
   final _serverUrlController = TextEditingController();
   final _nameCompanyController = TextEditingController();
+  bool _savedPassword = false;
 
-  void _saveLoginCredentials() {
-    // TODO
+  void _saveChanges() {
+    _dataStorage.writeData(DataKeys.apiUrl, _serverUrlController.text);
+    _dataStorage.writeData(DataKeys.companyName, _nameCompanyController.text);
+    _dataStorage.writeBool(DataKeys.savePassword, _savedPassword);
   }
 
   @override
   void initState() {
-    _serverUrlController.text = ApiConstants.baseUrl;
-    _nameCompanyController.text = MainConstants.companyName;
+    _dataStorage.readData(DataKeys.apiUrl).then((value) {
+      _serverUrlController.text = value ?? ApiConstants.baseUrl;
+      if (mounted) setState(() {});
+    });
+    _dataStorage.readData(DataKeys.companyName).then((value) {
+      _nameCompanyController.text = value ?? MainConstants.companyName;
+      if (mounted) setState(() {});
+    });
+    _dataStorage.readBool(DataKeys.savePassword).then((value) {
+      _savedPassword = value ?? false;
+      if (mounted) setState(() {});
+    });
     super.initState();
   }
 
@@ -52,7 +68,7 @@ class _SettingsAppPopupState extends State<SettingsAppPopup> {
               margin: EdgeInsets.all(12),
               child: TextButton(
                 onPressed: () {
-                  _saveLoginCredentials();
+                  _saveChanges();
                   context.pop();
                 },
                 child: const Text(
@@ -101,6 +117,26 @@ class _SettingsAppPopupState extends State<SettingsAppPopup> {
                     ),
                   ),
                 ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Text(
+                    'Salvar senha',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Switch(
+                    value: _savedPassword,
+                    onChanged: (value) {
+                      setState(() {
+                        _savedPassword = value;
+                      });
+                    },
+                  ),
+                ],
               ),
             ],
           ),

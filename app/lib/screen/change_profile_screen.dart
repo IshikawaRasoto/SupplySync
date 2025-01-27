@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:supplysync/models/user.dart';
 
@@ -35,9 +34,7 @@ class _ChangeProfileScreenState extends State<ChangeProfileScreen> {
           children: [
             ConstrainedBox(
               constraints: BoxConstraints.tight(const Size.fromHeight(200)),
-              child: LogoAndHelpWidget(onReturn: () {
-                context.pop();
-              }),
+              child: LogoAndHelpWidget(),
             ),
             const SizedBox(height: 10),
             Text('Alterar perfil de ${_user.userName}',

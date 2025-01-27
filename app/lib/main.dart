@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'constants/constants.dart';
+import 'repository/data_storage.dart';
 import 'routes.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  DataStorage().init();
   runApp(
     MultiProvider(
       providers: [ChangeNotifierProvider.value(value: RouterMain.user)],

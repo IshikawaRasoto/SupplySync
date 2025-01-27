@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../constants/constants.dart';
 
 class LogoAndHelpWidget extends StatelessWidget {
   final Function()? onHelp;
-  final Function()? onLogout;
-  final Function()? onReturn;
+  final bool logout;
+  final bool back;
+  final double height;
   const LogoAndHelpWidget({
     super.key,
     this.onHelp,
-    this.onLogout,
-    this.onReturn,
+    this.back = true,
+    this.logout = false,
+    this.height = 0.25,
   });
 
   @override
@@ -19,7 +22,7 @@ class LogoAndHelpWidget extends StatelessWidget {
   ) {
     return SizedBox(
       width: double.infinity,
-      height: double.infinity,
+      height: MediaQuery.of(context).size.height * height,
       child: Stack(
         alignment: Alignment.center,
         children: [
@@ -41,26 +44,26 @@ class LogoAndHelpWidget extends StatelessWidget {
               ),
             ),
           ),
-          if (onLogout != null)
+          if (logout)
             Positioned(
               left: 8,
               top: 1,
               child: IconButton(
                 alignment: Alignment.topLeft,
-                onPressed: onLogout,
+                onPressed: context.pop,
                 icon: Icon(
                   Icons.logout,
                   size: 30,
                 ),
               ),
             ),
-          if (onReturn != null)
+          if (!logout && back)
             Positioned(
               left: 8,
               top: 1,
               child: IconButton(
                 alignment: Alignment.topLeft,
-                onPressed: onReturn,
+                onPressed: context.pop,
                 icon: Icon(
                   Icons.arrow_back,
                   size: 30,
