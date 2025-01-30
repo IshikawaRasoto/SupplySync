@@ -80,3 +80,97 @@ class SqliteConfig:
         result = cursor.fetchone()
         database.close()
         return result
+
+    def update_login_data (self, data_received):
+
+        database = sqlite3.connect('res/login_data.db')
+        cursor = database.cursor()
+
+        cursor.execute('''SELECT roles FROM login_data WHERE username = ?
+                                                   ''', (
+            data_received['username'],))
+        result = cursor.fetchone()
+        current_role = result[0]
+
+        if "password" in data_received:
+            cursor.execute('''SELECT password FROM login_data WHERE username = ?
+                                           ''', (
+                data_received['username'],))
+            result = cursor.fetchone()
+
+            if result[0] == data_received["password"]:
+                cursor.execute('''UPDATE login_data SET password = ? WHERE username = ?
+                                                           ''', (data_received['new_password'], data_received['username'],))
+                database.commit()
+
+                cursor.execute('''SELECT password FROM login_data WHERE username = ?
+                                                           ''', (
+                    data_received['username'],))
+                result = cursor.fetchone()
+
+                if result[0] != data_received['new_password']:
+                    print("Erro ao cadastrar nova senha")
+
+                else:
+                    print("Nova senha cadastrada com sucesso")
+
+            else:
+                print("senha atual incorreta para alteração")
+
+        if "email" in data_received:
+            cursor.execute('''UPDATE login_data SET email = ? WHERE username = ?
+                                                                      ''',
+                           (data_received['email'], data_received['username'],))
+            database.commit()
+
+            cursor.execute('''SELECT email FROM login_data WHERE username = ?
+                                                                      ''', (
+                data_received['username'],))
+            result = cursor.fetchone()
+
+            if result[0] != data_received['email']:
+                print("Erro ao cadastrar novo email")
+
+            else:
+                print("Novo email cadastrado com sucesso")
+
+
+        if "name" in data_received:
+            cursor.execute('''UPDATE login_data SET name = ? WHERE username = ?
+                                                                                  ''',
+                           (data_received['name'], data_received['username'],))
+            database.commit()
+
+            cursor.execute('''SELECT name FROM login_data WHERE username = ?
+                                                                                  ''', (
+                data_received['username'],))
+            result = cursor.fetchone()
+
+            if result[0] != data_received['name']:
+                print("Erro ao cadastrar novo nome")
+
+            else:
+                print("Novo nome cadastrado com sucesso")
+
+        if "roles" in data_received:
+            if current_role == "admin":
+                cursor.execute('''UPDATE login_data SET roles = ? WHERE username = ?
+                                                                                      ''',
+                               (data_received['roles'], data_received['username'],))
+                database.commit()
+
+                cursor.execute('''SELECT roles FROM login_data WHERE username = ?
+                                                                                                  ''', (
+                    data_received['username'],))
+                result = cursor.fetchone()
+
+                if result[0] != data_received['roles']:
+                    print("Erro ao cadastrar nova função")
+
+                else:
+                    print("Nova função cadastrada com sucesso")
+
+            else:
+                print ("O usuário não tem permissão para alterar a função")
+
+        database.close()
