@@ -6,7 +6,8 @@ import '../helper/ui_helper.dart';
 import 'widgets/logo_and_help_widget.dart';
 
 class ChangeProfileScreen extends StatefulWidget {
-  const ChangeProfileScreen({super.key});
+	final String? workerId;
+  const ChangeProfileScreen({super.key, this.workerId});
   @override
   State<ChangeProfileScreen> createState() => _ChangeProfileScreenState();
 }
@@ -28,6 +29,8 @@ class _ChangeProfileScreenState extends State<ChangeProfileScreen> {
   @override
   Widget build(BuildContext context) {
     _user = Provider.of<User>(context, listen: false);
+		final isEditingWorker = widget.workerId != null;
+
     return Scaffold(
       body: SafeArea(
         child: Column(
@@ -37,8 +40,12 @@ class _ChangeProfileScreenState extends State<ChangeProfileScreen> {
               child: LogoAndHelpWidget(),
             ),
             const SizedBox(height: 10),
-            Text('Alterar perfil de ${_user.userName}',
-                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
+						Text(
+							isEditingWorker
+							? 'Editar Trabalhador (ID: ${widget.workerId!})' 
+							: 'Alterar perfil de ${_user.userName}',
+							style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+						),
             const SizedBox(height: 10),
             Container(
               constraints: BoxConstraints(

@@ -113,9 +113,11 @@ class _HomeScreenState extends State<HomeScreen> {
                         if (PermissionHelper.checkUserRolePermission(
                             _user, UserPermissions.fetchWorkers))
                           UIHelper.buttonIconAndTextWidget(
-                              context, Icons.engineering, 'Trabalhadores', () {
-                            context.go('/home/workers');
-                          }),
+                            context, 
+														Icons.engineering,
+														'Trabalhadores',
+														() => context.go('/home/workers')
+                          ),
                         UIHelper.buttonIconAndTextWidget(
                           context,
                           Icons.person,

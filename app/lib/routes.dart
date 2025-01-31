@@ -11,6 +11,7 @@ import 'screen/warehouses_detais_screen.dart';
 import 'screen/warehouses_screen.dart';
 import 'screen/cart_screen.dart';
 import 'screen/cart_detail_screen.dart';
+import 'screen/workers_screen.dart';
 
 class RouterMain {
   static final User _user = User();
@@ -90,16 +91,12 @@ class RouterMain {
               GoRoute(
                 path: '/workers',
                 name: 'workers',
-                builder: (context, state) {
-                  return Container();
-                },
+                builder: (context, state) => const WorkersScreen(),
                 routes: [
                   GoRoute(
                     path: '/registeruser',
                     name: 'registerUser',
-                    builder: (context, state) {
-                      return RegisterUserScreen();
-                    },
+                    builder: (context, state) => const RegisterUserScreen(),
                   ),
                 ],
               ),
@@ -129,7 +126,8 @@ class RouterMain {
                 path: '/changeprofile',
                 name: 'changeProfile',
                 builder: (context, state) {
-                  return ChangeProfileScreen();
+									final workerId = state.extra as String?; // Get worker ID from extra
+									return ChangeProfileScreen(workerId: workerId);
                 },
               ),
             ],
