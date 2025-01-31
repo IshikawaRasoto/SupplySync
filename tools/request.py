@@ -1,5 +1,6 @@
 import secrets
 import string
+from tools import logger as log_class
 from tools import sqlite
 from tools import exceptions
 from flask import Flask, jsonify, request
@@ -14,10 +15,15 @@ class Requests:
         self.jwt = JWTManager(self.app)
         self.db = sqlite.SqliteConfig()
 
+        self.logger = log_class.Logger().logger_obj
+
+        self.logger.info(("---------SISTEMA INICIADO---------"))
+
         # Definindo as rotas dentro do construtor
         self.app.add_url_rule('/login', view_func=self.verify_login, methods=['POST'])
         self.app.add_url_rule('/create_login', view_func=self.create_login, methods=['POST'])
         self.app.add_url_rule('/update_login', view_func=self.update_login, methods=['PUT'])
+        self.app.add_url_rule('/get_user/<username>', view_func=self.get_user, methods=['GET'])
 
 
     def verify_jwt_token(self, token):
@@ -59,8 +65,6 @@ class Requests:
         data = request.get_json()
         self.db.update_login_data(data)
         response = jsonify({'status': "Alteração realizada com sucesso"})
-
-
 
         return response, 200
 
@@ -124,3 +128,9 @@ class Requests:
             print(f"Error File: {error.__traceback__.tb_frame}")
             print(f"Error Line: {error.__traceback__.tb_lineno}")
             return ex.to_json(), ex.error_json['error']['code']
+
+    def get_user(self, username):
+        print("Username recebido "+username)
+        return "Ok", 200
+
+

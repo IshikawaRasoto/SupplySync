@@ -1,19 +1,22 @@
 import sqlite3
 import os
+from tools import logger as log_class
 from tools import exceptions
 from persistqueue.sqlqueue import SQLiteQueue as Queue
 
 
 class SqliteConfig:
     def __init__(self):
+
+        self.logger = log_class.Logger().logger_obj
+
         if not os.path.exists('./res'):
             os.mkdir('./res')
         if not os.path.exists('./res/persistqueue'):
             os.mkdir('./res/persistqueue')
             self.db_queue = Queue("./res/persistqueue", 'db_queue', multithreading=True, auto_commit=False)
 
-    @staticmethod
-    def verify_db():
+    def verify_db(self):
 
         try:
             database = sqlite3.connect('res/login_data.db')
@@ -29,10 +32,42 @@ class SqliteConfig:
                      );
                 ''')
             database.close()
-            print("-Banco de dados criado")
+            self.logger.info("Banco de dados de login criado")
 
         except sqlite3.OperationalError:
-            print("-Banco de dados já existe")
+            self.logger.info("Banco de dados de login já existe")
+
+        try:
+            database = sqlite3.connect('res/storage.db')
+            cursor = database.cursor()
+            cursor.execute('''
+                                 CREATE TABLE storage  (
+                                        id INTEGER PRIMARY KEY AUTOINCREMENT ,
+                                        name TEXT NOT NULL,
+                                        quantity INTEGER NOT NULL,
+                                        storage_id TEXT NOT NULL
+                                 );
+                            ''')
+            database.close()
+            self.logger.info("Banco de dados do armazém criado")
+
+        except sqlite3.OperationalError:
+            self.logger.info("Banco de dados do armazém já existe")
+
+        try:
+            database = sqlite3.connect('res/valid_storage.db')
+            cursor = database.cursor()
+            cursor.execute('''
+                                 CREATE TABLE valid_storage  (
+                                        id INTEGER PRIMARY KEY AUTOINCREMENT ,
+                                        name TEXT NOT NULL
+                                 );
+                            ''')
+            database.close()
+            self.logger.info("Banco de dados dos armazém validos criado")
+
+        except sqlite3.OperationalError:
+            self.logger.info("Banco de dados do armazém validos já existe")
 
     def insert_data (self, data_received):
 

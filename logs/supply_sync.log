@@ -1,0 +1,93 @@
+2025-01-30 21:42:23,669 - INFO - Banco de dados de login já existe
+2025-01-30 21:42:23,669 - INFO - Banco de dados do armazém já existe
+2025-01-30 21:42:23,671 - INFO - ---------SISTEMA INICIADO---------
+2025-01-30 21:42:23,680 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-01-30 21:42:23,680 - INFO - [33mPress CTRL+C to quit[0m
+2025-01-30 21:55:43,155 - INFO - Banco de dados de login já existe
+2025-01-30 21:55:43,159 - INFO - Banco de dados do armazém criado
+2025-01-30 21:55:43,161 - INFO - ---------SISTEMA INICIADO---------
+2025-01-30 21:55:43,172 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-01-30 21:55:43,172 - INFO - [33mPress CTRL+C to quit[0m
+2025-01-30 22:05:00,909 - INFO - Banco de dados de login já existe
+2025-01-30 22:05:00,909 - INFO - Banco de dados do armazém já existe
+2025-01-30 22:05:00,914 - INFO - Banco de dados dos armazém validos criado
+2025-01-30 22:05:00,916 - INFO - ---------SISTEMA INICIADO---------
+2025-01-30 22:05:00,925 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-01-30 22:05:00,926 - INFO - [33mPress CTRL+C to quit[0m
+2025-01-30 22:05:07,131 - INFO - Banco de dados de login já existe
+2025-01-30 22:05:07,131 - INFO - Banco de dados do armazém já existe
+2025-01-30 22:05:07,132 - INFO - Banco de dados do armazém validos já existe
+2025-01-30 22:05:07,133 - INFO - ---------SISTEMA INICIADO---------
+2025-01-30 22:05:07,142 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-01-30 22:05:07,143 - INFO - [33mPress CTRL+C to quit[0m
+2025-01-30 22:05:33,197 - INFO - Banco de dados de login já existe
+2025-01-30 22:05:33,201 - INFO - Banco de dados do armazém criado
+2025-01-30 22:05:33,205 - INFO - Banco de dados dos armazém validos criado
+2025-01-30 22:05:33,208 - INFO - ---------SISTEMA INICIADO---------
+2025-01-30 22:05:33,218 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-01-30 22:05:33,218 - INFO - [33mPress CTRL+C to quit[0m
+2025-01-30 22:06:38,642 - INFO - Banco de dados de login já existe
+2025-01-30 22:06:38,642 - INFO - Banco de dados do armazém já existe
+2025-01-30 22:06:38,643 - INFO - Banco de dados do armazém validos já existe
+2025-01-30 22:06:38,644 - INFO - ---------SISTEMA INICIADO---------
+2025-01-30 22:06:38,653 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-01-30 22:06:38,653 - INFO - [33mPress CTRL+C to quit[0m
+2025-01-30 22:34:06,247 - INFO - Banco de dados de login já existe
+2025-01-30 22:34:06,247 - INFO - Banco de dados do armazém já existe
+2025-01-30 22:34:06,248 - INFO - Banco de dados do armazém validos já existe
+2025-01-30 22:34:06,249 - INFO - ---------SISTEMA INICIADO---------
+2025-01-30 22:34:06,260 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-01-30 22:34:06,260 - INFO - [33mPress CTRL+C to quit[0m
+2025-01-30 22:34:21,429 - ERROR - Exception on /get_user/123teste123 [GET]
+Traceback (most recent call last):
+  File "C:\Users\nicol\PycharmProjects\SupplySync\venv\Lib\site-packages\flask\app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nicol\PycharmProjects\SupplySync\venv\Lib\site-packages\flask\app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nicol\PycharmProjects\SupplySync\venv\Lib\site-packages\flask\app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nicol\PycharmProjects\SupplySync\venv\Lib\site-packages\flask\app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: Requests.update_login() got an unexpected keyword argument 'username'
+2025-01-30 22:34:21,442 - INFO - 127.0.0.1 - - [30/Jan/2025 22:34:21] "[35m[1mGET /get_user/123teste123 HTTP/1.1[0m" 500 -
+2025-01-30 22:37:03,197 - INFO - Banco de dados de login já existe
+2025-01-30 22:37:03,197 - INFO - Banco de dados do armazém já existe
+2025-01-30 22:37:03,198 - INFO - Banco de dados do armazém validos já existe
+2025-01-30 22:37:03,199 - INFO - ---------SISTEMA INICIADO---------
+2025-01-30 22:37:03,210 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-01-30 22:37:03,210 - INFO - [33mPress CTRL+C to quit[0m
+2025-01-30 22:37:08,180 - ERROR - Exception on /get_user/123teste123 [GET]
+Traceback (most recent call last):
+  File "C:\Users\nicol\PycharmProjects\SupplySync\venv\Lib\site-packages\flask\app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nicol\PycharmProjects\SupplySync\venv\Lib\site-packages\flask\app.py", line 883, in full_dispatch_request
+    return self.finalize_request(rv)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nicol\PycharmProjects\SupplySync\venv\Lib\site-packages\flask\app.py", line 902, in finalize_request
+    response = self.make_response(rv)
+               ^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\nicol\PycharmProjects\SupplySync\venv\Lib\site-packages\flask\app.py", line 1174, in make_response
+    raise TypeError(
+TypeError: The view function for 'get_user' did not return a valid response. The function either returned None or ended without a return statement.
+2025-01-30 22:37:08,181 - INFO - 127.0.0.1 - - [30/Jan/2025 22:37:08] "[35m[1mGET /get_user/123teste123 HTTP/1.1[0m" 500 -
+2025-01-30 22:37:57,391 - INFO - Banco de dados de login já existe
+2025-01-30 22:37:57,392 - INFO - Banco de dados do armazém já existe
+2025-01-30 22:37:57,392 - INFO - Banco de dados do armazém validos já existe
+2025-01-30 22:37:57,394 - INFO - ---------SISTEMA INICIADO---------
+2025-01-30 22:37:57,403 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on http://127.0.0.1:5000
+2025-01-30 22:37:57,403 - INFO - [33mPress CTRL+C to quit[0m
+2025-01-30 22:38:02,210 - INFO - 127.0.0.1 - - [30/Jan/2025 22:38:02] "GET /get_user/123teste123 HTTP/1.1" 200 -
