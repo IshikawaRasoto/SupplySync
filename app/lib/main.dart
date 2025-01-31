@@ -1,16 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:supplysync/user_actions/presentation/blocs/user_actions_bloc.dart';
 
-import 'constants/constants.dart';
-import 'repository/data_storage.dart';
+import 'auth/presentation/blocs/auth_bloc.dart';
+import 'core/constants/constants.dart';
+import 'core/theme/theme.dart';
+import 'init_dependencies_imports.dart';
+import 'core/common/cubit/user/user_cubit.dart';
 import 'routes.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  DataStorage().init();
+  await InitDependencies.init();
   runApp(
-    MultiProvider(
-      providers: [ChangeNotifierProvider.value(value: RouterMain.user)],
+    MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => serviceLocator<UserCubit>()),
+        BlocProvider(create: (_) => serviceLocator<AuthBloc>()),
+        BlocProvider(create: (_) => serviceLocator<UserActionsBloc>()),
+      ],
       child: const MyApp(),
     ),
   );
@@ -24,35 +32,7 @@ class MyApp extends StatelessWidget {
       routerConfig: RouterMain.router,
       debugShowCheckedModeBanner: false,
       title: MainConstants.appName,
-      theme: ThemeData(
-        useMaterial3: true,
-        scaffoldBackgroundColor: AppColors.primary,
-        cardColor: AppColors.button,
-        appBarTheme: AppBarTheme(
-          backgroundColor: AppColors.primary,
-          titleTextStyle: const TextStyle(
-            color: AppColors.text,
-            fontSize: 20,
-          ),
-          toolbarHeight: 50,
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.button,
-            foregroundColor: AppColors.buttonText,
-            elevation: 0,
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8.0),
-            ),
-          ),
-        ),
-        textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(
-            foregroundColor: AppColors.text,
-          ),
-        ),
-      ),
+      theme: AppTheme.theme,
     );
   }
 }

@@ -1,6 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../constants/constants.dart';
+import '../core/constants/constants.dart';
 
 class DataStorage {
   static final DataStorage _instance = DataStorage._();

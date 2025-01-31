@@ -1,29 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supplysync/helper/ui_helper.dart';
+import 'package:supplysync/core/helper/ui_helper.dart';
 
-import 'models/user.dart';
-import 'screen/change_profile_screen.dart';
+import 'auth/presentation/blocs/auth_bloc.dart';
+import 'core/common/cubit/user/user_cubit.dart';
+import 'user_actions/presentation/screen/change_profile_screen.dart';
 import 'screen/home_screen.dart';
-import 'screen/login_screen.dart';
+import 'auth/presentation/screen/login_screen.dart';
 import 'screen/register_user_screen.dart';
 import 'screen/warehouses_detais_screen.dart';
 import 'screen/warehouses_screen.dart';
 
 class RouterMain {
-  static final User _user = User();
-
-  static User get user => _user;
-
   static final GoRouter router = GoRouter(
     initialLocation: '/',
     redirect: (context, state) async {
-      // Redireciona para o login se o usuário não estiver autenticado e tentar acessar rotas protegidas
-      final loggedIn = await _user.checkIfUserIsLoggedIn();
-      final loggingIn = state.matchedLocation == '/';
-
-      if (!loggedIn && !loggingIn) return '/';
-
+      final isLoggedIn = context.read<UserCubit>().state is AuthSuccess;
+      final isLoggingIn = state.path == '/';
+      if (!isLoggedIn && !isLoggingIn) {
+        return '/';
+      }
       return null;
     },
     routes: [
@@ -37,12 +34,18 @@ class RouterMain {
           GoRoute(
             path: '/home',
             name: 'home',
-            onExit: (context, state) async =>
-                await UIHelper.showDialogConfirmation(context,
-                    title: 'Sair',
-                    message: 'Deseja realmente sair?',
-                    onConfirm: () => _user.clear()) ??
-                false,
+            onExit: (context, state) async {
+              final confirmed = await UIHelper.showDialogConfirmation(
+                context,
+                title: 'Sair',
+                message: 'Deseja realmente sair?',
+              );
+              if (confirmed ?? false) {
+                if (context.mounted) context.read<AuthBloc>().add(AuthLogout());
+                return true;
+              }
+              return false;
+            },
             builder: (context, state) {
               return HomeScreen();
             },

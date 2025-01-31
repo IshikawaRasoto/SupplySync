@@ -1,6 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../constants/constants.dart';
+import '../core/constants/constants.dart';
 
 class SecureDataStorage {
   static final SecureDataStorage _instance = SecureDataStorage._();

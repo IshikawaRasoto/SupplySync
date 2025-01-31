@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:responsive_builder/responsive_builder.dart';
-import 'package:supplysync/helper/ui_helper.dart';
+import 'package:supplysync/core/helper/ui_helper.dart';
 
-import '../constants/constants.dart';
-import '../helper/permission_helper.dart';
-import '../models/user.dart';
-import 'widgets/logo_and_help_widget.dart';
+import '../core/constants/constants.dart';
+import '../core/utils/permission_utils.dart';
+import '../core/common/entities/user.dart';
+import '../core/common/widgets/logo_and_help_widget.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,7 +19,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    _user = Provider.of<User>(context, listen: false);
     super.initState();
   }
 

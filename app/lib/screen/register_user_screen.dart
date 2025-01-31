@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supplysync/constants/constants.dart';
+import 'package:supplysync/core/constants/constants.dart';
 
-import '../api/api_service.dart';
-import '../helper/ui_helper.dart';
-import '../models/user.dart';
-import 'widgets/logo_and_help_widget.dart';
-import 'widgets/settings_app_popup.dart';
+import '../core/api/api_service.dart';
+import '../core/helper/ui_helper.dart';
+import '../core/common/entities/user.dart';
+import '../core/common/widgets/logo_and_help_widget.dart';
+import '../auth/presentation/screen/widget/settings_app_popup.dart';
 
 class RegisterUserScreen extends StatefulWidget {
   const RegisterUserScreen({super.key});
