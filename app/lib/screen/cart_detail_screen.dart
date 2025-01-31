@@ -1,14 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:responsive_builder/responsive_builder.dart';
-import 'package:supplysync/helper/ui_helper.dart';
 
-import '../constants/constants.dart';
-import '../helper/permission_helper.dart';
 import '../models/user.dart';
-import 'widgets/logo_and_help_widget.dart';
-import 'widgets/bar_widget.dart';
 
 class CartDetailScreen extends StatefulWidget {
 	final String cartId;
@@ -27,21 +20,93 @@ class _CartDetailScreen extends State<CartDetailScreen> {
     super.initState();
   }
 
-  @override
+	@override
 	Widget build(BuildContext context) {
 		return Scaffold(
+			appBar: AppBar(
+				title: Text("Cart #${widget.cartId}"),
+			),
 			body: SafeArea(
 				minimum: const EdgeInsets.only(top: 10),
-				child: Column(
+				child: Padding(
+					padding: const EdgeInsets.all(16.0),
+					child: Column(
+						crossAxisAlignment: CrossAxisAlignment.stretch,
+						children: [
+							_buildInfoCard("Cart #${widget.cartId}", isTitle: true),
+							const SizedBox(height: 20),
+							_buildInfoCard("Bateria: 35%", icon: Icons.battery_std),
+							_buildInfoCard("Destino: Doca 3", icon: Icons.flag),
+							_buildInfoCard("Carga: Vazia", icon: Icons.local_shipping),
+							_buildInfoCard("Atendimento: 5964", icon: Icons.confirmation_number),
+							const Spacer(),
+
+							ElevatedButton(
+								onPressed: () => _showConfirmationDialog("Enviar para Manutenção?"),
+								style: _redButtonStyle(context),
+								child: const Text("Enviar para Manutenção"),
+							),
+							const SizedBox(height: 10),
+							ElevatedButton(
+								onPressed: () => _showConfirmationDialog("Forçar Desligamento?"),
+								style: _redButtonStyle(context),
+								child: const Text("Forçar Desligamento"),
+							),
+						],
+					),
+				),
+			),
+		);
+	}
+
+	Widget _buildInfoCard(String text, {IconData? icon, bool isTitle = false}) {
+		return Card(
+			child: Padding(
+				padding: const EdgeInsets.all(12.0),
+				child: Row(
 					children: [
-						Center(
-							child: Text(
-								"Cart #1",
-								style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-							)
-						)
+						if (icon != null) Icon(icon, size: isTitle ? 30 : 24),
+						if (icon != null) const SizedBox(width: 10),
+						Text(
+							text,
+							style: TextStyle(
+								fontSize: isTitle ? 22 : 18,
+								fontWeight: isTitle ? FontWeight.bold : FontWeight.normal,
+							),
+						),
 					],
 				),
+			),
+		);
+	}
+
+	ButtonStyle _redButtonStyle(BuildContext context) {
+		return ElevatedButton.styleFrom(
+			backgroundColor: Colors.red[800],
+			foregroundColor: Colors.white,
+			padding: const EdgeInsets.symmetric(vertical: 16),
+		);
+	}
+
+	void _showConfirmationDialog(String message) {
+		showDialog(
+			context: context,
+			builder: (context) => AlertDialog(
+				title: const Text("Confirmação"),
+				content: Text(message),
+				actions: [
+					TextButton(
+						onPressed: () => Navigator.pop(context),
+						child: const Text("Cancelar"),
+					),
+					TextButton(
+						onPressed: () {
+							// Add your action here
+							Navigator.pop(context);
+						},
+						child: const Text("Confirmar"),
+					),
+				],
 			),
 		);
 	}
