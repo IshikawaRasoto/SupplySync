@@ -1,24 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logger/logger.dart';
 import 'package:supplysync/core/helper/ui_helper.dart';
 
-import 'auth/presentation/blocs/auth_bloc.dart';
+import 'features/auth/presentation/blocs/auth_bloc.dart';
 import 'core/common/cubit/user/user_cubit.dart';
-import 'user_actions/presentation/screen/change_profile_screen.dart';
-import 'screen/home_screen.dart';
-import 'auth/presentation/screen/login_screen.dart';
-import 'screen/register_user_screen.dart';
+import 'features/user_actions/presentation/screen/change_profile_screen.dart';
+import 'core/screen/home_screen.dart';
+import 'features/auth/presentation/screen/login_screen.dart';
+import 'features/user_actions/presentation/screen/register_user_screen.dart';
 import 'screen/warehouses_detais_screen.dart';
 import 'screen/warehouses_screen.dart';
 
 class RouterMain {
+  static final Logger _logger = Logger();
   static final GoRouter router = GoRouter(
     initialLocation: '/',
     redirect: (context, state) async {
-      final isLoggedIn = context.read<UserCubit>().state is AuthSuccess;
+      final isLoggedIn = context.read<UserCubit>().state is UserLoggedIn;
       final isLoggingIn = state.path == '/';
       if (!isLoggedIn && !isLoggingIn) {
+        _logger.i('No user logged in, redirecting to login');
         return '/';
       }
       return null;
@@ -77,15 +80,13 @@ class RouterMain {
                 builder: (context, state) {
                   return Container();
                 },
-                routes: [
-                  GoRoute(
-                    path: '/registeruser',
-                    name: 'registerUser',
-                    builder: (context, state) {
-                      return RegisterUserScreen();
-                    },
-                  ),
-                ],
+              ),
+              GoRoute(
+                path: '/newworker',
+                name: 'newworker',
+                builder: (context, state) {
+                  return RegisterUserScreen();
+                },
               ),
               GoRoute(
                 path: '/warehouses',

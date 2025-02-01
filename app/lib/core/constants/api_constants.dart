@@ -1,14 +1,12 @@
-// ignore_for_file: constant_identifier_names
-
 class ApiConstants {
-  static const String baseUrl = '';
+  static const String baseUrl = 'http://192.168.15.21:5000';
 }
 
 enum ApiEndpoints {
   login,
-  create_login,
-  update_login,
-  get_user,
+  createLogin,
+  updateLogin,
+  getUser,
   logout,
   warehouse,
   warehouseProducts,
@@ -20,6 +18,12 @@ extension ApiEndpointsExtension on ApiEndpoints {
     switch (this) {
       case ApiEndpoints.warehouseProducts:
         return 'warehouses/{warehouseId}/products';
+      case ApiEndpoints.createLogin:
+        return 'create_login';
+      case ApiEndpoints.updateLogin:
+        return 'update_login';
+      case ApiEndpoints.getUser:
+        return 'get_user';
       default:
         return name;
     }

@@ -11,7 +11,7 @@ void showSnackBar(
     ..showSnackBar(
       SnackBar(
         content: Text(message),
-        duration: duration,
+        duration: isError ? const Duration(seconds: 8) : duration,
         backgroundColor: isError ? Colors.red : null,
       ),
     );

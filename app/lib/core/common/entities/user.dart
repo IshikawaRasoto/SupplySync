@@ -16,30 +16,28 @@ class User {
     required this.name,
     required this.jwtToken,
     required this.roles,
-  }) {
-    if (!roles.contains(UserRoles.user)) {
-      roles.add(UserRoles.user);
-    }
-  }
+  });
 
   factory User.fromJson(Map<String, dynamic> json) {
-    final rolesJson = (json['roles'] as List<dynamic>).cast<String>();
-    rolesJson.removeWhere(
-        (element) => !UserRoles.values.any((e) => e.name == element));
-    rolesJson.contains(UserRoles.user.name)
-        ? null
-        : rolesJson.add(UserRoles.user.name);
+    // final rolesJson = (json['roles'] as List<dynamic>).cast<String>();
+    // rolesJson.removeWhere(
+    //     (element) => !UserRoles.values.any((e) => e.name == element));
+    final List<UserRoles> rolesJson = [
+      UserRoles.values
+          .firstWhere((element) => element.name == json['roles'].toString())
+    ];
     return User(
-      userName: json['username'],
-      email: json['email'],
-      password: json['password'],
-      name: json['name'],
-      jwtToken: json['jwtToken'],
-      roles: rolesJson
-          .map((e) =>
-              UserRoles.values.firstWhere((element) => element.name == e))
-          .toList(),
-    );
+        userName: json['username'].toString(),
+        email: json['email'].toString(),
+        password: json['password'].toString(),
+        name: json['name'].toString(),
+        jwtToken: json['jwt_token'].toString(),
+        roles: rolesJson
+        // roles: rolesJson
+        //     .map((e) =>
+        //         UserRoles.values.firstWhere((element) => element.name == e))
+        //     .toList(),
+        );
   }
 
   Map<String, dynamic> toJson() {
@@ -48,8 +46,8 @@ class User {
       'email': email,
       'password': password,
       'name': name,
-      'jwtToken': jwtToken,
-      'roles': roles.map((e) => e.name).toList(),
+      'jwt_token': jwtToken,
+      'roles': roles.map((e) => e.name).toList()
     };
   }
 }
