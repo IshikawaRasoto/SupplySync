@@ -1,0 +1,20 @@
+logs/supply_sync.log
+# Pasta de ambiente virtual (não deve ser versionada)
+venv/
+# Arquivos de log (logs geralmente são gerados dinamicamente e não precisam ser versionados)
+*.log
+# Arquivos de cache do Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Configurações do PyCharm (se estiver usando)
+.idea/
+
+# Arquivos de banco de dados locais (caso use SQLite ou MySQL temporário)
+*.sqlite3
+*.db
+
+# Arquivos temporários do sistema
+.DS_Store
+Thumbs.db

@@ -1,9 +1,0 @@
-2025-02-02 15:55:14,997 - INFO - Banco de dados de login criado
-2025-02-02 15:55:15,001 - INFO - Banco de dados do armazem criado
-2025-02-02 15:55:15,004 - INFO - Banco de dados dos armazem validos criado
-2025-02-02 15:55:15,006 - INFO - ---------SISTEMA INICIADO---------
-2025-02-02 15:55:15,016 - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
- * Running on all addresses (0.0.0.0)
- * Running on http://127.0.0.1:5000
- * Running on http://192.168.1.5:5000
-2025-02-02 15:55:15,017 - INFO - [33mPress CTRL+C to quit[0m
