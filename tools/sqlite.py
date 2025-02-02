@@ -35,7 +35,7 @@ class SqliteConfig:
             self.logger.info("Banco de dados de login criado")
 
         except sqlite3.OperationalError:
-            self.logger.info("Banco de dados de login já existe")
+            self.logger.info("Banco de dados de login ja existe")
 
         try:
             database = sqlite3.connect('res/storage.db')
@@ -49,10 +49,10 @@ class SqliteConfig:
                                  );
                             ''')
             database.close()
-            self.logger.info("Banco de dados do armazém criado")
+            self.logger.info("Banco de dados do armazem criado")
 
         except sqlite3.OperationalError:
-            self.logger.info("Banco de dados do armazém já existe")
+            self.logger.info("Banco de dados do armazem ja existe")
 
         try:
             database = sqlite3.connect('res/valid_storage.db')
@@ -64,12 +64,12 @@ class SqliteConfig:
                                  );
                             ''')
             database.close()
-            self.logger.info("Banco de dados dos armazém validos criado")
+            self.logger.info("Banco de dados dos armazem validos criado")
 
         except sqlite3.OperationalError:
-            self.logger.info("Banco de dados do armazém validos já existe")
+            self.logger.info("Banco de dados do armazem validos ja existe")
 
-    def insert_data (self, data_received):
+    def insert_data(self, data_received):
 
         try:
             database = sqlite3.connect('res/login_data.db')
@@ -77,7 +77,9 @@ class SqliteConfig:
 
             cursor.execute('''
                     INSERT INTO login_data (username, password, email, name, roles) VALUES (?, ?, ?, ?, ?)
-                ''', (data_received['username'], data_received['password'], data_received['email'], data_received['name'], data_received['roles']))
+                ''', (
+            data_received['username'], data_received['password'], data_received['email'], data_received['name'],
+            data_received['roles']))
 
             database.commit()
             database.close()
@@ -95,7 +97,7 @@ class SqliteConfig:
         cursor.execute('''
                             SELECT * FROM login_data WHERE username = ? and password = ?
                         ''', (
-        data_received['username'], data_received['password']))
+            data_received['username'], data_received['password']))
         result = cursor.fetchone()
         if result:
             print("Login e senha validos.")
@@ -105,7 +107,7 @@ class SqliteConfig:
             return 0
         database.close()
 
-    def positive_login_response (self, data_received):
+    def positive_login_response(self, data_received):
         database = sqlite3.connect('res/login_data.db')
         cursor = database.cursor()
         cursor.execute('''
@@ -116,7 +118,7 @@ class SqliteConfig:
         database.close()
         return result
 
-    def update_login_data (self, data_received):
+    def update_login_data(self, data_received):
 
         database = sqlite3.connect('res/login_data.db')
         cursor = database.cursor()
@@ -135,7 +137,8 @@ class SqliteConfig:
 
             if result[0] == data_received["password"]:
                 cursor.execute('''UPDATE login_data SET password = ? WHERE username = ?
-                                                           ''', (data_received['new_password'], data_received['username'],))
+                                                           ''',
+                               (data_received['new_password'], data_received['username'],))
                 database.commit()
 
                 cursor.execute('''SELECT password FROM login_data WHERE username = ?
@@ -168,7 +171,6 @@ class SqliteConfig:
 
             else:
                 print("Novo email cadastrado com sucesso")
-
 
         if "name" in data_received:
             cursor.execute('''UPDATE login_data SET name = ? WHERE username = ?
@@ -206,6 +208,38 @@ class SqliteConfig:
                     print("Nova função cadastrada com sucesso")
 
             else:
-                print ("O usuário não tem permissão para alterar a função")
+                print("O usuário não tem permissão para alterar a função")
 
         database.close()
+
+    def get_username_role(self, username_received):
+        database = sqlite3.connect('res/login_data.db')
+        cursor = database.cursor()
+        cursor.execute('''
+                            SELECT roles FROM login_data WHERE username = ? ''', (
+            username_received,))
+        result = cursor.fetchone()
+        database.close()
+        if result:
+            return result[0]
+
+        else:
+            return "error"
+
+    def get_user_data(self, username_received):
+        if self.get_username_role(username_received) != "admin":
+            return "not_admin"
+
+        database = sqlite3.connect('res/login_data.db')
+        cursor = database.cursor()
+        cursor.execute('''
+                            SELECT username, email, name, roles FROM login_data WHERE username = ? ''', (
+            username_received,))
+        result = cursor.fetchone()
+
+        if result:
+            return result
+
+        else:
+            return "error"
+

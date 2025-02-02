@@ -16,12 +16,10 @@ def main():
     mqtt_obj.start()
 
     request_obj = request.Requests()
-    request_obj.app.run()
+    request_obj.app.run(host="0.0.0.0", port=5000)
 
     mqtt_obj.join()
-    print("o código continua funfando")
+    print("o cÃ³digo continua funfando")
 
 if __name__ == '__main__':
     main()
-
-
