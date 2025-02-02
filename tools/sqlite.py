@@ -227,9 +227,6 @@ class SqliteConfig:
             return "error"
 
     def get_user_data(self, username_received):
-        if self.get_username_role(username_received) != "admin":
-            return "not_admin"
-
         database = sqlite3.connect('res/login_data.db')
         cursor = database.cursor()
         cursor.execute('''

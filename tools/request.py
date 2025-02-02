@@ -25,6 +25,7 @@ class Requests:
         self.app.add_url_rule('/create_login', view_func=self.create_login, methods=['POST'])
         self.app.add_url_rule('/update_login', view_func=self.update_login, methods=['PUT'])
         self.app.add_url_rule('/get_user/<username>', view_func=self.get_user, methods=['GET'])
+        self.app.add_url_rule('/get_myself', view_func=self.get_myself, methods=['GET'])
 
     def verify_jwt_token(self, token):
         self.clear_token()
@@ -32,7 +33,7 @@ class Requests:
             token_in_list = list(item.keys())[0]
             print("TOKEN IN LIST: " + token_in_list)
             print("TOKEN IN RECEIVED: " + token)
-            if token_in_list == token:
+            if "Bearer " + token_in_list == token:
                 print("TOKENS IGUAIS")
                 return True
         print("TOKENS DIFF")
@@ -63,7 +64,7 @@ class Requests:
             print("DATA dentro de UPDATE LOGIN: " + str(data))
             if not self.verify_jwt_token(data['Authorization']):
                 response = jsonify({'status': "Usuário não autorizado"})
-                return response
+                raise exceptions.HttpError(400, "JWT TOKEN inválido", "JWT TOKEN inválido")
 
             data = request.get_json()
             print("DATA dentro de UPDATE LOGIN (BODY): " + str(data))
@@ -72,11 +73,12 @@ class Requests:
 
             return response, 200
 
-        except:
+        except Exception as error:
+            self.logger.error(type(error))
+            self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
+            self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
+            self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
             ex = exceptions.HttpError(401, "Erro ao alterar cadastro", "Erro ao alterar cadastro")
-            print(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
-            print(f"Error File: {error.__traceback__.tb_frame}")
-            print(f"Error Line: {error.__traceback__.tb_lineno}")
             return ex.to_json(), ex.error_json['error']['code']
 
     def verify_login(self):
@@ -95,7 +97,7 @@ class Requests:
 
                 simbols = string.ascii_letters + string.digits + string.punctuation
                 token = ''.join(secrets.choice(simbols) for _ in range(12))
-                self.app.config['jwt_token'] = token
+                self.app.config['jwt_token'] =token
                 secret_key = self.app.config['jwt_token']
 
                 result = self.db.positive_login_response(data)
@@ -119,28 +121,36 @@ class Requests:
 
 
         except Exception as error:
+            self.logger.error(type(error))
+            self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
+            self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
+            self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
             ex = exceptions.HttpError(401, "Dados invalidos", "Erro generico")
-            print(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
-            print(f"Error File: {error.__traceback__.tb_frame}")
-            print(f"Error Line: {error.__traceback__.tb_lineno}")
             return ex.to_json(), ex.error_json['error']['code']
 
     def create_login(self):
-
         try:
+            data = request.headers
+            if not self.verify_jwt_token(data['Authorization']):
+                raise exceptions.HttpError(400, "JWT TOKEN inválido", "JWT TOKEN inválido")
+            
+            if self.get_roles_by_jwt_token(data['Authorization']) != "admin":
+                raise exceptions.HttpError(400, "Usuário não é admin", "Usuário não é admin")
+
             data = request.get_json()
             self.db.insert_data(data)
             response = jsonify({'status': "Login Criado"})
-            return response, 201  # Retornando uma string e um código de status
+            return response, 200  
 
         except exceptions.HttpError as error:
             return error.to_json(), error.error_json['error']['code']
 
         except Exception as error:
+            self.logger.error(type(error))
+            self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
+            self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
+            self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
             ex = exceptions.HttpError(401, "Dados invalidos", "Faltaram dados")
-            print(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
-            print(f"Error File: {error.__traceback__.tb_frame}")
-            print(f"Error Line: {error.__traceback__.tb_lineno}")
             return ex.to_json(), ex.error_json['error']['code']
 
     def get_user(self, username):
@@ -149,28 +159,70 @@ class Requests:
             data = request.headers
             print("GETUSER DATA HEADER: " + str(data))
             if self.verify_jwt_token(data['Authorization']) == False:
-                ex = exceptions.HttpError(401, "Usuário não autorizado", "Usuário não autorizado")
-                return ex.to_json(), ex.error_json['error']['code']
+                raise exceptions.HttpError(401, "Usuário não autorizado", "Usuário não autorizado")
+            
+            if self.get_roles_by_jwt_token(data['Authorization']) != "admin":
+                raise exceptions.HttpError(400, "Usuário não é admin", "Usuário não é admin")
 
             result = self.db.get_user_data(username)
 
-            if result == "not_admin":
-                ex = exceptions.HttpError(401, "Usuario não é admin", "Não é admin")
-                return ex.to_json(), ex.error_json['error']['code']
+            if result == "error":
+                raise exceptions.HttpError(400, "Usuário não encontrado", "Usuário não encontrado")
 
-            elif result == "error":
-                ex = exceptions.HttpError(401, "Usuário não encontrado", "Usuário não encontrado")
-                return ex.to_json(), ex.error_json['error']['code']
+            result_final = jsonify(
+                {'username': result[0], 'email': result[1], 'name': result[2], 'roles': result[3]})
+            return result_final, 200
 
-            else:
-                result_final = jsonify(
-                    {'username': result[0], 'email': result[1], 'name': result[2], 'roles': result[3]})
-                return result_final, 200
-
+        except exceptions.HttpError as error:
+            return error.to_json(), error.error_json['error']['code']
+        
         except Exception as error:
-            self.logger.info(error)
-            ex = exceptions.HttpError(401, "ERRO", "Usuário não autorizado")
+            self.logger.error(type(error))
+            self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
+            self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
+            self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
+            ex = exceptions.HttpError(401, "ERRO", "Verificar log do servidor para detalhes")
             return ex.to_json(), ex.error_json['error']['code']
 
-        print("Username recebido " + username)
-        return "Ok", 200
+    def get_roles_by_jwt_token(self, token):
+        self.clear_token()
+        for item in active_tokens:
+            token_in_list = list(item.keys())[0]
+            if "Bearer " + token_in_list == token:
+                data = item[token_in_list]
+                print("Dado retornado na func get_role: "+data[1])
+                return data[1]
+        return "not_found"
+    
+
+    def get_myself(self):
+        self.verify_jwt_token
+        try:
+            data = request.headers
+            print("GETUSER DATA HEADER: " + str(data))
+            if self.verify_jwt_token(data['Authorization']) == False:
+                raise exceptions.HttpError(401, "Usuário não autorizado", "Usuário não autorizado")
+            
+            for item in active_tokens:
+                token_in_list = list(item.keys())[0]
+                if "Bearer " + token_in_list == data['Authorization']:
+                    data = item[token_in_list]
+                    result = self.db.get_user_data(data[0])
+
+                    if result == "error":  
+                        raise exceptions.HttpError(401, "Usuário não encontrado", "Usuário não encontrado")
+                        
+                    result_final = jsonify(
+                        {'username': result[0], 'email': result[1], 'name': result[2], 'roles': result[3]})  
+                    return result_final, 200
+        
+        except exceptions.HttpError as error:
+            return error.to_json(), error.error_json['error']['code']
+
+        except Exception as error:
+            self.logger.error(type(error))
+            self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
+            self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
+            self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
+            ex = exceptions.HttpError(401, "ERRO", "Verificar log do servidor para detalhes")
+            return ex.to_json(), ex.error_json['error']['code']
