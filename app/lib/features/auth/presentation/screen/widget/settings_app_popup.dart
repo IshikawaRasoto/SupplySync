@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supplysync/core/data/data_storage.dart';
+import 'package:supplysync/core/utils/show_snackbar.dart';
 
-import '../../../../../core/constants/api_constants.dart';
-import '../../../../../core/constants/constants.dart';
+import '../../../../../core/common/cubit/settings/settings_cubit.dart';
 
 class SettingsAppPopup extends StatefulWidget {
   const SettingsAppPopup({
@@ -15,32 +15,13 @@ class SettingsAppPopup extends StatefulWidget {
 }
 
 class _SettingsAppPopupState extends State<SettingsAppPopup> {
-  final DataStorage _dataStorage = DataStorage();
-
+  late SettingsCubit settingsCubit;
   final _serverUrlController = TextEditingController();
   final _nameCompanyController = TextEditingController();
-  bool _savedPassword = false;
-
-  void _saveChanges() {
-    _dataStorage.writeData(DataKeys.apiUrl, _serverUrlController.text);
-    _dataStorage.writeData(DataKeys.companyName, _nameCompanyController.text);
-    _dataStorage.writeBool(DataKeys.savePassword, _savedPassword);
-  }
 
   @override
   void initState() {
-    _dataStorage.readData(DataKeys.apiUrl).then((value) {
-      _serverUrlController.text = value ?? ApiConstants.baseUrl;
-      if (mounted) setState(() {});
-    });
-    _dataStorage.readData(DataKeys.companyName).then((value) {
-      _nameCompanyController.text = value ?? MainConstants.companyName;
-      if (mounted) setState(() {});
-    });
-    _dataStorage.readBool(DataKeys.savePassword).then((value) {
-      _savedPassword = value ?? false;
-      if (mounted) setState(() {});
-    });
+    settingsCubit = context.read<SettingsCubit>()..loadSettings();
     super.initState();
   }
 
@@ -68,7 +49,10 @@ class _SettingsAppPopupState extends State<SettingsAppPopup> {
               margin: EdgeInsets.all(12),
               child: TextButton(
                 onPressed: () {
-                  _saveChanges();
+                  settingsCubit.saveSettings(
+                    companyName: _nameCompanyController.text,
+                    apiUrl: _serverUrlController.text,
+                  );
                   context.pop();
                 },
                 child: const Text(
@@ -79,67 +63,64 @@ class _SettingsAppPopupState extends State<SettingsAppPopup> {
             ),
           ],
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _nameCompanyController,
-                cursorColor: Colors.black,
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Campo necessário' : null,
-                decoration: InputDecoration(
-                  labelText: 'Nome da Empresa',
-                  labelStyle:
-                      TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-                  hintText: 'Digite o nome da empresa',
-                  border: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Colors.black,
-                      width: 1.0,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              TextFormField(
-                controller: _serverUrlController,
-                cursorColor: Colors.black,
-                validator: (value) =>
-                    value == null || value.isEmpty ? 'Campo necessário' : null,
-                decoration: InputDecoration(
-                  labelText: 'URL do Servidor',
-                  hintText: 'Digite a URL do servidor',
-                  border: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Colors.black,
-                      width: 1.0,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
+        body: BlocConsumer<SettingsCubit, SettingsState>(
+          listener: (context, state) {
+            if (state is SettingsSaved) {
+              showSnackBar(
+                context,
+                message: 'Configurações salvas com sucesso',
+              );
+            } else if (state is SettingsLoaded) {
+              _serverUrlController.text = state.apiUrl;
+              _nameCompanyController.text = state.companyName ?? 'Supply Sync';
+            }
+          },
+          builder: (context, state) {
+            return Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
                 children: [
-                  Text(
-                    'Salvar senha',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                  TextFormField(
+                    controller: _nameCompanyController,
+                    cursorColor: Colors.black,
+                    validator: (value) => value == null || value.isEmpty
+                        ? 'Campo necessário'
+                        : null,
+                    decoration: InputDecoration(
+                      labelText: 'Nome da Empresa',
+                      labelStyle:
+                          TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                      hintText: 'Digite o nome da empresa',
+                      border: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
                     ),
                   ),
-                  Switch(
-                    value: _savedPassword,
-                    onChanged: (value) {
-                      setState(() {
-                        _savedPassword = value;
-                      });
-                    },
+                  const SizedBox(height: 8),
+                  TextFormField(
+                    controller: _serverUrlController,
+                    cursorColor: Colors.black,
+                    validator: (value) => value == null || value.isEmpty
+                        ? 'Campo necessário'
+                        : null,
+                    decoration: InputDecoration(
+                      labelText: 'URL do Servidor',
+                      hintText: 'Digite a URL do servidor',
+                      border: UnderlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.black,
+                          width: 1.0,
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );

@@ -9,8 +9,6 @@ class AuthConstants {
   static const int minPasswordLength = 6;
 }
 
-enum SecureDataKeys { userName, password }
-
 enum DataKeys { apiUrl, companyName, savePassword }
 
 enum UserRoles {
@@ -83,7 +81,7 @@ extension AppServicesExtension on AppServices {
       case AppServices.fetchWorkers:
         return '/home/workers';
       case AppServices.newWorker:
-        return '/home/newworker';
+        return '/home/registeruser';
       default:
         return '';
     }

@@ -5,27 +5,63 @@ import 'package:logger/logger.dart';
 import 'package:http/http.dart' as http;
 
 import '../constants/api_constants.dart';
+import '../domain/repositories/config_repository.dart';
 import '../error/server_exception.dart';
 
-class ApiService {
-  static final _logger = Logger();
-  static final ApiService _instance = ApiService._();
+abstract interface class ApiService {
+  Future<Map<String, dynamic>> fetchData({
+    required ApiEndpoints endPoint,
+    required String jwtToken,
+    Map<String, String>? header,
+    Map<String, String>? pathParams,
+  });
 
-  ApiService._();
-  factory ApiService() {
-    return _instance;
+  Future<Map<String, dynamic>> postData({
+    required ApiEndpoints endPoint,
+    String? jwtToken,
+    Map<String, dynamic>? body,
+    Map<String, String>? header,
+    Map<String, String>? pathParams,
+  });
+
+  Future<bool> updateData({
+    required ApiEndpoints endPoint,
+    required String jwtToken,
+    required Map<String, dynamic> body,
+    Map<String, String>? header,
+    Map<String, String>? pathParams,
+  });
+
+  Future<void> deleteData({
+    required ApiEndpoints endPoint,
+    required String jwtToken,
+    required String id,
+    Map<String, String>? header,
+    Map<String, String>? pathParams,
+  });
+}
+
+class ApiServiceImpl implements ApiService {
+  static final _logger = Logger();
+  final ConfigRepository _configRepository;
+
+  ApiServiceImpl(this._configRepository);
+
+  Future<String> _getBaseUrl() async {
+    return await _configRepository.getApiUrl();
   }
 
+  @override
   Future<Map<String, dynamic>> fetchData(
       {required ApiEndpoints endPoint,
       required String jwtToken,
       Map<String, String>? header,
       Map<String, String>? pathParams}) async {
     try {
-      final uri = Uri.parse(
-          '${ApiConstants.baseUrl}/${_buildPath(endPoint, pathParams)}');
+      final baseUrl = await _getBaseUrl();
+      final uri = Uri.parse('$baseUrl/${_buildPath(endPoint, pathParams)}');
       final Map<String, String> headers = {
-        'Authorization': jwtToken,
+        'Authorization': 'Bearer $jwtToken',
         'Accept': 'application/json',
         ...?header,
       };
@@ -33,7 +69,7 @@ class ApiService {
           path: uri.toString(), header: headers.toString(), body: '');
       final response = await http.get(uri, headers: headers);
       _statusHandler(response);
-      return jsonDecode(response.body) as Map<String, String>;
+      return jsonDecode(response.body) as Map<String, dynamic>;
     } on ServerException {
       rethrow;
     } catch (e) {
@@ -42,6 +78,7 @@ class ApiService {
     }
   }
 
+  @override
   Future<Map<String, dynamic>> postData(
       {required ApiEndpoints endPoint,
       String? jwtToken,
@@ -49,10 +86,10 @@ class ApiService {
       Map<String, String>? header,
       Map<String, String>? pathParams}) async {
     try {
-      final uri = Uri.parse(
-          '${ApiConstants.baseUrl}/${_buildPath(endPoint, pathParams)}');
+      final baseUrl = await _getBaseUrl();
+      final uri = Uri.parse('$baseUrl/${_buildPath(endPoint, pathParams)}');
       final Map<String, String> headers = {
-        if (jwtToken != null) 'Authorization': jwtToken,
+        if (jwtToken != null) 'Authorization': 'Bearer $jwtToken',
         'Content-Type': 'application/json',
         'Accept': 'application/json',
         ...?header,
@@ -73,6 +110,7 @@ class ApiService {
     }
   }
 
+  @override
   Future<bool> updateData(
       {required ApiEndpoints endPoint,
       required String jwtToken,
@@ -80,10 +118,10 @@ class ApiService {
       Map<String, String>? header,
       Map<String, String>? pathParams}) async {
     try {
-      final uri = Uri.parse(
-          '${ApiConstants.baseUrl}/${_buildPath(endPoint, pathParams)}');
+      final baseUrl = await _getBaseUrl();
+      final uri = Uri.parse('$baseUrl/${_buildPath(endPoint, pathParams)}');
       final Map<String, String> headers = {
-        'Authorization': jwtToken,
+        'Authorization': 'Bearer $jwtToken',
         'Content-Type': 'application/json',
         'Accept': 'application/json',
         ...?header,
@@ -104,6 +142,7 @@ class ApiService {
     }
   }
 
+  @override
   Future<void> deleteData(
       {required ApiEndpoints endPoint,
       required String jwtToken,
@@ -111,10 +150,10 @@ class ApiService {
       Map<String, String>? header,
       Map<String, String>? pathParams}) async {
     try {
-      final uri = Uri.parse(
-          '${ApiConstants.baseUrl}/${_buildPath(endPoint, pathParams)}');
+      final baseUrl = await _getBaseUrl();
+      final uri = Uri.parse('$baseUrl/${_buildPath(endPoint, pathParams)}');
       final Map<String, String> headers = {
-        'Authorization': jwtToken,
+        'Authorization': 'Bearer $jwtToken',
         'id': id,
         'Content-Type': 'application/json',
         'Accept': 'application/json',

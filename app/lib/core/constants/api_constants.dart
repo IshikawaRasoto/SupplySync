@@ -1,5 +1,5 @@
 class ApiConstants {
-  static const String baseUrl = 'http://192.168.15.21:5000';
+  static const String baseUrl = 'http://147.93.36.151:5000';
 }
 
 enum ApiEndpoints {
@@ -7,6 +7,8 @@ enum ApiEndpoints {
   createLogin,
   updateLogin,
   getUser,
+  getOtherUser,
+  getAllUsers,
   logout,
   warehouse,
   warehouseProducts,
@@ -24,6 +26,10 @@ extension ApiEndpointsExtension on ApiEndpoints {
         return 'update_login';
       case ApiEndpoints.getUser:
         return 'get_user';
+      case ApiEndpoints.getAllUsers:
+        return 'get_all_users';
+      case ApiEndpoints.getOtherUser:
+        return 'get_user/{userName}';
       default:
         return name;
     }
