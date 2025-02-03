@@ -7,11 +7,37 @@ class InitDependencies {
     _initAuth();
     _initUserActions();
 
-    final apiService = ApiService();
-
-    serviceLocator.registerLazySingleton<ApiService>(() => apiService);
-
-    // Core
+    // * Core
+    // Local Data
+    serviceLocator
+      ..registerLazySingleton<LocalStorageRepository>(
+        () => LocalStorageRepositoryImpl(),
+        instanceName: 'non-secure',
+      )
+      ..registerLazySingleton<LocalStorageRepository>(
+        () => SecureStorageRepositoryImpl(),
+        instanceName: 'secure',
+      )
+      ..registerLazySingleton<ConfigRepository>(
+        () => ConfigRepositoryImpl(
+          nonSecureStorage: serviceLocator<LocalStorageRepository>(
+              instanceName: 'non-secure'),
+          secureStorage:
+              serviceLocator<LocalStorageRepository>(instanceName: 'secure'),
+        ),
+      )
+      ..registerLazySingleton<SettingsCubit>(
+        () => SettingsCubit(
+          serviceLocator<ConfigRepository>(),
+        ),
+      );
+    // Api
+    serviceLocator.registerLazySingleton<ApiService>(
+      () => ApiServiceImpl(
+        serviceLocator<ConfigRepository>(),
+      ),
+    );
+    // Cubits
     serviceLocator.registerLazySingleton(() => UserCubit());
   }
 
@@ -23,6 +49,11 @@ class InitDependencies {
       // Repositories
       ..registerFactory<AuthRepository>(
           () => AuthRepositoryImpl(serviceLocator<AuthRemoteDataSource>()))
+      ..registerLazySingleton<AuthCredentialsRepository>(
+        () => AuthCredentialsRepositoryImpl(
+          serviceLocator<LocalStorageRepository>(instanceName: 'secure'),
+        ),
+      )
       // UseCases
       ..registerFactory(() => UserLogin(serviceLocator<AuthRepository>()))
       ..registerFactory(() => UserLogout(serviceLocator<AuthRepository>()))
@@ -33,7 +64,13 @@ class InitDependencies {
             loginUseCase: serviceLocator<UserLogin>(),
             logoutUseCase: serviceLocator<UserLogout>(),
             getCurrentUseCase: serviceLocator<UserGetUser>(),
-          ));
+          ))
+      // Cubics
+      ..registerLazySingleton<AuthCredentialsCubit>(
+        () => AuthCredentialsCubit(
+          serviceLocator<AuthCredentialsRepository>(),
+        ),
+      );
   }
 
   static void _initUserActions() {
@@ -51,6 +88,8 @@ class InitDependencies {
           () => UserGetUserByUserName(serviceLocator<UserActionsRepository>()))
       ..registerFactory(
           () => UserRegisterUser(serviceLocator<UserActionsRepository>()))
+      ..registerFactory(
+          () => UserGetAllUsers(serviceLocator<UserActionsRepository>()))
       // Blocs
       ..registerLazySingleton(() => UserActionsBloc(
             userCubit: serviceLocator<UserCubit>(),
@@ -60,6 +99,7 @@ class InitDependencies {
       ..registerLazySingleton(() => UserRequestBloc(
             userCubit: serviceLocator<UserCubit>(),
             userGetUserByUserName: serviceLocator<UserGetUserByUserName>(),
+            userGetAllUsers: serviceLocator<UserGetAllUsers>(),
           ));
   }
 }
