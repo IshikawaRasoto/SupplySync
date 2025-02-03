@@ -59,21 +59,21 @@ class _ChangeProfileScreenState extends State<ChangeProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<UserRequestBloc, UserRequestState>(
-      listener: (context, state) {
-        if (state is UserRequestUserSuccess) {
-          _user = state.user;
-          _isUserInitialized = true;
-        } else if (state is UserRequestFailure) {
-          showSnackBar(context, message: state.message, isError: true);
-        }
-      },
-      builder: (context, state) {
-        if (!_isUserInitialized) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        return Scaffold(
-          body: BlocListener<UserActionsBloc, UserActionsState>(
+    return Scaffold(
+      body: BlocConsumer<UserRequestBloc, UserRequestState>(
+        listener: (context, state) {
+          if (state is UserRequestUserSuccess) {
+            _user = state.user;
+            _isUserInitialized = true;
+          } else if (state is UserRequestFailure) {
+            showSnackBar(context, message: state.message, isError: true);
+          }
+        },
+        builder: (context, state) {
+          if (!_isUserInitialized) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return BlocListener<UserActionsBloc, UserActionsState>(
             listener: (context, state) {
               if (state is UserActionsSuccess) {
                 showSnackBar(context, message: state.message);
@@ -190,7 +190,7 @@ class _ChangeProfileScreenState extends State<ChangeProfileScreen> {
                             InputFormField(
                               controller: _newEmailController,
                               hintText: 'Novo E-mail',
-                              validator: (email) => isValidEmail(email)
+                              validator: (email) => !isValidEmail(email)
                                   ? 'E-mail inválido'
                                   : null,
                             ),
@@ -278,9 +278,9 @@ class _ChangeProfileScreenState extends State<ChangeProfileScreen> {
                 ),
               ],
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }

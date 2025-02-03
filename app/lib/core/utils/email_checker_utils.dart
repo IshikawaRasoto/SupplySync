@@ -1,6 +1,7 @@
 bool isValidEmail(String email) {
-  final RegExp emailRegExp = RegExp(
+  if (email.isEmpty) return false;
+  final emailRegex = RegExp(
     r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
   );
-  return emailRegExp.hasMatch(email);
+  return emailRegex.hasMatch(email);
 }
