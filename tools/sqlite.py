@@ -120,6 +120,13 @@ class SqliteConfig:
 
     def update_login_data(self, data_received):
 
+        flags_dict = {
+            "senha": None,
+            "email": None,
+            "nome": None,
+            "funcao": None
+        }
+
         database = sqlite3.connect('res/login_data.db')
         cursor = database.cursor()
 
@@ -148,12 +155,15 @@ class SqliteConfig:
 
                 if result[0] != data_received['new_password']:
                     print("Erro ao cadastrar nova senha")
+                    flags_dict["senha"] = False
 
                 else:
                     print("Nova senha cadastrada com sucesso")
+                    flags_dict["senha"] = True
 
             else:
                 print("senha atual incorreta para alteração")
+                flags_dict["senha"] = False
 
         if "email" in data_received:
             cursor.execute('''UPDATE login_data SET email = ? WHERE username = ?
@@ -168,9 +178,11 @@ class SqliteConfig:
 
             if result[0] != data_received['email']:
                 print("Erro ao cadastrar novo email")
+                flags_dict["email"] = False
 
             else:
                 print("Novo email cadastrado com sucesso")
+                flags_dict["email"] = True
 
         if "name" in data_received:
             cursor.execute('''UPDATE login_data SET name = ? WHERE username = ?
@@ -185,9 +197,11 @@ class SqliteConfig:
 
             if result[0] != data_received['name']:
                 print("Erro ao cadastrar novo nome")
+                flags_dict["nome"] = False
 
             else:
                 print("Novo nome cadastrado com sucesso")
+                flags_dict["nome"] = True
 
         if "roles" in data_received:
             if current_role == "admin":
@@ -203,14 +217,18 @@ class SqliteConfig:
 
                 if result[0] != data_received['roles']:
                     print("Erro ao cadastrar nova função")
+                    flags_dict["funcao"] = False
 
                 else:
                     print("Nova função cadastrada com sucesso")
+                    flags_dict["funcao"] = True
 
             else:
                 print("O usuário não tem permissão para alterar a função")
+                flags_dict["funcao"] = False
 
         database.close()
+        return flags_dict
 
     def get_username_role(self, username_received):
         database = sqlite3.connect('res/login_data.db')
@@ -240,3 +258,16 @@ class SqliteConfig:
         else:
             return "error"
 
+
+    def get_all_users_names (self):
+        database = sqlite3.connect('res/login_data.db')
+        cursor = database.cursor()
+        cursor.execute('''
+                            SELECT username, name FROM login_data;''')
+        result = cursor.fetchall()
+
+        if result:
+            return result
+
+        else:
+            return "error"
