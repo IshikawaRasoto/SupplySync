@@ -27,4 +27,8 @@ abstract interface class UserActionsRepository {
     required String password,
     required List<UserRoles> roles,
   });
+
+  Future<Either<Failure, List<User>>> getAllUsers({
+    required String jwtToken,
+  });
 }

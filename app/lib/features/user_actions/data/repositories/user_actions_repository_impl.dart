@@ -81,4 +81,16 @@ class UserActionsRepositoryImpl implements UserActionsRepository {
       return left(Failure(e.message));
     }
   }
+
+  @override
+  Future<Either<Failure, List<User>>> getAllUsers({
+    required String jwtToken,
+  }) async {
+    try {
+      final users = await _remoteDataSource.getAllUsers(jwtToken: jwtToken);
+      return right(users);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
 }

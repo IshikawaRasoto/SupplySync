@@ -22,6 +22,10 @@ abstract interface class UserActionsRemoteDataSource {
     required String jwtToken,
     required NewUserModel newUser,
   });
+
+  Future<List<TargetUserModel>> getAllUsers({
+    required String jwtToken,
+  });
 }
 
 class UserActionsRemoteDataSourceImpl implements UserActionsRemoteDataSource {
@@ -53,7 +57,7 @@ class UserActionsRemoteDataSourceImpl implements UserActionsRemoteDataSource {
       {required String jwtToken, required String userName}) async {
     try {
       final response = await _apiService.fetchData(
-        endPoint: ApiEndpoints.getUser,
+        endPoint: ApiEndpoints.getOtherUser,
         jwtToken: jwtToken,
         pathParams: {'userName': userName},
       );
@@ -78,6 +82,29 @@ class UserActionsRemoteDataSourceImpl implements UserActionsRemoteDataSource {
         body: data,
       );
       return unit;
+    } on ServerException {
+      rethrow;
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<List<TargetUserModel>> getAllUsers({required String jwtToken}) async {
+    try {
+      final response = await _apiService.fetchData(
+        endPoint: ApiEndpoints.getAllUsers,
+        jwtToken: jwtToken,
+      );
+      final List<dynamic> usersList = response['users'] as List<dynamic>;
+      return usersList
+          .map((userData) => TargetUserModel(
+                name: userData['name'],
+                userName: userData['username'],
+                email: '',
+                roles: [],
+              ))
+          .toList();
     } on ServerException {
       rethrow;
     } catch (e) {

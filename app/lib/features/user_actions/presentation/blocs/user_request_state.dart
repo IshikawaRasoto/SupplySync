@@ -16,3 +16,8 @@ final class UserRequestUserSuccess extends UserRequestState {
   final User user;
   UserRequestUserSuccess(this.user);
 }
+
+final class UserRequestAllUsersSuccess extends UserRequestState {
+  final List<User> users;
+  UserRequestAllUsersSuccess(this.users);
+}

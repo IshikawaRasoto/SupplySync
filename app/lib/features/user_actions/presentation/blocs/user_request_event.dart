@@ -7,3 +7,7 @@ class GetUserByUserName extends UserRequestEvent {
   final String userName;
   GetUserByUserName(this.userName);
 }
+
+class GetAllUsers extends UserRequestEvent {
+  GetAllUsers();
+}
