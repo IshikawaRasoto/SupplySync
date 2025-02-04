@@ -1,4 +1,5 @@
 import 'package:get_it/get_it.dart';
+import 'package:supplysync/core/common/bloc/log_bloc.dart';
 
 import 'core/common/cubit/settings/settings_cubit.dart';
 import 'core/data/api_service.dart';

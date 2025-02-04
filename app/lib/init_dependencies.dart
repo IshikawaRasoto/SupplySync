@@ -6,6 +6,7 @@ class InitDependencies {
   static Future<void> init() async {
     _initAuth();
     _initUserActions();
+		_initLog();
 
     // * Core
     // Local Data
@@ -105,4 +106,10 @@ class InitDependencies {
             userGetAllUsers: serviceLocator<UserGetAllUsers>(),
           ));
   }
+
+	static void _initLog() {
+		serviceLocator
+		// Blocs
+		.registerLazySingleton(() => LogBloc());
+	}
 }
