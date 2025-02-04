@@ -1,5 +1,6 @@
 import secrets
 import string
+import os
 from tools import logger as log_class
 from tools import sqlite
 from tools import exceptions
@@ -8,6 +9,8 @@ from flask_jwt_extended import JWTManager, create_access_token, jwt_required, ge
 from datetime import datetime
 
 active_tokens = list()
+
+os.environ["FLASK_ENV"] = "production"
 
 
 class Requests:
@@ -27,6 +30,9 @@ class Requests:
         self.app.add_url_rule('/get_user/<username>', view_func=self.get_user, methods=['GET'])
         self.app.add_url_rule('/get_myself', view_func=self.get_myself, methods=['GET'])
         self.app.add_url_rule('/get_all_users', view_func=self.get_all_users, methods=['GET'])
+        self.app.add_url_rule('/get_logs', view_func=self.get_logs, methods=['GET'])
+        self.app.add_url_rule('/logout', view_func=self.logout, methods=['DELETE'])
+
 
     def verify_jwt_token(self, token):
         self.clear_token()
@@ -60,7 +66,9 @@ class Requests:
 
     def update_login(self):
 
-        try:
+        try:   
+            flag_admin = True
+
             print("ENTROU FUNC UPDATE LOGIN")
             data = request.headers
             print("DATA dentro de UPDATE LOGIN: " + str(data))
@@ -68,10 +76,13 @@ class Requests:
             if not self.verify_jwt_token(data.get('Authorization', '')):  # Usa .get() para evitar erro se 'Authorization' não existir
                 raise exceptions.HttpError(400, "JWT TOKEN inválido", "JWT TOKEN inválido")
 
+            if self.get_roles_by_jwt_token(data['Authorization']) != "admin":
+                flag_admin = False
+
             data = request.get_json()
             print("DATA dentro de UPDATE LOGIN (BODY): " + str(data))
 
-            flags_dict = self.db.update_login_data(data) 
+            flags_dict = self.db.update_login_data(data, flag_admin) 
 
             text = ""
             
@@ -275,3 +286,96 @@ class Requests:
             self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
             ex = exceptions.HttpError(401, "ERRO", "Verificar log do servidor para detalhes")
             return ex.to_json(), ex.error_json['error']['code']
+        
+    def logout(self):
+        try:
+            data = request.headers
+            if self.verify_jwt_token(data['Authorization']) == False:
+                raise exceptions.HttpError(401, "Usuário não autorizado", "Usuário não autorizado")
+            
+            data_w_bearer = data['Authorization'].replace("Bearer ", "").strip()
+
+            for item in active_tokens:
+                if data_w_bearer in item:
+                    active_tokens.remove(item)
+                    response = jsonify({'status': "Logout realizado"})
+                    return response, 200  
+
+            raise exceptions.HttpError(401, "Usuário não encontrado", "Usuário não encontrado")
+                    
+        except exceptions.HttpError as error:
+            return error.to_json(), error.error_json['error']['code']
+
+        except Exception as error:
+            self.logger.error(type(error))
+            self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
+            self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
+            self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
+            ex = exceptions.HttpError(401, "ERRO", "Verificar log do servidor para detalhes")
+            return ex.to_json(), ex.error_json['error']['code']
+
+    def get_logs(self):
+        try:
+            data = request.headers
+            
+            # Verifica o token JWT
+            if not self.verify_jwt_token(data.get('Authorization', '')):
+                raise exceptions.HttpError(401, "Usuário não autorizado", "Usuário não autorizado")
+            
+            # Defina o caminho do arquivo de log
+            log_file_path = os.path.join('./logs', "supply_sync.log")
+            
+            # Lê todas as linhas do arquivo e pega as últimas 20
+            with open(log_file_path, "r", encoding="utf-8") as file:
+                all_lines = file.readlines()
+            last_lines = all_lines[-20:]
+            
+            logs_list = []
+            for line in last_lines:
+                # Exemplo de linha:
+                # "2025-02-04 01:25:08,148 - INFO - 177.62.205.200 - - [04/Feb/2025 01:25:08] \"POST /login HTTP/1.1\" 200 -"
+                parts = line.strip().split(" - ")
+                if len(parts) < 3:
+                    continue  # Pula linhas que não seguem o formato esperado
+                
+                # Extrai e formata a data (removendo os milissegundos e convertendo para dd/mm/yy hh:mm:ss)
+                date_str = parts[0].split(",")[0]  # "2025-02-04 01:25:08"
+                try:
+                    dt = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
+                    formatted_date = dt.strftime("%d/%m/%y %H:%M:%S")
+                except Exception:
+                    formatted_date = date_str  # Caso a conversão falhe, mantém o valor original
+                
+                # O nível vem na segunda parte, convertendo para minúsculas
+                level = parts[1].lower()
+                
+                # O restante da linha forma o corpo da mensagem
+                body = " - ".join(parts[2:])
+                
+                # Define a origem: se a mensagem contém "POST /login" ou "DELETE /logout", considera "user", senão "server"
+                source = "server"
+                if "POST /login" in body or "DELETE /logout" in body:
+                    source = "user"
+                
+                log_entry = {
+                    "date": formatted_date,
+                    "level": level,
+                    "source": source,
+                    "body": body
+                }
+                logs_list.append(log_entry)
+            
+            response = jsonify({"logs": logs_list})
+            return response, 200
+
+        except exceptions.HttpError as error:
+            return error.to_json(), error.error_json['error']['code']
+
+        except Exception as error:
+            self.logger.error(type(error))
+            self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
+            self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
+            self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
+            ex = exceptions.HttpError(401, "ERRO", "Verificar log do servidor para detalhes")
+            return ex.to_json(), ex.error_json['error']['code']
+

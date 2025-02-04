@@ -118,7 +118,7 @@ class SqliteConfig:
         database.close()
         return result
 
-    def update_login_data(self, data_received):
+    def update_login_data(self, data_received, flag_admin):
 
         flags_dict = {
             "senha": None,
@@ -204,7 +204,7 @@ class SqliteConfig:
                 flags_dict["nome"] = True
 
         if "roles" in data_received:
-            if current_role == "admin":
+            if flag_admin == True:
                 cursor.execute('''UPDATE login_data SET roles = ? WHERE username = ?
                                                                                       ''',
                                (data_received['roles'], data_received['username'],))
