@@ -7,4 +7,6 @@ class AppColors {
   static const Color redButton = Color.fromARGB(255, 182, 16, 33);
   static const Color disabledButton = Color.fromARGB(255, 95, 95, 95);
   static const Color buttonText = Colors.white;
+  static const Color green = Colors.green;
+  static const Color red = Colors.red;
 }

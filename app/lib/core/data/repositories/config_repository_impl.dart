@@ -16,7 +16,7 @@ class ConfigRepositoryImpl implements ConfigRepository {
   @override
   Future<String> getApiUrl() async {
     return await _nonSecureStorage.readData(DataKeys.apiUrl.name) ??
-        ApiConstants.baseUrl;
+        ApiConstants.defaultUrl;
   }
 
   @override

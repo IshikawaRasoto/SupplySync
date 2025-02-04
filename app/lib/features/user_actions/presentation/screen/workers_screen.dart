@@ -61,7 +61,7 @@ class _WorkersScreenState extends State<WorkersScreen> {
                               onPressed: () => _user.userName == worker.userName
                                   ? context.go('/home/changeprofile')
                                   : context.go(
-                                      '/home/changeprofile?userName=${worker.userName}',
+                                      '/home/changeprofile?targetUser=${worker.userName}',
                                     ),
                               child: const Text("Editar"),
                             ),

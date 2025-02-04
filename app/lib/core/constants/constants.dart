@@ -16,16 +16,16 @@ enum UserRoles {
   armazem([
     AppServices.fetchWarehouse,
     AppServices.fetchRecords,
-    AppServices.drones,
+    AppServices.carts,
   ]),
   doca([
     AppServices.loadingDock,
     AppServices.fetchRecords,
-    AppServices.drones,
+    AppServices.carts,
   ]),
   manutencao([
     AppServices.fetchRecords,
-    AppServices.drones,
+    AppServices.carts,
   ]),
   ;
 
@@ -38,7 +38,7 @@ enum AppServices {
   fetchWarehouse,
   updateProfile,
   loadingDock,
-  drones,
+  carts,
   fetchRecords,
   fetchWorkers,
   newWorker,
@@ -53,7 +53,7 @@ extension AppServicesExtension on AppServices {
         return 'Perfil';
       case AppServices.loadingDock:
         return 'Docas';
-      case AppServices.drones:
+      case AppServices.carts:
         return 'Drones';
       case AppServices.fetchRecords:
         return 'Registros';
@@ -74,8 +74,8 @@ extension AppServicesExtension on AppServices {
         return '/home/changeprofile';
       case AppServices.loadingDock:
         return '/home/docks';
-      case AppServices.drones:
-        return '/home/drones';
+      case AppServices.carts:
+        return '/home/carts';
       case AppServices.fetchRecords:
         return '/home/records';
       case AppServices.fetchWorkers:
@@ -95,7 +95,7 @@ extension AppServicesExtension on AppServices {
         return Icons.person;
       case AppServices.loadingDock:
         return Icons.local_shipping;
-      case AppServices.drones:
+      case AppServices.carts:
         return Icons.drive_eta;
       case AppServices.fetchRecords:
         return Icons.receipt_long;

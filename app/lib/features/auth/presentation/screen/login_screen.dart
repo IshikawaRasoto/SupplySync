@@ -25,8 +25,11 @@ class _LoginScreenState extends State<LoginScreen> with RouteAware {
   final LocalAuthentication _localAuth = LocalAuthentication();
   bool _obscureText = true;
   final _passwordController = TextEditingController();
+  String _password = '';
   bool _savePassword = false;
   final _userNameController = TextEditingController();
+
+  late AuthBloc authBloc;
 
   @override
   void didChangeDependencies() {
@@ -53,6 +56,7 @@ class _LoginScreenState extends State<LoginScreen> with RouteAware {
   @override
   void initState() {
     super.initState();
+    authBloc = context.read<AuthBloc>();
     _localAuth.isDeviceSupported().then((value) {
       if (value) {
         _localAuth.getAvailableBiometrics().then((value) {
@@ -63,12 +67,28 @@ class _LoginScreenState extends State<LoginScreen> with RouteAware {
   }
 
   Future<void> _login({bool biometric = false}) async {
-    if (_formKey.currentState?.validate() ?? false) {
-      final username = _userNameController.text;
-      final password = _passwordController.text;
-      context
-          .read<AuthBloc>()
-          .add(AuthLogin(username: username, password: password));
+    try {
+      if (_formKey.currentState?.validate() ?? false) {
+        final username = _userNameController.text;
+        final password = _passwordController.text;
+        authBloc.add(AuthLogin(username: username, password: password));
+      } else if (biometric) {
+        final username = _userNameController.text;
+        final isAuthenticated = await _localAuth.authenticate(
+          localizedReason: 'Autenticação necessária',
+        );
+        if (mounted && isAuthenticated) {
+          authBloc.add(AuthLogin(username: username, password: _password));
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        showSnackBar(
+          context,
+          message: 'Erro ao autenticar',
+          isError: true,
+        );
+      }
     }
   }
 
@@ -76,6 +96,7 @@ class _LoginScreenState extends State<LoginScreen> with RouteAware {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
+        tooltip: 'Configurações',
         onPressed: () {
           showDialog(
             context: context,
@@ -111,7 +132,7 @@ class _LoginScreenState extends State<LoginScreen> with RouteAware {
               listener: (context, state) {
                 if (state is AuthCredentialsLoaded) {
                   _userNameController.text = state.username ?? '';
-                  _passwordController.text = state.password ?? '';
+                  _password = state.password ?? '';
                   _savePassword = state.savePassword ?? false;
                 }
               },

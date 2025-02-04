@@ -5,7 +5,7 @@ import 'package:responsive_builder/responsive_builder.dart';
 
 import '../common/cubit/user/user_cubit.dart';
 import '../constants/constants.dart';
-import '../utils/role_permissions_cheker.dart';
+import '../utils/role_permissions_checker.dart';
 import 'widgets/services_pages_widget.dart';
 import '../common/entities/user.dart';
 import '../common/widgets/logo_and_help_widget.dart';

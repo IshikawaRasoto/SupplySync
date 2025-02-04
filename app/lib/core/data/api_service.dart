@@ -35,7 +35,6 @@ abstract interface class ApiService {
   Future<void> deleteData({
     required ApiEndpoints endPoint,
     required String jwtToken,
-    required String id,
     Map<String, String>? header,
     Map<String, String>? pathParams,
   });
@@ -146,7 +145,6 @@ class ApiServiceImpl implements ApiService {
   Future<void> deleteData(
       {required ApiEndpoints endPoint,
       required String jwtToken,
-      required String id,
       Map<String, String>? header,
       Map<String, String>? pathParams}) async {
     try {
@@ -154,7 +152,6 @@ class ApiServiceImpl implements ApiService {
       final uri = Uri.parse('$baseUrl/${_buildPath(endPoint, pathParams)}');
       final Map<String, String> headers = {
         'Authorization': 'Bearer $jwtToken',
-        'id': id,
         'Content-Type': 'application/json',
         'Accept': 'application/json',
         ...?header,

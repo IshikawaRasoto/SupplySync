@@ -21,6 +21,7 @@ import 'features/auth/presentation/cubit/auth_credentials_cubit.dart';
 import 'features/user_actions/data/repositories/user_actions_repository_impl.dart';
 import 'features/user_actions/data/source/user_actions_remote_data_source.dart';
 import 'features/user_actions/domain/repositories/user_actions_repository.dart';
+import 'features/user_actions/domain/use_cases/change_user_roles.dart';
 import 'features/user_actions/domain/use_cases/user_get_all_users.dart';
 import 'features/user_actions/domain/use_cases/user_get_user_by_user_name.dart';
 import 'features/user_actions/domain/use_cases/user_register_user.dart';

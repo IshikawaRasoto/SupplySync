@@ -68,17 +68,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
   Future<void> _onLogout(AuthLogout event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
-    if (_userCubit.state is! UserLoggedIn) {
-      _userCubit.updateUser(null);
-      emit(AuthFailure('User is not logged in'));
-      return;
-    }
-    final result =
-        await _logoutUseCase((_userCubit.state as UserLoggedIn).user);
-    result.fold(
-      (failure) => emit(AuthFailure(failure.message)),
-      (_) => emit(AuthInitial()),
-    );
+    await _logoutUseCase((_userCubit.state as UserLoggedIn).user);
     _userCubit.updateUser(null);
+    emit(AuthInitial());
   }
 }

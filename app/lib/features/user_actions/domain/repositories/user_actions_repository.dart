@@ -14,6 +14,12 @@ abstract interface class UserActionsRepository {
     String? newEmail,
   });
 
+  Future<Either<Failure, Unit>> changeUserRoles({
+    required List<UserRoles> userRoles,
+    required String jwtToken,
+    required String targetUserName,
+  });
+
   Future<Either<Failure, User>> getUserByUserName({
     required String jwtToken,
     required String userName,

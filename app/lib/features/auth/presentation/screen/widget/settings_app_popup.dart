@@ -69,6 +69,7 @@ class _SettingsAppPopupState extends State<SettingsAppPopup> {
               showSnackBar(
                 context,
                 message: 'Configurações salvas com sucesso',
+                isSucess: true,
               );
             } else if (state is SettingsLoaded) {
               _serverUrlController.text = state.apiUrl;

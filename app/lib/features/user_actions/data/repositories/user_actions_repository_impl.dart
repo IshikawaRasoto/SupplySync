@@ -56,6 +56,24 @@ class UserActionsRepositoryImpl implements UserActionsRepository {
   }
 
   @override
+  Future<Either<Failure, Unit>> changeUserRoles({
+    required List<UserRoles> userRoles,
+    required String jwtToken,
+    required String targetUserName,
+  }) async {
+    try {
+      await _remoteDataSource.changeUserRoles(
+        userRoles: userRoles,
+        jwtToken: jwtToken,
+        targetUserName: targetUserName,
+      );
+      return right(unit);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    }
+  }
+
+  @override
   Future<Either<Failure, Unit>> registerUser({
     required String jwtToken,
     required String userName,

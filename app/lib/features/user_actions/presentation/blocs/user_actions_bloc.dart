@@ -4,6 +4,7 @@ import 'package:supplysync/core/common/cubit/user/user_cubit.dart';
 import 'package:supplysync/features/user_actions/domain/use_cases/user_register_user.dart';
 
 import '../../../../core/constants/constants.dart';
+import '../../domain/use_cases/change_user_roles.dart';
 import '../../domain/use_cases/user_update_profile.dart';
 
 part 'user_actions_event.dart';
@@ -13,18 +14,22 @@ class UserActionsBloc extends Bloc<UserActionsEvent, UserActionsState> {
   final UserCubit _userCubit;
   final UserUpdateProfile _updateUseCase;
   final UserRegisterUser _registerUseCase;
+  final ChangeUserRoles _changeRolesUseCase;
 
   UserActionsBloc({
     required UserCubit userCubit,
     required UserUpdateProfile updateUseCase,
     required UserRegisterUser registerUseCase,
+    required ChangeUserRoles changeRolesUseCase,
   })  : _userCubit = userCubit,
         _updateUseCase = updateUseCase,
         _registerUseCase = registerUseCase,
+        _changeRolesUseCase = changeRolesUseCase,
         super(UserInitial()) {
     on<ChangeUserProfile>(_onUpdateUserProfile);
     on<ChangeUserPassword>(_onChangeUserPassword);
     on<RegisterNewUser>(_onRegisterNewUser);
+    on<UserChangeRolesRequest>(_onChangeUserRoles);
   }
 
   Future<void> _onUpdateUserProfile(
@@ -66,6 +71,27 @@ class UserActionsBloc extends Bloc<UserActionsEvent, UserActionsState> {
         result.fold(
           (failure) => emit(UserFailure(failure.message)),
           (_) => emit(UserActionsSuccess('Senha alterada com sucesso!')),
+        );
+      },
+    );
+  }
+
+  Future<void> _onChangeUserRoles(
+      UserChangeRolesRequest event, Emitter<UserActionsState> emit) async {
+    emit(UserLoading());
+    await _userCubit.getUser().fold(
+      (failure) async => emit(UserFailure(failure.message)),
+      (user) async {
+        final result = await _changeRolesUseCase(
+          ChangeUserRolesParams(
+            jwtToken: user.jwtToken,
+            targetUserName: event.targetUserName,
+            userRoles: event.newRoles,
+          ),
+        );
+        result.fold(
+          (failure) => emit(UserFailure(failure.message)),
+          (_) => emit(UserActionsSuccess('Permissões alteradas com sucesso!')),
         );
       },
     );

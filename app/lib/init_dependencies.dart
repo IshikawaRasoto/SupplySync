@@ -90,11 +90,14 @@ class InitDependencies {
           () => UserRegisterUser(serviceLocator<UserActionsRepository>()))
       ..registerFactory(
           () => UserGetAllUsers(serviceLocator<UserActionsRepository>()))
+      ..registerFactory(
+          () => ChangeUserRoles(serviceLocator<UserActionsRepository>()))
       // Blocs
       ..registerLazySingleton(() => UserActionsBloc(
             userCubit: serviceLocator<UserCubit>(),
             updateUseCase: serviceLocator<UserUpdateProfile>(),
             registerUseCase: serviceLocator<UserRegisterUser>(),
+            changeRolesUseCase: serviceLocator<ChangeUserRoles>(),
           ))
       ..registerLazySingleton(() => UserRequestBloc(
             userCubit: serviceLocator<UserCubit>(),

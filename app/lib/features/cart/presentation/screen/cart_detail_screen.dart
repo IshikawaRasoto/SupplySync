@@ -1,20 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:supplysync/core/utils/show_snackbar.dart';
 
-import '../../../../core/common/entities/cart.dart';
+import '../../../../core/theme/theme.dart';
+import '../../../../core/utils/show_confimation_dialog.dart';
+import '../../domain/entities/cart.dart';
+import '../bloc/cart_bloc.dart';
+import '../widgets/info_card_widget.dart';
 
 class CartDetailScreen extends StatefulWidget {
-  final String cartId;
-
   const CartDetailScreen({super.key, required this.cartId});
+  final String cartId;
   @override
   State<CartDetailScreen> createState() => _CartDetailScreen();
 }
 
 class _CartDetailScreen extends State<CartDetailScreen> {
-  List<Cart> carts = [];
+  Cart? cart;
+
   @override
   void initState() {
     super.initState();
+    context.read<CartBloc>().add(CartDetailsRequested(widget.cartId));
   }
 
   @override
@@ -23,89 +30,92 @@ class _CartDetailScreen extends State<CartDetailScreen> {
       appBar: AppBar(
         title: Text("Cart #${widget.cartId}"),
       ),
-      body: SafeArea(
-        minimum: const EdgeInsets.only(top: 10),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildInfoCard("Cart #${widget.cartId}", isTitle: true),
-              const SizedBox(height: 20),
-              _buildInfoCard("Bateria: 35%", icon: Icons.battery_std),
-              _buildInfoCard("Destino: Doca 3", icon: Icons.flag),
-              _buildInfoCard("Carga: Vazia", icon: Icons.local_shipping),
-              _buildInfoCard("Atendimento: 5964",
-                  icon: Icons.confirmation_number),
-              const Spacer(),
-              ElevatedButton(
-                onPressed: () =>
-                    _showConfirmationDialog("Enviar para Manutenção?"),
-                style: _redButtonStyle(context),
-                child: const Text("Enviar para Manutenção"),
+      body: BlocConsumer<CartBloc, CartState>(
+        listener: (context, state) {
+          if (state is CartRequestSuccess) {
+            showSnackBar(
+              context,
+              message: "Request Success",
+              isSucess: true,
+            );
+          } else if (state is CartRequestFailure) {
+            showSnackBar(context,
+                message: state.failure.message, isError: true);
+          } else if (state is CartDetailsSuccess) {
+            cart = state.cart;
+          }
+        },
+        builder: (context, state) {
+          if (state is CartLoading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is CartRequestFailure) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Error: ${state.failure.message}"),
+                  ElevatedButton(
+                    onPressed: () => context
+                        .read<CartBloc>()
+                        .add(CartDetailsRequested(widget.cartId)),
+                    child: const Text("Try Again"),
+                  ),
+                ],
               ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () =>
-                    _showConfirmationDialog("Forçar Desligamento?"),
-                style: _redButtonStyle(context),
-                child: const Text("Forçar Desligamento"),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoCard(String text, {IconData? icon, bool isTitle = false}) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Row(
-          children: [
-            if (icon != null) Icon(icon, size: isTitle ? 30 : 24),
-            if (icon != null) const SizedBox(width: 10),
-            Text(
-              text,
-              style: TextStyle(
-                fontSize: isTitle ? 22 : 18,
-                fontWeight: isTitle ? FontWeight.bold : FontWeight.normal,
+            );
+          }
+          return SafeArea(
+            minimum: const EdgeInsets.only(top: 10),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  InfoCardWidget(text: "Cart #${cart!.id}", isTitle: true),
+                  const SizedBox(height: 20),
+                  InfoCardWidget(
+                    text: "Bateria: ${cart!.battery}%",
+                    icon: Icons.battery_std,
+                  ),
+                  InfoCardWidget(
+                    text: "Destino: ${cart!.destination}",
+                    icon: Icons.flag,
+                  ),
+                  InfoCardWidget(
+                    text: "Carga: ${cart!.load}",
+                    icon: Icons.local_shipping,
+                  ),
+                  InfoCardWidget(
+                    text: "Atendimento: ${cart!.attendance}",
+                    icon: Icons.confirmation_number,
+                  ),
+                  const Spacer(),
+                  ElevatedButton(
+                    onPressed: () => showDialogConfirmation(
+                      context,
+                      title: "Enviar para Manutenção?",
+                      onConfirm: () => context
+                          .read<CartBloc>()
+                          .add(CartMaintenanceRequested(cart!.id)),
+                    ),
+                    style: AppStyles.redButtonStyle,
+                    child: const Text("Enviar para Manutenção"),
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton(
+                    onPressed: () => showDialogConfirmation(context,
+                        title: "Forçar Desligamento?",
+                        onConfirm: () => context
+                            .read<CartBloc>()
+                            .add(CartShutdownRequested(cart!.id))),
+                    style: AppStyles.redButtonStyle,
+                    child: const Text("Forçar Desligamento"),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  ButtonStyle _redButtonStyle(BuildContext context) {
-    return ElevatedButton.styleFrom(
-      backgroundColor: Colors.red[800],
-      foregroundColor: Colors.white,
-      padding: const EdgeInsets.symmetric(vertical: 16),
-    );
-  }
-
-  void _showConfirmationDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Confirmação"),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Cancelar"),
-          ),
-          TextButton(
-            onPressed: () {
-              // Add your action here
-              Navigator.pop(context);
-            },
-            child: const Text("Confirmar"),
-          ),
-        ],
+          );
+        },
       ),
     );
   }

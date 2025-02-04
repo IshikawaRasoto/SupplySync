@@ -25,6 +25,15 @@ class ChangeUserPassword extends UserActionsEvent {
   });
 }
 
+class UserChangeRolesRequest extends UserActionsEvent {
+  final String targetUserName;
+  final List<UserRoles> newRoles;
+  UserChangeRolesRequest({
+    required this.targetUserName,
+    required this.newRoles,
+  });
+}
+
 class RegisterNewUser extends UserActionsEvent {
   final String jwtToken;
   final String userName;

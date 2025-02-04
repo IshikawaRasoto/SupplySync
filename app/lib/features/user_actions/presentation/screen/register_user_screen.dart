@@ -3,11 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supplysync/core/constants/constants.dart';
 import 'package:supplysync/core/utils/email_checker_utils.dart';
+import 'package:supplysync/core/utils/show_snackbar.dart';
 
 import '../../../../core/common/cubit/user/user_cubit.dart';
 import '../../../../core/common/entities/user.dart';
 import '../../../../core/common/widgets/logo_and_help_widget.dart';
-import '../../../auth/presentation/screen/widget/settings_app_popup.dart';
 import '../../../../core/utils/capitalize_utils.dart';
 import '../blocs/user_actions_bloc.dart';
 import 'widgets/input_form_widget.dart';
@@ -44,32 +44,21 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (context) => const SettingsAppPopup(),
-          );
-        },
-        child: const Icon(Icons.settings),
-      ),
       body: SafeArea(
         child: BlocConsumer<UserActionsBloc, UserActionsState>(
           listener: (context, state) {
             if (state is UserActionsSuccess) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                  backgroundColor: Colors.green,
-                ),
+              showSnackBar(
+                context,
+                message: 'Usuário registrado com sucesso',
+                isSucess: true,
               );
               context.pop();
             } else if (state is UserFailure) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(state.message),
-                  backgroundColor: Colors.red,
-                ),
+              showSnackBar(
+                context,
+                message: state.message,
+                isError: true,
               );
             }
           },

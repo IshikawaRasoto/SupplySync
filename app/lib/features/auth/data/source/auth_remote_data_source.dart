@@ -38,7 +38,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> logout({required String jwtToken}) async {
     try {
-      await _apiService.postData(
+      await _apiService.deleteData(
         endPoint: ApiEndpoints.logout,
         jwtToken: jwtToken,
       );

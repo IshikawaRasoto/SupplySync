@@ -1,8 +1,9 @@
 class ApiConstants {
-  static const String baseUrl = 'http://147.93.36.151:5000';
+  static const String defaultUrl = 'http://147.93.36.151:5000';
 }
 
 enum ApiEndpoints {
+  // User
   login,
   createLogin,
   updateLogin,
@@ -10,9 +11,18 @@ enum ApiEndpoints {
   getOtherUser,
   getAllUsers,
   logout,
+
+  // Warehouse
   warehouse,
   warehouseProducts,
   records,
+
+  // Carts
+  carts,
+  cartDetails,
+  cartUse,
+  cartShutdown,
+  cartMaintenance,
 }
 
 extension ApiEndpointsExtension on ApiEndpoints {
