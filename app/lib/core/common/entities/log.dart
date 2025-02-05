@@ -1,0 +1,13 @@
+class Log {
+  final DateTime timestamp;
+  final String level;
+  final String source; // 'USER' or 'SERVER'
+  final String message;
+
+  Log({
+    required this.timestamp,
+    required this.level,
+    required this.source,
+    required this.message,
+  });
+}

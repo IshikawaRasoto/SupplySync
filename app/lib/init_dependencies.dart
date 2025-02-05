@@ -6,6 +6,7 @@ class InitDependencies {
   static Future<void> init() async {
     _initAuth();
     _initUserActions();
+    _initLog();
     _initCarts();
     _initNotifications();
 
@@ -104,6 +105,12 @@ class InitDependencies {
             userGetUserByUserName: serviceLocator<UserGetUserByUserName>(),
             userGetAllUsers: serviceLocator<UserGetAllUsers>(),
           ));
+  }
+
+  static void _initLog() {
+    serviceLocator
+        // Blocs
+        .registerLazySingleton(() => LogBloc());
   }
 
   static void _initCarts() {

@@ -9,6 +9,7 @@ import 'package:supplysync/features/cart/presentation/screen/cart_screen.dart';
 import 'features/auth/presentation/blocs/auth_bloc.dart';
 import 'core/common/cubit/user/user_cubit.dart';
 import 'features/user_actions/presentation/screen/change_profile_screen.dart';
+import 'features/user_actions/presentation/screen/record_screen.dart';
 import 'core/screen/home_screen.dart';
 import 'features/auth/presentation/screen/login_screen.dart';
 import 'features/user_actions/presentation/screen/register_user_screen.dart';
@@ -90,7 +91,7 @@ class RouterMain {
                 path: '/records',
                 name: 'records',
                 builder: (context, state) {
-                  return Container();
+                  return RecordScreen();
                 },
               ),
               GoRoute(

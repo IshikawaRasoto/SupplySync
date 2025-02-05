@@ -1,0 +1,62 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../../../core/common/bloc/log_bloc.dart';
+import '../../../../features/user_actions/presentation/screen/widgets/log_entry.dart';
+
+class RecordScreen extends StatefulWidget {
+  const RecordScreen({super.key});
+
+  @override
+  State<RecordScreen> createState() => _RecordScreenState();
+}
+
+class _RecordScreenState extends State<RecordScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Trigger log fetch when the screen is initialized
+    context.read<LogBloc>().add(FetchLogs());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Registros"),
+      ),
+      body: SafeArea(
+        child: BlocBuilder<LogBloc, LogState>(
+          builder: (context, state) {
+            if (state is LogsLoading) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (state is LogsError) {
+              return Center(child: Text('Error: ${state.message}'));
+            } else if (state is LogsLoaded) {
+              final logs = state.logs;
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: ListView.separated(
+                        itemCount: logs.length,
+                        separatorBuilder: (context, index) => const Divider(height: 1),
+                        itemBuilder: (context, index) {
+                          final log = logs[index];
+                          return LogEntry(log: log);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            } else {
+              return const Center(child: Text('No logs available.'));
+            }
+          },
+        ),
+      ),
+    );
+  }
+}

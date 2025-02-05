@@ -13,6 +13,7 @@ import 'features/notifications/presentation/cubit/notification_cubit.dart';
 import 'features/user_actions/presentation/blocs/user_request_bloc.dart';
 import 'init_dependencies_imports.dart';
 import 'core/common/cubit/user/user_cubit.dart';
+import 'core/common/bloc/log_bloc.dart';
 import 'routes.dart';
 
 void main() async {
@@ -30,6 +31,7 @@ void main() async {
         BlocProvider(create: (_) => serviceLocator<UserRequestBloc>()),
         BlocProvider(create: (_) => serviceLocator<SettingsCubit>()),
         BlocProvider(create: (_) => serviceLocator<AuthCredentialsCubit>()),
+        BlocProvider(create: (_) => serviceLocator<LogBloc>()),
         BlocProvider(create: (_) => serviceLocator<NotificationCubit>()),
         BlocProvider(create: (_) => serviceLocator<CartBloc>()),
       ],
