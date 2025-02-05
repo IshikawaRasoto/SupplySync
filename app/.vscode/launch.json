@@ -10,7 +10,7 @@
             "type": "dart"
         },
         {
-            "name": "Análise de Desenvolvimento",
+            "name": "Análise de Desempenho",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile"
