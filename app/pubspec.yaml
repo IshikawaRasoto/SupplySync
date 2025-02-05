@@ -21,10 +21,16 @@ dependencies:
   shared_preferences: ^2.3.3 # Shared preferences
   fpdart: ^1.1.1 # Functional programming
 
+  # Hardware dependencies
+  local_auth: ^2.3.0 # Biometric authentication
+  app_settings: ^5.2.0
+
   # External communication dependencies
   http: ^1.1.2 # HTTP requests
   permission_handler: ^11.3.1 # Permission handler
-  local_auth: ^2.3.0 # Biometric authentication
+  flutter_local_notifications: ^18.0.1 # Local notifications
+  firebase_core: ^3.10.1 # Firebase core
+  firebase_messaging: ^15.2.1 # Firebase messaging
 
   # Video, Camera, and Image dependencies
   mobile_scanner: ^6.0.2 # New QR_Code reader
@@ -33,6 +39,7 @@ dependencies:
   cupertino_icons: ^1.0.8 # Cupertino icons
   responsive_builder: ^0.7.1 # Help make the app responsive
   flutter_native_splash: ^2.4.2 # To create splash screen
+  intl: ^0.19.0 # Internationalization
 
   # Debug dependencies
   logger: ^2.1.0 # Logger
@@ -51,6 +58,8 @@ dev_dependencies:
   # Create app icons
   # Configurations in [flutter_launcher_icons.yaml]
   flutter_launcher_icons: ^0.14.1
+
+  mockito: ^5.4.5 # Mocking library for Dart
 
 flutter:
 

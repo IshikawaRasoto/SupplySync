@@ -6,12 +6,21 @@ import '../../../../core/error/conversion_exception.dart';
 import '../../../../core/error/server_exception.dart';
 import '../../domain/entities/cart.dart';
 
-class CartRemoteDataSource {
+abstract interface class CartRemoteDataSource {
+  Future<List<Cart>> getAllCarts();
+  Future<Cart> getCartDetails(String id);
+  Future<void> requestCartUse(String id);
+  Future<void> requestShutdown(String id);
+  Future<void> requestCartMaintenance(String id);
+}
+
+class CartRemoteDataSourceImpl implements CartRemoteDataSource {
   final ApiService apiService;
   final UserCubit userCubit;
 
-  CartRemoteDataSource(this.apiService, this.userCubit);
+  CartRemoteDataSourceImpl(this.apiService, this.userCubit);
 
+  @override
   Future<List<Cart>> getAllCarts() async {
     try {
       final token = (userCubit.state as UserLoggedIn).user.jwtToken;
@@ -29,6 +38,7 @@ class CartRemoteDataSource {
     }
   }
 
+  @override
   Future<Cart> getCartDetails(String id) async {
     try {
       final token = (userCubit.state as UserLoggedIn).user.jwtToken;
@@ -45,6 +55,7 @@ class CartRemoteDataSource {
     }
   }
 
+  @override
   Future<void> requestCartUse(String id) async {
     try {
       final token = (userCubit.state as UserLoggedIn).user.jwtToken;
@@ -60,6 +71,7 @@ class CartRemoteDataSource {
     }
   }
 
+  @override
   Future<void> requestShutdown(String id) async {
     try {
       final token = (userCubit.state as UserLoggedIn).user.jwtToken;
@@ -75,6 +87,7 @@ class CartRemoteDataSource {
     }
   }
 
+  @override
   Future<void> requestCartMaintenance(String id) async {
     try {
       final token = (userCubit.state as UserLoggedIn).user.jwtToken;

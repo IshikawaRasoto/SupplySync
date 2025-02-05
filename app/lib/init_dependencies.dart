@@ -6,6 +6,8 @@ class InitDependencies {
   static Future<void> init() async {
     _initAuth();
     _initUserActions();
+    _initCarts();
+    _initNotifications();
 
     // * Core
     // Local Data
@@ -22,8 +24,6 @@ class InitDependencies {
         () => ConfigRepositoryImpl(
           nonSecureStorage: serviceLocator<LocalStorageRepository>(
               instanceName: 'non-secure'),
-          secureStorage:
-              serviceLocator<LocalStorageRepository>(instanceName: 'secure'),
         ),
       )
       ..registerLazySingleton<SettingsCubit>(
@@ -104,5 +104,74 @@ class InitDependencies {
             userGetUserByUserName: serviceLocator<UserGetUserByUserName>(),
             userGetAllUsers: serviceLocator<UserGetAllUsers>(),
           ));
+  }
+
+  static void _initCarts() {
+    serviceLocator
+      // DataSources
+      ..registerFactory<CartRemoteDataSource>(() => CartRemoteDataSourceImpl(
+          serviceLocator<ApiService>(), serviceLocator<UserCubit>()))
+      // Repositories
+      ..registerFactory<CartRepository>(
+          () => CartRepositoryImpl(serviceLocator<CartRemoteDataSource>()))
+      // UseCases
+      ..registerFactory(
+          () => RequestCartUsage(serviceLocator<CartRepository>()))
+      ..registerFactory(
+          () => ScheduleCartMaintenance(serviceLocator<CartRepository>()))
+      ..registerFactory(() => ShutdownCart(serviceLocator<CartRepository>()))
+      ..registerFactory(() => GetCartDetails(serviceLocator<CartRepository>()))
+      ..registerFactory(() => GetAllCarts(serviceLocator<CartRepository>()))
+      // Blocs
+      ..registerLazySingleton(() => CartBloc(
+            requestCartUse: serviceLocator<RequestCartUsage>(),
+            requestCartMaintenance: serviceLocator<ScheduleCartMaintenance>(),
+            requestShutdown: serviceLocator<ShutdownCart>(),
+            getCartDetails: serviceLocator<GetCartDetails>(),
+            getAllCarts: serviceLocator<GetAllCarts>(),
+          ));
+  }
+
+  static void _initNotifications() {
+    serviceLocator
+      // DataSources
+      ..registerLazySingleton<FlutterLocalNotificationsPlugin>(
+        () => FlutterLocalNotificationsPlugin(),
+      )
+      ..registerLazySingleton<FirebaseMessaging>(
+        () => FirebaseMessaging.instance,
+      )
+      ..registerLazySingleton<NotificationRemoteDataSource>(
+        () => NotificationRemoteDataSourceImpl(
+          localNotifications: LocalNotificationsDataSourceImpl(
+            serviceLocator<FlutterLocalNotificationsPlugin>(),
+          ),
+          firebaseMessaging: serviceLocator<FirebaseMessaging>(),
+        ),
+      )
+      // Repository
+      ..registerLazySingleton<NotificationRepository>(
+        () => NotificationRepositoryImpl(
+          serviceLocator<NotificationRemoteDataSource>(),
+        ),
+      )
+      // UseCases
+      ..registerFactory(
+        () => InitializeNotifications(serviceLocator<NotificationRepository>()),
+      )
+      ..registerFactory(
+        () => ShowNotification(serviceLocator<NotificationRepository>()),
+      )
+      ..registerFactory(
+        () => GetFirebaseToken(serviceLocator<NotificationRepository>()),
+      )
+      // Cubit
+      ..registerLazySingleton(
+        () => NotificationCubit(
+          initializeNotifications: serviceLocator<InitializeNotifications>(),
+          showNotification: serviceLocator<ShowNotification>(),
+          getFirebaseToken: serviceLocator<GetFirebaseToken>(),
+        ),
+      );
   }
 }

@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supplysync/features/user_actions/presentation/blocs/user_actions_bloc.dart';
@@ -7,6 +8,8 @@ import 'features/auth/presentation/blocs/auth_bloc.dart';
 import 'core/constants/constants.dart';
 import 'core/theme/theme.dart';
 import 'features/auth/presentation/cubit/auth_credentials_cubit.dart';
+import 'features/cart/presentation/bloc/cart_bloc.dart';
+import 'features/notifications/presentation/cubit/notification_cubit.dart';
 import 'features/user_actions/presentation/blocs/user_request_bloc.dart';
 import 'init_dependencies_imports.dart';
 import 'core/common/cubit/user/user_cubit.dart';
@@ -14,7 +17,10 @@ import 'routes.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await InitDependencies.init();
+  await Firebase.initializeApp(); // Initialize Firebase
+  await InitDependencies.init(); // Initialize Dependencies
+  await serviceLocator<NotificationCubit>()
+      .initialize(); // Initialize Notifications
   runApp(
     MultiBlocProvider(
       providers: [
@@ -24,6 +30,8 @@ void main() async {
         BlocProvider(create: (_) => serviceLocator<UserRequestBloc>()),
         BlocProvider(create: (_) => serviceLocator<SettingsCubit>()),
         BlocProvider(create: (_) => serviceLocator<AuthCredentialsCubit>()),
+        BlocProvider(create: (_) => serviceLocator<NotificationCubit>()),
+        BlocProvider(create: (_) => serviceLocator<CartBloc>()),
       ],
       child: const MyApp(),
     ),
