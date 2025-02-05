@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:responsive_builder/responsive_builder.dart';
 
+import '../../features/notifications/presentation/screens/notification_settings_dialog.dart';
 import '../common/cubit/user/user_cubit.dart';
 import '../constants/constants.dart';
 import '../utils/role_permissions_checker.dart';
@@ -19,7 +20,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late User _user;
   late List<AppServices> _userServices;
-
   @override
   void initState() {
     _user = (context.read<UserCubit>().state as UserLoggedIn).user;
@@ -32,6 +32,15 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) => NotificationSettingsDialog(),
+          );
+        },
+        child: const Icon(Icons.notifications),
+      ),
       body: SafeArea(
         minimum: EdgeInsets.only(top: 16),
         child: Column(

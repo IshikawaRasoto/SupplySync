@@ -54,7 +54,7 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
                 isSucess: true,
               );
               context.pop();
-            } else if (state is UserFailure) {
+            } else if (state is UserActionsFailure) {
               showSnackBar(
                 context,
                 message: state.message,

@@ -147,6 +147,7 @@ class InitDependencies {
             serviceLocator<FlutterLocalNotificationsPlugin>(),
           ),
           firebaseMessaging: serviceLocator<FirebaseMessaging>(),
+          apiService: serviceLocator<ApiService>(),
         ),
       )
       // Repository
@@ -165,12 +166,17 @@ class InitDependencies {
       ..registerFactory(
         () => GetFirebaseToken(serviceLocator<NotificationRepository>()),
       )
+      ..registerFactory(
+        () => UpdateFirebaseToken(serviceLocator<NotificationRepository>()),
+      )
       // Cubit
       ..registerLazySingleton(
         () => NotificationCubit(
           initializeNotifications: serviceLocator<InitializeNotifications>(),
           showNotification: serviceLocator<ShowNotification>(),
           getFirebaseToken: serviceLocator<GetFirebaseToken>(),
+          updateFirebaseToken: serviceLocator<UpdateFirebaseToken>(),
+          userCubit: serviceLocator<UserCubit>(),
         ),
       );
   }

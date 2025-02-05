@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:fpdart/fpdart.dart';
 import 'package:supplysync/core/common/entities/user.dart';
-
-import '../../../error/failure.dart';
 
 part 'user_state.dart';
 
@@ -18,11 +15,16 @@ class UserCubit extends Cubit<UserState> {
     }
   }
 
-  Either<Failure, User> getUser() {
+  String? getToken() {
     final state = this.state;
     if (state is UserLoggedIn) {
-      return right(state.user);
+      return state.user.jwtToken;
     }
-    return left(Failure('Usuário não autenticado'));
+    return null;
+  }
+
+  User? getCurrentUser() {
+    final state = this.state;
+    return state is UserLoggedIn ? state.user : null;
   }
 }

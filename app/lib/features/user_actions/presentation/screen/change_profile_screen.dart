@@ -88,7 +88,7 @@ class _ChangeProfileScreenState extends State<ChangeProfileScreen> {
                 } else {
                   context.read<AuthBloc>().add(AuthGetCurrentUser());
                 }
-              } else if (state is UserFailure) {
+              } else if (state is UserActionsFailure) {
                 showSnackBar(context, message: state.message, isError: true);
               }
             },

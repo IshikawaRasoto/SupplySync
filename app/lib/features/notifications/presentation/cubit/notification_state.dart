@@ -7,6 +7,8 @@ final class NotificationInitial extends NotificationState {}
 
 final class NotificationInitialized extends NotificationState {}
 
+final class NotificationTokenUpdated extends NotificationState {}
+
 final class NotificationError extends NotificationState {
   final String message;
 

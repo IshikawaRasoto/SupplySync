@@ -36,6 +36,7 @@ import 'features/notifications/domain/repositories/notification_repository.dart'
 import 'features/notifications/domain/usecases/get_firebase_tolen.dart';
 import 'features/notifications/domain/usecases/initialize_notifications.dart';
 import 'features/notifications/domain/usecases/show_notification.dart';
+import 'features/notifications/domain/usecases/update_firebase_token.dart';
 import 'features/notifications/presentation/cubit/notification_cubit.dart';
 import 'features/user_actions/data/repositories/user_actions_repository_impl.dart';
 import 'features/user_actions/data/source/user_actions_remote_data_source.dart';

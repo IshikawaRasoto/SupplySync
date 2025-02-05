@@ -2,6 +2,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:logger/logger.dart';
 import 'package:supplysync/features/notifications/data/datasources/notification_local_data_source.dart';
 
+import '../../../../core/constants/api_constants.dart';
+import '../../../../core/data/api_service.dart';
 import '../../core/handlers/notification_background_handler.dart';
 import '../../domain/entities/notification_channel.dart';
 import '../../domain/entities/notification_message.dart';
@@ -11,9 +13,12 @@ abstract class NotificationRemoteDataSource {
   Future<void> showLocalNotification(NotificationMessage message);
   Future<String?> getFirebaseToken();
   Future<void> handleBackgroundMessage();
+  Future<void> updateFirebaseToken(
+      {required String firebaseToken, required String jwtToken});
 }
 
 class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
+  final ApiService _apiService;
   final LocalNotificationsDataSource _localNotifications;
   final FirebaseMessaging _firebaseMessaging;
   final Logger _logger = Logger();
@@ -21,8 +26,10 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
   NotificationRemoteDataSourceImpl({
     required LocalNotificationsDataSource localNotifications,
     required FirebaseMessaging firebaseMessaging,
+    required ApiService apiService,
   })  : _localNotifications = localNotifications,
-        _firebaseMessaging = firebaseMessaging;
+        _firebaseMessaging = firebaseMessaging,
+        _apiService = apiService;
 
   @override
   Future<void> initialize() async {
@@ -71,6 +78,16 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
       alert: true,
       badge: true,
       sound: true,
+    );
+  }
+
+  @override
+  Future<void> updateFirebaseToken(
+      {required String firebaseToken, required String jwtToken}) async {
+    await _apiService.postData(
+      endPoint: ApiEndpoints.updateFirebaseToken,
+      body: {'firebaseToken': firebaseToken},
+      jwtToken: jwtToken,
     );
   }
 }

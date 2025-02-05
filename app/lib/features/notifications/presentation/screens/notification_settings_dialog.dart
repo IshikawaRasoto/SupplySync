@@ -4,11 +4,11 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../../domain/entities/notification_channel.dart';
 
 class NotificationSettingsDialog extends StatelessWidget {
-  final FlutterLocalNotificationsPlugin notifications;
+  final FlutterLocalNotificationsPlugin notifications =
+      FlutterLocalNotificationsPlugin();
 
-  const NotificationSettingsDialog({
+  NotificationSettingsDialog({
     super.key,
-    required this.notifications,
   });
 
   Future<void> _openChannelSettings(

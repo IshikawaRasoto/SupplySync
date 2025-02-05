@@ -29,37 +29,37 @@ class UserRequestBloc extends Bloc<UserRequestEvent, UserRequestState> {
   Future<void> _getUserByUserName(
       GetUserByUserName event, Emitter<UserRequestState> emit) async {
     emit(UserRequestLoading());
-    await _userCubit.getUser().fold(
-      (failure) async => emit(UserRequestFailure(failure.message)),
-      (user) async {
-        final result = await _userGetUserByUserName(
-          UserGetUserByUserNameParams(
-            jwtToken: user.jwtToken,
-            userName: event.userName,
-          ),
-        );
-        result.fold(
-          (failure) => emit(UserRequestFailure(failure.message)),
-          (user) => emit(UserRequestUserSuccess(user)),
-        );
-      },
+    final currentUser = _userCubit.getCurrentUser();
+    if (currentUser == null) {
+      emit(UserRequestFailure('User not authenticated'));
+      return;
+    }
+    final result = await _userGetUserByUserName(
+      UserGetUserByUserNameParams(
+        jwtToken: currentUser.jwtToken,
+        userName: event.userName,
+      ),
+    );
+    result.fold(
+      (failure) => emit(UserRequestFailure(failure.message)),
+      (user) => emit(UserRequestUserSuccess(user)),
     );
   }
 
   Future<void> _getAllUsers(
       GetAllUsers event, Emitter<UserRequestState> emit) async {
     emit(UserRequestLoading());
-    await _userCubit.getUser().fold(
-      (failure) async => emit(UserRequestFailure(failure.message)),
-      (user) async {
-        final result = await _userGetAllUsers(
-          user.jwtToken,
-        );
-        result.fold(
-          (failure) => emit(UserRequestFailure(failure.message)),
-          (users) => emit(UserRequestAllUsersSuccess(users)),
-        );
-      },
+    final currentUser = _userCubit.getCurrentUser();
+    if (currentUser == null) {
+      emit(UserRequestFailure('User not authenticated'));
+      return;
+    }
+    final result = await _userGetAllUsers(
+      currentUser.jwtToken,
+    );
+    result.fold(
+      (failure) => emit(UserRequestFailure(failure.message)),
+      (users) => emit(UserRequestAllUsersSuccess(users)),
     );
   }
 }

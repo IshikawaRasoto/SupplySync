@@ -50,18 +50,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<void> _getCurrentUser(
       AuthGetCurrentUser event, Emitter<AuthState> emit) async {
     emit(AuthLoading());
-    await _userCubit.getUser().fold(
-      (failure) async => emit(AuthFailure(failure.message)),
-      (user) async {
-        final result = await _getCurrentUseCase(user.jwtToken);
-        result.fold(
-          (failure) => emit(AuthFailure(failure.message)),
-          (user) {
-            _loger.i('User getted in: ${user.toJson()}');
-            _userCubit.updateUser(user);
-            emit(AuthSuccess(user));
-          },
-        );
+    emit(AuthLoading());
+    final token = _userCubit.getToken();
+    if (token == null) {
+      emit(AuthFailure('User not authenticated'));
+      return;
+    }
+    final result = await _getCurrentUseCase(token);
+    result.fold(
+      (failure) => emit(AuthFailure(failure.message)),
+      (user) {
+        _loger.i('User retrieved: ${user.toJson()}');
+        _userCubit.updateUser(user);
+        emit(AuthSuccess(user));
       },
     );
   }

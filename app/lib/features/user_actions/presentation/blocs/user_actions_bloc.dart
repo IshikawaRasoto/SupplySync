@@ -35,89 +35,89 @@ class UserActionsBloc extends Bloc<UserActionsEvent, UserActionsState> {
   Future<void> _onUpdateUserProfile(
       ChangeUserProfile event, Emitter<UserActionsState> emit) async {
     emit(UserLoading());
-    await _userCubit.getUser().fold(
-      (failure) async => emit(UserFailure(failure.message)),
-      (user) async {
-        final result = await _updateUseCase(
-          UserUpdateProfileParams(
-            jwtToken: user.jwtToken,
-            targetUserName: event.targetUserName,
-            newName: event.newName,
-            newEmail: event.newEmail,
-          ),
-        );
-        result.fold(
-          (failure) => emit(UserFailure(failure.message)),
-          (_) => emit(UserActionsSuccess('Dados alterados com sucesso!')),
-        );
-      },
+    final currentUser = _userCubit.getCurrentUser();
+    if (currentUser == null) {
+      emit(UserActionsFailure('User not authenticated'));
+      return;
+    }
+    final result = await _updateUseCase(
+      UserUpdateProfileParams(
+        jwtToken: currentUser.jwtToken,
+        targetUserName: event.targetUserName,
+        newName: event.newName,
+        newEmail: event.newEmail,
+      ),
+    );
+    result.fold(
+      (failure) => emit(UserActionsFailure(failure.message)),
+      (_) => emit(UserActionsSuccess('Dados alterados com sucesso!')),
     );
   }
 
   Future<void> _onChangeUserPassword(
       ChangeUserPassword event, Emitter<UserActionsState> emit) async {
     emit(UserLoading());
-    await _userCubit.getUser().fold(
-      (failure) async => emit(UserFailure(failure.message)),
-      (user) async {
-        final result = await _updateUseCase(
-          UserUpdateProfileParams(
-            jwtToken: user.jwtToken,
-            targetUserName: event.targetUserName,
-            password: event.oldPassword,
-            newPassword: event.newPassword,
-          ),
-        );
-        result.fold(
-          (failure) => emit(UserFailure(failure.message)),
-          (_) => emit(UserActionsSuccess('Senha alterada com sucesso!')),
-        );
-      },
+    final currentUser = _userCubit.getCurrentUser();
+    if (currentUser == null) {
+      emit(UserActionsFailure('User not authenticated'));
+      return;
+    }
+    final result = await _updateUseCase(
+      UserUpdateProfileParams(
+        jwtToken: currentUser.jwtToken,
+        targetUserName: event.targetUserName,
+        password: event.oldPassword,
+        newPassword: event.newPassword,
+      ),
+    );
+    result.fold(
+      (failure) => emit(UserActionsFailure(failure.message)),
+      (_) => emit(UserActionsSuccess('Senha alterada com sucesso!')),
     );
   }
 
   Future<void> _onChangeUserRoles(
       UserChangeRolesRequest event, Emitter<UserActionsState> emit) async {
     emit(UserLoading());
-    await _userCubit.getUser().fold(
-      (failure) async => emit(UserFailure(failure.message)),
-      (user) async {
-        final result = await _changeRolesUseCase(
-          ChangeUserRolesParams(
-            jwtToken: user.jwtToken,
-            targetUserName: event.targetUserName,
-            userRoles: event.newRoles,
-          ),
-        );
-        result.fold(
-          (failure) => emit(UserFailure(failure.message)),
-          (_) => emit(UserActionsSuccess('Permissões alteradas com sucesso!')),
-        );
-      },
+    final currentUser = _userCubit.getCurrentUser();
+    if (currentUser == null) {
+      emit(UserActionsFailure('User not authenticated'));
+      return;
+    }
+    final result = await _changeRolesUseCase(
+      ChangeUserRolesParams(
+        jwtToken: currentUser.jwtToken,
+        targetUserName: event.targetUserName,
+        userRoles: event.newRoles,
+      ),
+    );
+    result.fold(
+      (failure) => emit(UserActionsFailure(failure.message)),
+      (_) => emit(UserActionsSuccess('Permissões alteradas com sucesso!')),
     );
   }
 
   Future<void> _onRegisterNewUser(
       RegisterNewUser event, Emitter<UserActionsState> emit) async {
     emit(UserLoading());
-    await _userCubit.getUser().fold(
-      (failure) async => emit(UserFailure(failure.message)),
-      (user) async {
-        final result = await _registerUseCase(
-          UserRegisterUserParams(
-            jwtToken: user.jwtToken,
-            userName: event.userName,
-            name: event.name,
-            email: event.email,
-            password: event.password,
-            roles: event.roles,
-          ),
-        );
-        result.fold(
-          (failure) => emit(UserFailure(failure.message)),
-          (_) => emit(UserActionsSuccess('Usuário cadastrado com sucesso!')),
-        );
-      },
+    final currentUser = _userCubit.getCurrentUser();
+    if (currentUser == null) {
+      emit(UserActionsFailure('User not authenticated'));
+      return;
+    }
+    final result = await _registerUseCase(
+      UserRegisterUserParams(
+        jwtToken: currentUser.jwtToken,
+        userName: event.userName,
+        name: event.name,
+        email: event.email,
+        password: event.password,
+        roles: event.roles,
+      ),
+    );
+    result.fold(
+      (failure) => emit(UserActionsFailure(failure.message)),
+      (_) => emit(UserActionsSuccess('Usuário cadastrado com sucesso!')),
     );
   }
 }

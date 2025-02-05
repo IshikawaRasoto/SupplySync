@@ -12,7 +12,7 @@ final class UserActionsSuccess extends UserActionsState {
   UserActionsSuccess(this.message);
 }
 
-final class UserFailure extends UserActionsState {
+final class UserActionsFailure extends UserActionsState {
   final String message;
-  UserFailure(this.message);
+  UserActionsFailure(this.message);
 }

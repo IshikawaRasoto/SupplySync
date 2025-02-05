@@ -17,6 +17,9 @@ enum ApiEndpoints {
   warehouseProducts,
   records,
 
+  // Notification
+  updateFirebaseToken,
+
   // Carts
   carts,
   cartDetails,
