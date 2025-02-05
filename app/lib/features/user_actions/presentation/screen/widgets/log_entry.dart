@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../../../core/common/entities/log.dart';
 import 'package:intl/intl.dart';
+
+import '../../../../../core/theme/theme.dart';
+import '../../../domain/entities/log.dart';
 
 class LogEntry extends StatelessWidget {
   final Log log;
@@ -17,7 +19,7 @@ class LogEntry extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             DateFormat('yyyy-MM-dd HH:mm:ss').format(log.timestamp),
-            style: const TextStyle(color: Colors.grey),
+            style: const TextStyle(color: AppColors.grey),
           ),
           const SizedBox(width: 16),
           _buildSourceBadge(log.source),
@@ -28,22 +30,22 @@ class LogEntry extends StatelessWidget {
   }
 
   Widget _buildLevelBadge(String level) {
-    Color color;
+    late Color color;
     switch (level.toUpperCase()) {
       case 'ERROR':
-        color = Colors.red;
+        color = AppColors.red;
       case 'WARNING':
-        color = Colors.orange;
+        color = AppColors.orange;
       case 'INFO':
-        color = Colors.blue;
+        color = AppColors.blue;
       default:
-        color = Colors.grey;
+        color = AppColors.grey;
     }
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: getColorWithOpacity(color, 0.2),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
@@ -60,7 +62,7 @@ class LogEntry extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.grey.withOpacity(0.2),
+        color: getColorWithOpacity(AppColors.grey, 0.2),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(

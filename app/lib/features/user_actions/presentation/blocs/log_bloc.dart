@@ -1,6 +1,7 @@
-import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
-import '../entities/log.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../../domain/entities/log.dart';
 
 part 'log_event.dart';
 part 'log_state.dart';

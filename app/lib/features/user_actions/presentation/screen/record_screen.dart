@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../core/common/bloc/log_bloc.dart';
-import '../../../../features/user_actions/presentation/screen/widgets/log_entry.dart';
+import '../blocs/log_bloc.dart';
+import 'widgets/log_entry.dart';
 
 class RecordScreen extends StatefulWidget {
   const RecordScreen({super.key});
@@ -41,7 +41,8 @@ class _RecordScreenState extends State<RecordScreen> {
                     Expanded(
                       child: ListView.separated(
                         itemCount: logs.length,
-                        separatorBuilder: (context, index) => const Divider(height: 1),
+                        separatorBuilder: (context, index) =>
+                            const Divider(height: 1),
                         itemBuilder: (context, index) {
                           final log = logs[index];
                           return LogEntry(log: log);

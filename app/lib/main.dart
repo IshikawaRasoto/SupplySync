@@ -13,7 +13,7 @@ import 'features/notifications/presentation/cubit/notification_cubit.dart';
 import 'features/user_actions/presentation/blocs/user_request_bloc.dart';
 import 'init_dependencies_imports.dart';
 import 'core/common/cubit/user/user_cubit.dart';
-import 'core/common/bloc/log_bloc.dart';
+import 'features/user_actions/presentation/blocs/log_bloc.dart';
 import 'routes.dart';
 
 void main() async {
