@@ -39,7 +39,7 @@ class AuthCredentialsRepositoryImpl implements AuthCredentialsRepository {
   }
 
   @override
-  Future<void> setSavePassword(bool save) {
-    return _secureStorage.writeBool('save_password', save);
+  Future<void> setSavePassword(bool save) async {
+    await _secureStorage.writeBool('save_password', save);
   }
 }

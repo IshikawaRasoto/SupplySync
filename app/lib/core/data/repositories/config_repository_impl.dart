@@ -5,13 +5,10 @@ import '../../domain/repositories/local_storage_repository.dart';
 
 class ConfigRepositoryImpl implements ConfigRepository {
   final LocalStorageRepository _nonSecureStorage;
-  final LocalStorageRepository _secureStorage;
 
   ConfigRepositoryImpl({
     required LocalStorageRepository nonSecureStorage,
-    required LocalStorageRepository secureStorage,
-  })  : _nonSecureStorage = nonSecureStorage,
-        _secureStorage = secureStorage;
+  }) : _nonSecureStorage = nonSecureStorage;
 
   @override
   Future<String> getApiUrl() async {

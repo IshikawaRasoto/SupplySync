@@ -24,8 +24,8 @@ class AuthCredentialsCubit extends Cubit<AuthCredentialsState> {
     bool savePassword = false,
   }) async {
     await _repository.setSavedUsername(username);
-    await _repository.setSavePassword(savePassword);
     await _repository.setSavedPassword(savePassword ? password : '');
+    await _repository.setSavePassword(savePassword);
     emit(AuthCredentialsSaved());
   }
 

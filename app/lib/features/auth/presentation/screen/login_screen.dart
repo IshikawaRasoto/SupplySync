@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:logger/logger.dart';
 import 'package:supplysync/features/auth/presentation/cubit/auth_credentials_cubit.dart';
 
 import '../../../../core/utils/show_snackbar.dart';
 import '../../../../core/common/widgets/logo_and_help_widget.dart';
+import '../../../notifications/presentation/cubit/notification_cubit.dart';
 import 'widget/settings_app_popup.dart';
 import '../blocs/auth_bloc.dart';
 
@@ -64,9 +66,16 @@ class _LoginScreenState extends State<LoginScreen> with RouteAware {
         });
       }
     });
+    _getFirebaseToken();
   }
 
-  Future<void> _login({bool biometric = false}) async {
+  void _getFirebaseToken() async {
+    final girebaseToken =
+        await context.read<NotificationCubit>().getFirebaseToken();
+    Logger().d('Firebase Token: $girebaseToken');
+  }
+
+  Future<void> _login({bool biometric = true}) async {
     try {
       if (_formKey.currentState?.validate() ?? false) {
         final username = _userNameController.text;
@@ -131,14 +140,16 @@ class _LoginScreenState extends State<LoginScreen> with RouteAware {
             return BlocListener<AuthCredentialsCubit, AuthCredentialsState>(
               listener: (context, state) {
                 if (state is AuthCredentialsLoaded) {
-                  _userNameController.text = state.username ?? '';
-                  _password = state.password ?? '';
-                  _savePassword = state.savePassword ?? false;
+                  setState(() {
+                    _userNameController.text = state.username ?? '';
+                    _password = state.password ?? '';
+                    _savePassword = state.savePassword ?? false;
+                  });
                 }
               },
               child: Column(
                 children: [
-                  LogoAndHelpWidget(),
+                  LogoAndHelpWidget(back: false),
                   SizedBox(height: MediaQuery.of(context).size.height * 0.05),
                   Container(
                     decoration: BoxDecoration(
@@ -222,40 +233,28 @@ class _LoginScreenState extends State<LoginScreen> with RouteAware {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  _availableBiometrics
-                                              .contains(BiometricType.face) ||
-                                          _availableBiometrics
-                                              .contains(BiometricType.iris)
-                                      ? ElevatedButton(
-                                          onPressed: () =>
-                                              _login(biometric: true),
-                                          child: const Text('Facial'),
-                                        )
-                                      : ElevatedButton(
-                                          onPressed: () {},
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.grey,
-                                          ),
-                                          child: const Text('Facial'),
-                                        ),
-                                  const SizedBox(width: 8),
-                                  _availableBiometrics
-                                          .contains(BiometricType.fingerprint)
-                                      ? ElevatedButton(
-                                          onPressed: () =>
-                                              _login(biometric: true),
-                                          child: const Text('Biometria'),
-                                        )
-                                      : ElevatedButton(
-                                          onPressed: () {},
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.grey,
-                                          ),
-                                          child: const Text('Biometria'),
-                                        ),
+                                  ElevatedButton(
+                                    onPressed: (_availableBiometrics.contains(
+                                                    BiometricType.face) ||
+                                                _availableBiometrics.contains(
+                                                    BiometricType.iris)) &&
+                                            _password.isNotEmpty
+                                        ? _login
+                                        : null,
+                                    child: const Text('Facial'),
+                                  ),
                                   const SizedBox(width: 8),
                                   ElevatedButton(
-                                    onPressed: () => _login(),
+                                    onPressed: _availableBiometrics.contains(
+                                                BiometricType.fingerprint) &&
+                                            _password.isNotEmpty
+                                        ? _login
+                                        : null,
+                                    child: const Text('Biometria'),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  ElevatedButton(
+                                    onPressed: () => _login(biometric: false),
                                     child: Text('Entrar'),
                                   ),
                                 ],
