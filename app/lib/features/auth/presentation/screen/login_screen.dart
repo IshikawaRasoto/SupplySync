@@ -19,19 +19,22 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> with RouteAware {
-  late AuthCredentialsCubit authCredentialsCubit;
-  List<BiometricType> _availableBiometrics = [];
-  // Form
-  final _formKey = GlobalKey<FormState>();
+  final Logger _logger = Logger();
 
+  late AuthCredentialsCubit authCredentialsCubit;
+  late AuthBloc authBloc;
+
+  final List<BiometricType> _availableBiometrics = [];
+  bool _isBiometricsAvailable = false;
+
+  final _formKey = GlobalKey<FormState>();
   final LocalAuthentication _localAuth = LocalAuthentication();
   bool _obscureText = true;
   final _passwordController = TextEditingController();
-  String _password = '';
+  String _savedUsername = '';
+  String _savedPassword = '';
   bool _savePassword = false;
   final _userNameController = TextEditingController();
-
-  late AuthBloc authBloc;
 
   @override
   void didChangeDependencies() {
@@ -59,47 +62,96 @@ class _LoginScreenState extends State<LoginScreen> with RouteAware {
   void initState() {
     super.initState();
     authBloc = context.read<AuthBloc>();
-    _localAuth.isDeviceSupported().then((value) {
-      if (value) {
-        _localAuth.getAvailableBiometrics().then((value) {
-          if (mounted) setState(() => _availableBiometrics = value);
-        });
-      }
-    });
+    _checkBiometricAvailability();
     _getFirebaseToken();
   }
 
-  void _getFirebaseToken() async {
-    final girebaseToken =
-        await context.read<NotificationCubit>().getFirebaseToken();
-    Logger().d('Firebase Token: $girebaseToken');
-  }
-
-  Future<void> _login({bool biometric = true}) async {
+  Future<void> _checkBiometricAvailability() async {
     try {
-      if (_formKey.currentState?.validate() ?? false) {
-        final username = _userNameController.text;
-        final password = _passwordController.text;
-        authBloc.add(AuthLogin(username: username, password: password));
-      } else if (biometric) {
-        final username = _userNameController.text;
-        final isAuthenticated = await _localAuth.authenticate(
-          localizedReason: 'Autenticação necessária',
-        );
-        if (mounted && isAuthenticated) {
-          authBloc.add(AuthLogin(username: username, password: _password));
+      final isDeviceSupported = await _localAuth.isDeviceSupported();
+      if (isDeviceSupported) {
+        final biometrics = await _localAuth.getAvailableBiometrics();
+        if (mounted) {
+          setState(() {
+            _availableBiometrics.addAll(biometrics);
+            _isBiometricsAvailable = biometrics.isNotEmpty;
+          });
         }
       }
+      _logger.d(
+          'Biometrics is ${isDeviceSupported ? 'supported\nBiometrics available: $_availableBiometrics' : 'NOT supported'}');
     } catch (e) {
+      _logger.e('Error checking biometric availability: $e');
+      if (mounted) {
+        setState(() => _isBiometricsAvailable = false);
+      }
+    }
+  }
+
+  void _getFirebaseToken() async {
+    final firebaseToken =
+        await context.read<NotificationCubit>().getFirebaseToken();
+    _logger.d('Firebase Token: $firebaseToken');
+  }
+
+  Future<void> _authenticateWithBiometrics() async {
+    if (!_isBiometricsAvailable ||
+        _savedPassword.isEmpty ||
+        _savedUsername.isEmpty) {
+      return;
+    }
+    try {
+      final isAuthenticated = await _localAuth.authenticate(
+        localizedReason: 'Autentique-se para acessar o aplicativo',
+        options: const AuthenticationOptions(
+          stickyAuth: true,
+          biometricOnly: true,
+        ),
+      );
+
+      if (mounted && isAuthenticated) {
+        authBloc
+            .add(AuthLogin(username: _savedUsername, password: _savedPassword));
+      }
+    } catch (e) {
+      _logger.e('Biometric authentication error: $e');
       if (mounted) {
         showSnackBar(
           context,
-          message: 'Erro ao autenticar',
+          message: 'Erro na autenticação biométrica. Tente novamente.',
           isError: true,
         );
       }
     }
   }
+
+  Future<void> _loginWithCredentials() async {
+    if (_formKey.currentState?.validate() ?? false) {
+      final username = _userNameController.text;
+      final password = _passwordController.text;
+      authBloc.add(AuthLogin(username: username, password: password));
+    }
+  }
+
+  Widget _buildAuthButton({
+    required String text,
+    required IconData icon,
+    required VoidCallback? onPressed,
+  }) {
+    return ElevatedButton.icon(
+      onPressed: onPressed,
+      icon: Icon(icon, size: 18),
+      label: Text(text),
+      style: ElevatedButton.styleFrom(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+    );
+  }
+
+  bool get _canUseBiometrics =>
+      _isBiometricsAvailable &&
+      _savedPassword.isNotEmpty &&
+      _userNameController.text.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {
@@ -115,7 +167,7 @@ class _LoginScreenState extends State<LoginScreen> with RouteAware {
         child: const Icon(Icons.settings),
       ),
       body: SafeArea(
-        minimum: EdgeInsets.only(top: 36),
+        minimum: const EdgeInsets.only(top: 36),
         child: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
             if (state is AuthSuccess) {
@@ -142,14 +194,14 @@ class _LoginScreenState extends State<LoginScreen> with RouteAware {
                 if (state is AuthCredentialsLoaded) {
                   setState(() {
                     _userNameController.text = state.username ?? '';
-                    _password = state.password ?? '';
+                    _savedPassword = state.password ?? '';
                     _savePassword = state.savePassword ?? false;
                   });
                 }
               },
               child: Column(
                 children: [
-                  LogoAndHelpWidget(back: false),
+                  const LogoAndHelpWidget(back: false),
                   SizedBox(height: MediaQuery.of(context).size.height * 0.05),
                   Container(
                     decoration: BoxDecoration(
@@ -165,8 +217,9 @@ class _LoginScreenState extends State<LoginScreen> with RouteAware {
                         ),
                       ],
                     ),
-                    padding: EdgeInsets.all(24),
-                    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
+                    padding: const EdgeInsets.all(24),
+                    margin: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 24),
                     child: Column(
                       children: [
                         Form(
@@ -210,7 +263,11 @@ class _LoginScreenState extends State<LoginScreen> with RouteAware {
                                     borderRadius: BorderRadius.circular(8.0),
                                   ),
                                   suffixIcon: IconButton(
-                                    icon: const Icon(Icons.remove_red_eye),
+                                    icon: Icon(
+                                      _obscureText
+                                          ? Icons.visibility_off
+                                          : Icons.visibility,
+                                    ),
                                     onPressed: () => setState(
                                         () => _obscureText = !_obscureText),
                                   ),
@@ -230,42 +287,30 @@ class _LoginScreenState extends State<LoginScreen> with RouteAware {
                                   ),
                                 ],
                               ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: (_availableBiometrics.contains(
-                                                    BiometricType.face) ||
-                                                _availableBiometrics.contains(
-                                                    BiometricType.iris)) &&
-                                            _password.isNotEmpty
-                                        ? _login
-                                        : null,
-                                    child: const Text('Facial'),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  ElevatedButton(
-                                    onPressed: _availableBiometrics.contains(
-                                                BiometricType.fingerprint) &&
-                                            _password.isNotEmpty
-                                        ? _login
-                                        : null,
-                                    child: const Text('Biometria'),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  ElevatedButton(
-                                    onPressed: () => _login(biometric: false),
-                                    child: Text('Entrar'),
-                                  ),
-                                ],
+                              if (_availableBiometrics.isNotEmpty) ...[
+                                const SizedBox(height: 16),
+                                _buildAuthButton(
+                                  text: 'Autenticação Biométrica',
+                                  icon: _availableBiometrics
+                                          .contains(BiometricType.face)
+                                      ? Icons.face
+                                      : Icons.fingerprint,
+                                  onPressed: _canUseBiometrics
+                                      ? _authenticateWithBiometrics
+                                      : null,
+                                ),
+                                const SizedBox(height: 8),
+                              ],
+                              _buildAuthButton(
+                                text: 'Entrar com Senha',
+                                icon: Icons.login,
+                                onPressed: _loginWithCredentials,
                               ),
                             ],
                           ),
                         ),
                         TextButton(
-                          onPressed: () {
-                            Dialog();
-                          },
+                          onPressed: () => Dialog(),
                           child: const Text(
                             'Esqueci minha senha',
                             style: TextStyle(

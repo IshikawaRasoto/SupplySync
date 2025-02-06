@@ -50,7 +50,7 @@ class InitDependencies {
       // Repositories
       ..registerFactory<AuthRepository>(
           () => AuthRepositoryImpl(serviceLocator<AuthRemoteDataSource>()))
-      ..registerLazySingleton<AuthCredentialsRepository>(
+      ..registerFactory<AuthCredentialsRepository>(
         () => AuthCredentialsRepositoryImpl(
           serviceLocator<LocalStorageRepository>(instanceName: 'secure'),
         ),
@@ -141,12 +141,18 @@ class InitDependencies {
 
   static void _initNotifications() {
     serviceLocator
-      // DataSources
+      // Plugins
       ..registerLazySingleton<FlutterLocalNotificationsPlugin>(
         () => FlutterLocalNotificationsPlugin(),
       )
       ..registerLazySingleton<FirebaseMessaging>(
         () => FirebaseMessaging.instance,
+      )
+      // DataSources
+      ..registerLazySingleton<LocalNotificationsDataSource>(
+        () => LocalNotificationsDataSourceImpl(
+          serviceLocator<FlutterLocalNotificationsPlugin>(),
+        ),
       )
       ..registerLazySingleton<NotificationRemoteDataSource>(
         () => NotificationRemoteDataSourceImpl(
@@ -157,10 +163,17 @@ class InitDependencies {
           apiService: serviceLocator<ApiService>(),
         ),
       )
+      ..registerFactory<LocalStorageDataSource>(
+        () => LocalStorageDataSourceImpl(
+          serviceLocator<LocalStorageRepository>(instanceName: 'non-secure'),
+        ),
+      )
+
       // Repository
-      ..registerLazySingleton<NotificationRepository>(
+      ..registerFactory<NotificationRepository>(
         () => NotificationRepositoryImpl(
-          serviceLocator<NotificationRemoteDataSource>(),
+          dataSource: serviceLocator<NotificationRemoteDataSource>(),
+          localStorageDataSource: serviceLocator<LocalStorageDataSource>(),
         ),
       )
       // UseCases
@@ -176,6 +189,12 @@ class InitDependencies {
       ..registerFactory(
         () => UpdateFirebaseToken(serviceLocator<NotificationRepository>()),
       )
+      ..registerFactory(
+        () => GetChannelEnabledState(serviceLocator<NotificationRepository>()),
+      )
+      ..registerFactory(
+        () => SaveChannelEnabledState(serviceLocator<NotificationRepository>()),
+      )
       // Cubit
       ..registerLazySingleton(
         () => NotificationCubit(
@@ -184,6 +203,8 @@ class InitDependencies {
           getFirebaseToken: serviceLocator<GetFirebaseToken>(),
           updateFirebaseToken: serviceLocator<UpdateFirebaseToken>(),
           userCubit: serviceLocator<UserCubit>(),
+          getChannelEnabledState: serviceLocator<GetChannelEnabledState>(),
+          saveChannelEnabledState: serviceLocator<SaveChannelEnabledState>(),
         ),
       );
   }

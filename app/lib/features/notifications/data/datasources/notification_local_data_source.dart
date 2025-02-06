@@ -1,6 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:logger/web.dart';
 
+import '../../../../core/theme/theme.dart';
 import '../../domain/entities/notification_channel.dart';
 import '../../domain/entities/notification_message.dart';
 
@@ -19,7 +20,7 @@ class LocalNotificationsDataSourceImpl implements LocalNotificationsDataSource {
   Future<void> initialize() async {
     try {
       const initializationSettings = InitializationSettings(
-        android: AndroidInitializationSettings('app_icon'),
+        android: AndroidInitializationSettings('notification_small_icon'),
       );
 
       await _notifications.initialize(initializationSettings);
@@ -56,6 +57,9 @@ class LocalNotificationsDataSourceImpl implements LocalNotificationsDataSource {
         channelDescription: message.channel.description,
         importance: Importance.high,
         priority: Priority.high,
+        icon: 'notification_small_icon',
+        largeIcon: DrawableResourceAndroidBitmap('notification_large_icon'),
+        color: AppColors.red,
       );
 
       await _notifications.show(
@@ -66,7 +70,7 @@ class LocalNotificationsDataSourceImpl implements LocalNotificationsDataSource {
         payload: message.payload?.toString(),
       );
 
-      _logger.d('Notification shown: $message.title');
+      _logger.d('Notification shown: ${message.title}');
     } catch (e) {
       _logger.e('Error showing notification: $e');
       rethrow;

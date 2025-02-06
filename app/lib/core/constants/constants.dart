@@ -110,5 +110,5 @@ extension AppServicesExtension on AppServices {
 }
 
 class AssetsConstants {
-  static const String logo = 'assets/images/appIcon.png';
+  static const String logo = 'assets/icon/app_icon.png';
 }

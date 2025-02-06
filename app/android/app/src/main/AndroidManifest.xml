@@ -15,7 +15,7 @@
     <application
         android:label="SupplySync"
         android:name="${applicationName}"
-        android:icon="@mipmap/supplysync"
+        android:icon="@mipmap/ic_launcher"
         android:allowBackup="false"
         android:fullBackupContent="false">
         <activity
@@ -47,6 +47,10 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+        <!-- Firebase Messaging Service for background messaging - Set default icon for background messaging -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/notification_small_icon" />
          <!-- Service for handling foreground notifications -->
         <service
             android:name="com.dexterous.flutterlocalnotifications.ForegroundService"        

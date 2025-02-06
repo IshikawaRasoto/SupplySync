@@ -1,15 +1,15 @@
 # To generate use the following commands:
 # flutter pub get
 # dart run flutter_native_splash:create --path=flutter_native_splash.yaml
-
 flutter_native_splash:
-  color: "#DAD4C6"
-  image: assets/images/appIcon.png
+  color: "#DAD4C6" # Fundo branco para o modo claro
+  # Imagem para splash screen geral (Android < 12, iOS, Web) - Imagem "inteira"
+  image: assets/setup_icons/splash_icon_full.png ## Imagem 1152x1152px
 
   android_12:
-    image: assets/images/appIcon.png
-    color: "#DAD4C6"
+    icon_background_color: "#DAD4C6" # Fundo branco para o ícone no Android 12
+    # Imagem específica para Android 12 - Imagem preparada para recorte circular
+    image: assets/setup_icons/splash_icon_circular_crop.png # Imagem 1152x1152px com o coteúdo centralizado em um círculo de 768px
 
-  android: true
-  ios: false
-  web: false
+    
+
