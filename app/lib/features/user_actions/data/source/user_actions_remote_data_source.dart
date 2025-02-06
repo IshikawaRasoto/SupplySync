@@ -1,9 +1,10 @@
 import 'package:fpdart/fpdart.dart';
-import 'package:supplysync/core/error/server_exception.dart';
 
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/constants/constants.dart';
 import '../../../../core/data/api_service.dart';
+import '../../../../core/error/server_exception.dart';
+import '../models/log_model.dart';
 import '../models/new_user_model.dart';
 import '../models/target_user_model.dart';
 import '../models/target_user_update_model.dart';
@@ -32,6 +33,14 @@ abstract interface class UserActionsRemoteDataSource {
 
   Future<List<TargetUserModel>> getAllUsers({
     required String jwtToken,
+  });
+
+  Future<List<LogModel>> getLogs({
+    required String jwtToken,
+    DateTime? startDate,
+    DateTime? endDate,
+    String? level,
+    String? source,
   });
 }
 
@@ -83,7 +92,6 @@ class UserActionsRemoteDataSourceImpl implements UserActionsRemoteDataSource {
     required String targetUserName,
   }) async {
     try {
-      // final data = {'roles': userRoles.map((e) => e.toString()).toList()};
       final data = {'username': targetUserName, 'roles': userRoles.first.name};
       await _apiService.updateData(
         endPoint: ApiEndpoints.updateLogin,
@@ -133,6 +141,53 @@ class UserActionsRemoteDataSourceImpl implements UserActionsRemoteDataSource {
                 email: '',
                 roles: [],
               ))
+          .toList();
+    } on ServerException {
+      rethrow;
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<List<LogModel>> getLogs({
+    required String jwtToken,
+    DateTime? startDate,
+    DateTime? endDate,
+    String? level,
+    String? source,
+  }) async {
+    try {
+      Map<String, String>? queryParams;
+
+      if (startDate != null ||
+          endDate != null ||
+          level != null ||
+          source != null) {
+        queryParams = {};
+        if (startDate != null) {
+          queryParams['startDate'] = startDate.toIso8601String();
+        }
+        if (endDate != null) {
+          queryParams['endDate'] = endDate.toIso8601String();
+        }
+        if (level != null) {
+          queryParams['level'] = level;
+        }
+        if (source != null) {
+          queryParams['source'] = source;
+        }
+      }
+
+      final result = await _apiService.fetchData(
+        endPoint: ApiEndpoints.records,
+        jwtToken: jwtToken,
+        pathParams: queryParams,
+      );
+
+      final List<dynamic> logList = result['logs'] as List<dynamic>;
+      return logList
+          .map((log) => LogModel.fromJson(log as Map<String, dynamic>))
           .toList();
     } on ServerException {
       rethrow;

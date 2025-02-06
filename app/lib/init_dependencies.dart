@@ -109,8 +109,17 @@ class InitDependencies {
 
   static void _initLog() {
     serviceLocator
-        // Blocs
-        .registerLazySingleton(() => LogBloc());
+      // Repositories
+      ..registerFactory<LogRepository>(
+        () => LogRepositoryImpl(serviceLocator<UserActionsRemoteDataSource>()),
+      )
+      // UseCases
+      ..registerFactory(() => GetLogs(serviceLocator<LogRepository>()))
+      // Blocs
+      ..registerLazySingleton(() => LogBloc(
+            getLogs: serviceLocator<GetLogs>(),
+            userCubit: serviceLocator<UserCubit>(),
+          ));
   }
 
   static void _initCarts() {

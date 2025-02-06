@@ -43,6 +43,8 @@ extension ApiEndpointsExtension on ApiEndpoints {
         return 'get_all_users';
       case ApiEndpoints.getOtherUser:
         return 'get_user/{userName}';
+      case ApiEndpoints.records:
+        return 'get_logs';
       default:
         return name;
     }

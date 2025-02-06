@@ -151,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> with RouteAware {
   bool get _canUseBiometrics =>
       _isBiometricsAvailable &&
       _savedPassword.isNotEmpty &&
-      _userNameController.text.isNotEmpty;
+      _savedUsername.isNotEmpty;
 
   @override
   Widget build(BuildContext context) {

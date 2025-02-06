@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../blocs/log_bloc.dart';
+import '../blocs/log_event.dart';
+import '../blocs/log_state.dart';
 import 'widgets/log_entry.dart';
 
 class RecordScreen extends StatefulWidget {
@@ -12,11 +14,14 @@ class RecordScreen extends StatefulWidget {
 }
 
 class _RecordScreenState extends State<RecordScreen> {
+  Future<void> _refreshLogs() async {
+    context.read<LogBloc>().add(FetchLogs());
+  }
+
   @override
   void initState() {
     super.initState();
-    // Trigger log fetch when the screen is initialized
-    context.read<LogBloc>().add(FetchLogs());
+    _refreshLogs();
   }
 
   @override
@@ -24,6 +29,10 @@ class _RecordScreenState extends State<RecordScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Registros"),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _refreshLogs,
+        child: const Icon(Icons.refresh),
       ),
       body: SafeArea(
         child: BlocBuilder<LogBloc, LogState>(
@@ -39,14 +48,18 @@ class _RecordScreenState extends State<RecordScreen> {
                 child: Column(
                   children: [
                     Expanded(
-                      child: ListView.separated(
-                        itemCount: logs.length,
-                        separatorBuilder: (context, index) =>
-                            const Divider(height: 1),
-                        itemBuilder: (context, index) {
-                          final log = logs[index];
-                          return LogEntry(log: log);
-                        },
+                      child: RefreshIndicator(
+                        onRefresh: _refreshLogs,
+                        child: ListView.separated(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          itemCount: logs.length,
+                          separatorBuilder: (context, index) =>
+                              const Divider(height: 1),
+                          itemBuilder: (context, index) {
+                            final log = logs[index];
+                            return LogEntry(log: log);
+                          },
+                        ),
                       ),
                     ),
                   ],

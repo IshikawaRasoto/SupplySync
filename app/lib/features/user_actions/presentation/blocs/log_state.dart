@@ -1,7 +1,11 @@
-part of 'log_bloc.dart';
+import 'package:flutter/foundation.dart';
+
+import '../../domain/entities/log.dart';
 
 @immutable
-abstract class LogState {}
+abstract class LogState {
+  const LogState();
+}
 
 class LogInitial extends LogState {}
 
@@ -10,11 +14,11 @@ class LogsLoading extends LogState {}
 class LogsLoaded extends LogState {
   final List<Log> logs;
 
-  LogsLoaded(this.logs);
+  const LogsLoaded(this.logs);
 }
 
 class LogsError extends LogState {
   final String message;
 
-  LogsError(this.message);
+  const LogsError(this.message);
 }
