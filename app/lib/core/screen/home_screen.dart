@@ -23,9 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     _user = (context.read<UserCubit>().state as UserLoggedIn).user;
-    _userServices = getUserServices(_user)
-        .where((service) => service.path.isNotEmpty)
-        .toList();
+    _userServices = getUserServices(_user);
     super.initState();
   }
 
@@ -85,13 +83,14 @@ class _HomeScreenState extends State<HomeScreen> {
                       mainAxisSpacing: 30,
                       children: [
                         for (var service in _userServices)
-                          ServicesPagesWidget(
-                            icon: service.icon,
-                            text: service.name,
-                            onPressed: () {
-                              context.push(service.path);
-                            },
-                          ),
+                          if (service.path.isNotEmpty)
+                            ServicesPagesWidget(
+                              icon: service.icon,
+                              text: service.name,
+                              onPressed: () {
+                                context.push(service.path);
+                              },
+                            ),
                       ],
                     ),
                   );

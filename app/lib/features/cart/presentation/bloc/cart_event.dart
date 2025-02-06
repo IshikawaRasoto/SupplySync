@@ -4,8 +4,19 @@ part of 'cart_bloc.dart';
 sealed class CartEvent {}
 
 final class CartUseRequested extends CartEvent {
-  final String id;
-  CartUseRequested(this.id);
+  final String jwtToken;
+  final String load;
+  final String loadQuantity;
+  final String destination;
+  final String origin;
+
+  CartUseRequested({
+    required this.jwtToken,
+    required this.load,
+    required this.loadQuantity,
+    required this.destination,
+    required this.origin,
+  });
 }
 
 final class CartShutdownRequested extends CartEvent {

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../blocs/log_bloc.dart';
-import '../blocs/log_event.dart';
-import '../blocs/log_state.dart';
-import 'widgets/log_entry.dart';
+import '../../log/presentation/blocs/log_bloc.dart';
+import '../../log/presentation/screens/widgets/log_entry.dart';
 
 class RecordScreen extends StatefulWidget {
   const RecordScreen({super.key});

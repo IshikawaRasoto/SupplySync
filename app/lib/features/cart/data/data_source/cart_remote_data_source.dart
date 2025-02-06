@@ -1,32 +1,41 @@
-import 'package:supplysync/core/common/cubit/user/user_cubit.dart';
-
 import '../../../../core/constants/api_constants.dart';
 import '../../../../core/data/api_service.dart';
 import '../../../../core/error/conversion_exception.dart';
 import '../../../../core/error/server_exception.dart';
 import '../../domain/entities/cart.dart';
+import '../models/cart_request_model.dart';
 
 abstract interface class CartRemoteDataSource {
-  Future<List<Cart>> getAllCarts();
-  Future<Cart> getCartDetails(String id);
-  Future<void> requestCartUse(String id);
-  Future<void> requestShutdown(String id);
-  Future<void> requestCartMaintenance(String id);
+  Future<List<Cart>> getAllCarts(String jwtToken);
+  Future<Cart> getCartDetails({
+    required String jwtToken,
+    required String id,
+  });
+  Future<void> requestCartUse({
+    required String jwtToken,
+    required CartRequestModel cartRequest,
+  });
+  Future<void> requestShutdown({
+    required String jwtToken,
+    required String id,
+  });
+  Future<void> requestCartMaintenance({
+    required String jwtToken,
+    required String id,
+  });
 }
 
 class CartRemoteDataSourceImpl implements CartRemoteDataSource {
   final ApiService apiService;
-  final UserCubit userCubit;
 
-  CartRemoteDataSourceImpl(this.apiService, this.userCubit);
+  CartRemoteDataSourceImpl(this.apiService);
 
   @override
-  Future<List<Cart>> getAllCarts() async {
+  Future<List<Cart>> getAllCarts(String jwtToken) async {
     try {
-      final token = (userCubit.state as UserLoggedIn).user.jwtToken;
       final response = await apiService.fetchData(
         endPoint: ApiEndpoints.carts,
-        jwtToken: token,
+        jwtToken: jwtToken,
       );
       return (response['data'] as List)
           .map((json) => Cart.fromJson(json))
@@ -39,12 +48,14 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
   }
 
   @override
-  Future<Cart> getCartDetails(String id) async {
+  Future<Cart> getCartDetails({
+    required String jwtToken,
+    required String id,
+  }) async {
     try {
-      final token = (userCubit.state as UserLoggedIn).user.jwtToken;
       final response = await apiService.fetchData(
         endPoint: ApiEndpoints.cartDetails,
-        jwtToken: token,
+        jwtToken: jwtToken,
         pathParams: {'id': id},
       );
       return Cart.fromJson(response['data']);
@@ -56,13 +67,15 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
   }
 
   @override
-  Future<void> requestCartUse(String id) async {
+  Future<void> requestCartUse({
+    required String jwtToken,
+    required CartRequestModel cartRequest,
+  }) async {
     try {
-      final token = (userCubit.state as UserLoggedIn).user.jwtToken;
       await apiService.postData(
         endPoint: ApiEndpoints.cartUse,
-        jwtToken: token,
-        pathParams: {'id': id},
+        jwtToken: jwtToken,
+        body: cartRequest.toJson(),
       );
     } on ServerException {
       rethrow;
@@ -72,12 +85,14 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
   }
 
   @override
-  Future<void> requestShutdown(String id) async {
+  Future<void> requestShutdown({
+    required String jwtToken,
+    required String id,
+  }) async {
     try {
-      final token = (userCubit.state as UserLoggedIn).user.jwtToken;
       await apiService.postData(
         endPoint: ApiEndpoints.cartShutdown,
-        jwtToken: token,
+        jwtToken: jwtToken,
         pathParams: {'id': id},
       );
     } on ServerException {
@@ -88,12 +103,14 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
   }
 
   @override
-  Future<void> requestCartMaintenance(String id) async {
+  Future<void> requestCartMaintenance({
+    required String jwtToken,
+    required String id,
+  }) async {
     try {
-      final token = (userCubit.state as UserLoggedIn).user.jwtToken;
       await apiService.postData(
         endPoint: ApiEndpoints.cartMaintenance,
-        jwtToken: token,
+        jwtToken: jwtToken,
         pathParams: {'id': id},
       );
     } on ServerException {

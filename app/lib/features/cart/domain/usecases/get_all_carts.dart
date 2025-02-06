@@ -4,13 +4,13 @@ import '../../../../core/usecase/usecase.dart';
 import '../entities/cart.dart';
 import '../repositories/cart_repository.dart';
 
-class GetAllCarts implements UseCase<List<Cart>, Unit> {
+class GetAllCarts implements UseCase<List<Cart>, String> {
   final CartRepository repository;
 
   GetAllCarts(this.repository);
 
   @override
-  Future<Either<Failure, List<Cart>>> call(Unit params) async {
-    return await repository.getAllCarts();
+  Future<Either<Failure, List<Cart>>> call(String jwtToken) async {
+    return await repository.getAllCarts(jwtToken);
   }
 }

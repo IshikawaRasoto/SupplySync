@@ -9,6 +9,7 @@ class InitDependencies {
     _initLog();
     _initCarts();
     _initNotifications();
+    _initDockTransport();
 
     // * Core
     // Local Data
@@ -125,8 +126,8 @@ class InitDependencies {
   static void _initCarts() {
     serviceLocator
       // DataSources
-      ..registerFactory<CartRemoteDataSource>(() => CartRemoteDataSourceImpl(
-          serviceLocator<ApiService>(), serviceLocator<UserCubit>()))
+      ..registerFactory<CartRemoteDataSource>(
+          () => CartRemoteDataSourceImpl(serviceLocator<ApiService>()))
       // Repositories
       ..registerFactory<CartRepository>(
           () => CartRepositoryImpl(serviceLocator<CartRemoteDataSource>()))
@@ -145,6 +146,7 @@ class InitDependencies {
             requestShutdown: serviceLocator<ShutdownCart>(),
             getCartDetails: serviceLocator<GetCartDetails>(),
             getAllCarts: serviceLocator<GetAllCarts>(),
+            userCubit: serviceLocator<UserCubit>(),
           ));
   }
 
@@ -216,5 +218,17 @@ class InitDependencies {
           saveChannelEnabledState: serviceLocator<SaveChannelEnabledState>(),
         ),
       );
+  }
+
+  static void _initDockTransport() {
+    serviceLocator
+        // DataSources
+        // Repositories
+        // UseCases
+        // Blocs
+        .registerLazySingleton(() => DockTransportBloc(
+              requestCartUsage: serviceLocator<RequestCartUsage>(),
+              userCubit: serviceLocator<UserCubit>(),
+            ));
   }
 }

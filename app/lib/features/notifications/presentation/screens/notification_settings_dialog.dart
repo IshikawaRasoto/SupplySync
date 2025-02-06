@@ -4,6 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:logger/logger.dart';
+import 'package:supplysync/core/common/cubit/user/user_cubit.dart';
+import 'package:supplysync/core/utils/show_snackbar.dart';
+import '../../../../core/common/entities/user.dart';
+import '../../../../core/constants/constants.dart';
 import '../../domain/entities/notification_channel.dart';
 import '../cubit/notification_cubit.dart';
 
@@ -24,6 +28,14 @@ class NotificationSettingsDialog extends StatefulWidget {
 class _NotificationSettingsDialogState
     extends State<NotificationSettingsDialog> {
   final Logger _logger = Logger();
+  late User _user;
+  String firebaseToken = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _user = (context.read<UserCubit>().state as UserLoggedIn).user;
+  }
 
   Future<void> _openChannelSettings(
       BuildContext context, String channelId) async {
@@ -41,7 +53,16 @@ class _NotificationSettingsDialogState
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<NotificationCubit, NotificationState>(
+    return BlocConsumer<NotificationCubit, NotificationState>(
+      listener: (context, state) {
+        if (state is NotificationError) {
+          showSnackBar(
+            context,
+            message: 'Erro: ${state.message}',
+            isError: true,
+          );
+        }
+      },
       builder: (context, state) {
         Map<NotificationChannel, bool> channelEnabledStates = {};
         if (state is NotificationChannelStatesLoaded) {
@@ -91,6 +112,32 @@ class _NotificationSettingsDialogState
                 child: const Text(
                     'Configurações Avançadas do Sistema'), // Texto mais claro
               ),
+              if (_user.roles.contains(UserRoles.admin))
+                TextButton(
+                  onPressed: () => context
+                      .read<NotificationCubit>()
+                      .getFirebaseToken()
+                      .then((value) {
+                    setState(
+                        () => firebaseToken = value ?? 'Erro ao obter token');
+                  }),
+                  child: const Text('Pegar Token do Firebase'),
+                ),
+              if (_user.roles.contains(UserRoles.admin) &&
+                  firebaseToken.isNotEmpty)
+                SelectableText.rich(
+                  TextSpan(
+                    children: [
+                      const TextSpan(text: 'Firebase Token: '),
+                      TextSpan(
+                        text: firebaseToken,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                  onTap: () =>
+                      Clipboard.setData(ClipboardData(text: firebaseToken)),
+                ),
             ],
           ),
           actions: [

@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
@@ -8,12 +7,13 @@ import 'package:supplysync/features/cart/presentation/screen/cart_screen.dart';
 
 import 'features/auth/presentation/blocs/auth_bloc.dart';
 import 'core/common/cubit/user/user_cubit.dart';
-import 'features/user_actions/presentation/screen/change_profile_screen.dart';
-import 'features/user_actions/presentation/screen/record_screen.dart';
+import 'features/user_actions/user_profiles/presentation/screen/change_profile_screen.dart';
+import 'features/user_actions/log/presentation/screens/record_screen.dart';
 import 'core/screen/home_screen.dart';
 import 'features/auth/presentation/screen/login_screen.dart';
-import 'features/user_actions/presentation/screen/register_user_screen.dart';
-import 'features/user_actions/presentation/screen/workers_screen.dart';
+import 'features/user_actions/user_profiles/presentation/screen/register_user_screen.dart';
+import 'features/user_actions/user_profiles/presentation/screen/workers_screen.dart';
+import 'features/user_actions/dock_transport/presentation/screen/dock_transport_screen.dart';
 import 'screen/warehouses_detais_screen.dart';
 import 'screen/warehouses_screen.dart';
 
@@ -58,10 +58,10 @@ class RouterMain {
             },
             routes: [
               GoRoute(
-                path: '/docks',
-                name: 'docks',
+                path: '/docksTransport',
+                name: 'docksTransport',
                 builder: (context, state) {
-                  return Container();
+                  return DockTransportScreen();
                 },
               ),
               GoRoute(

@@ -39,8 +39,7 @@ class _CartDetailScreen extends State<CartDetailScreen> {
               isSucess: true,
             );
           } else if (state is CartRequestFailure) {
-            showSnackBar(context,
-                message: state.failure.message, isError: true);
+            showSnackBar(context, message: state.failure, isError: true);
           } else if (state is CartDetailsSuccess) {
             cart = state.cart;
           }
@@ -53,7 +52,7 @@ class _CartDetailScreen extends State<CartDetailScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Error: ${state.failure.message}"),
+                  Text("Error: ${state.failure}"),
                   ElevatedButton(
                     onPressed: () => context
                         .read<CartBloc>()

@@ -10,7 +10,7 @@ final class CartLoading extends CartState {}
 final class CartRequestSuccess extends CartState {}
 
 final class CartRequestFailure extends CartState {
-  final Failure failure;
+  final String failure;
   CartRequestFailure(this.failure);
 }
 
