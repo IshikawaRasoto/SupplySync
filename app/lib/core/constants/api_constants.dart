@@ -26,7 +26,12 @@ enum ApiEndpoints {
   cartUse('cart_use'),
   cartRequest('cart_request'),
   cartShutdown('cart_shutdown'),
-  cartMaintenance('cart_maintenance');
+  cartMaintenance('cart_maintenance'),
+
+  // Warehouse Transport
+  fetchIncomingDrones('warehouse/incoming-drones'),
+  uploadDronePhoto('upload_drone_photo'),
+  releaseDrone('release_cart');
 
   final String path;
   const ApiEndpoints(this.path);

@@ -13,6 +13,9 @@ class InitDependencies {
     _initWarehouseTransport();
 
     // * Core
+    // Http Client
+    serviceLocator.registerLazySingleton(() => http.Client());
+
     // Local Data
     serviceLocator
       ..registerLazySingleton<LocalStorageRepository>(
@@ -182,7 +185,6 @@ class InitDependencies {
           serviceLocator<LocalStorageRepository>(instanceName: 'non-secure'),
         ),
       )
-
       // Repository
       ..registerFactory<NotificationRepository>(
         () => NotificationRepositoryImpl(
@@ -226,8 +228,17 @@ class InitDependencies {
   static void _initDockTransport() {
     serviceLocator
       // DataSources
+      ..registerFactory<DockTransportRemoteDataSource>(() =>
+          DockTransportRemoteDataSourceImpl(
+              apiService: serviceLocator<ApiService>()))
       // Repositories
+      ..registerFactory<DockTransportRepository>(() =>
+          DockTransportRepositoryImpl(
+              remoteDataSource:
+                  serviceLocator<DockTransportRemoteDataSource>()))
       // UseCases
+      ..registerFactory(
+          () => UploadCartPhoto(serviceLocator<DockTransportRepository>()))
       // Blocs
       ..registerLazySingleton(() => DockTransportBloc(
             requestCartUsage: serviceLocator<RequestAnyCartUsage>(),
@@ -236,21 +247,38 @@ class InitDependencies {
       ..registerLazySingleton(() => CartRequestBloc(
             userCubit: serviceLocator<UserCubit>(),
             requestCartDetails: serviceLocator<GetCartDetails>(),
+            uploadCartPhoto: serviceLocator<UploadCartPhoto>(),
+            releaseDrone: serviceLocator<ReleaseDrone>(),
           ));
   }
 
   static void _initWarehouseTransport() {
     serviceLocator
       // DataSources
+      ..registerFactory<WarehouseTransportRemoteDataSource>(() =>
+          WarehouseTransportRemoteDataSourceImpl(
+              apiService: serviceLocator<ApiService>()))
       // Repositories
+      ..registerFactory<WarehouseTransportRepository>(
+          () => WarehouseTransportRepositoryImpl(
+                remoteDataSource:
+                    serviceLocator<WarehouseTransportRemoteDataSource>(),
+              ))
       // UseCases
+      ..registerFactory(() =>
+          FetchIncomingDrones(serviceLocator<WarehouseTransportRepository>()))
+      ..registerFactory(() =>
+          UploadDronePhoto(serviceLocator<WarehouseTransportRepository>()))
       // Blocs
       ..registerLazySingleton(() => WarehouseTransportBloc(
             userCubit: serviceLocator<UserCubit>(),
+            fetchIncomingDrones: serviceLocator<FetchIncomingDrones>(),
           ))
       ..registerLazySingleton(() => DroneDetailsBloc(
             userCubit: serviceLocator<UserCubit>(),
             getCartDetails: serviceLocator<GetCartDetails>(),
+            uploadDronePhoto: serviceLocator<UploadDronePhoto>(),
+            releaseDrone: serviceLocator<ReleaseDrone>(),
           ));
   }
 }

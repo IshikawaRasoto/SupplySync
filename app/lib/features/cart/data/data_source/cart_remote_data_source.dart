@@ -27,6 +27,10 @@ abstract interface class CartRemoteDataSource {
     required String jwtToken,
     required String id,
   });
+  Future<void> releaseDrone({
+    required String jwtToken,
+    required String droneId,
+  });
 }
 
 class CartRemoteDataSourceImpl implements CartRemoteDataSource {
@@ -140,6 +144,26 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
       rethrow;
     } catch (e) {
       throw ConversionException(e.toString());
+    }
+  }
+
+  @override
+  Future<void> releaseDrone({
+    required String jwtToken,
+    required String droneId,
+  }) async {
+    try {
+      await apiService.deleteData(
+        endPoint: ApiEndpoints.releaseDrone,
+        jwtToken: jwtToken,
+        pathParams: {
+          'droneId': droneId,
+        },
+      );
+    } on ServerException {
+      rethrow;
+    } catch (e) {
+      throw ServerException('Failed to release drone: ${e.toString()}');
     }
   }
 }

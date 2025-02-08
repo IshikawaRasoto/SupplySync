@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:logger/logger.dart';
 import 'package:http/http.dart' as http;
 
@@ -35,6 +36,14 @@ abstract interface class ApiService {
   Future<void> deleteData({
     required ApiEndpoints endPoint,
     required String jwtToken,
+    Map<String, String>? header,
+    Map<String, String>? pathParams,
+  });
+
+  Future<void> sendImage({
+    required ApiEndpoints endPoint,
+    required String jwtToken,
+    required XFile image,
     Map<String, String>? header,
     Map<String, String>? pathParams,
   });
@@ -164,6 +173,37 @@ class ApiServiceImpl implements ApiService {
       rethrow;
     } catch (e) {
       _logger.e('An error occurred while deleting data on server: $e');
+      throw ServerException(e.toString());
+    }
+  }
+
+  @override
+  Future<void> sendImage(
+      {required ApiEndpoints endPoint,
+      required String jwtToken,
+      required XFile image,
+      Map<String, String>? header,
+      Map<String, String>? pathParams}) async {
+    try {
+      final baseUrl = await _getBaseUrl();
+      final uri = Uri.parse('$baseUrl/${_buildPath(endPoint, pathParams)}');
+      final Map<String, String> headers = {
+        'Authorization': 'Bearer $jwtToken',
+        'Accept': 'application/json',
+        ...?header,
+      };
+      final request = http.MultipartRequest('POST', uri)
+        ..headers.addAll(headers)
+        ..files.add(await http.MultipartFile.fromPath('image', image.path));
+      _debugSendPrint(
+          path: uri.toString(), header: headers.toString(), body: '');
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      _statusHandler(response);
+    } on ServerException {
+      rethrow;
+    } catch (e) {
+      _logger.e('An error occurred while sending image: $e');
       throw ServerException(e.toString());
     }
   }

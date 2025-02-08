@@ -1,6 +1,12 @@
 part of 'warehouse_transport_bloc.dart';
 
 @immutable
-abstract class WarehouseTransportEvent {}
+sealed class WarehouseTransportEvent {
+  const WarehouseTransportEvent();
+}
 
-class FetchIncomingDrones extends WarehouseTransportEvent {}
+class FetchIncomingDronesEvent extends WarehouseTransportEvent {
+  final String location;
+
+  const FetchIncomingDronesEvent({required this.location});
+}

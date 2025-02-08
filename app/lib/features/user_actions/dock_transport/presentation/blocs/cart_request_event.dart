@@ -1,7 +1,7 @@
 part of 'cart_request_bloc.dart';
 
 @immutable
-sealed class CartRequestEvent {}
+abstract class CartRequestEvent {}
 
 class RequestCartInformationRequested extends CartRequestEvent {
   final String cartId;
@@ -14,3 +14,5 @@ class CartPhotoSubmitted extends CartRequestEvent {
 
   CartPhotoSubmitted(this.photo);
 }
+
+class ReleaseCartRequested extends CartRequestEvent {}

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../core/common/cubit/user/user_cubit.dart';
 import '../../../../../features/cart/domain/entities/cart.dart';
+import '../../domain/usecases/fetch_incoming_drones.dart';
 
 part 'warehouse_transport_event.dart';
 part 'warehouse_transport_state.dart';
@@ -10,41 +11,39 @@ part 'warehouse_transport_state.dart';
 class WarehouseTransportBloc
     extends Bloc<WarehouseTransportEvent, WarehouseTransportState> {
   final UserCubit _userCubit;
+  final FetchIncomingDrones _fetchIncomingDrones;
 
   WarehouseTransportBloc({
     required UserCubit userCubit,
+    required FetchIncomingDrones fetchIncomingDrones,
   })  : _userCubit = userCubit,
+        _fetchIncomingDrones = fetchIncomingDrones,
         super(const WarehouseTransportInitial()) {
-    on<FetchIncomingDrones>(_onFetchIncomingDrones);
+    on<FetchIncomingDronesEvent>(_onFetchIncomingDrones);
   }
 
   Future<void> _onFetchIncomingDrones(
-    FetchIncomingDrones event,
+    FetchIncomingDronesEvent event,
     Emitter<WarehouseTransportState> emit,
   ) async {
-    final currentUser = _userCubit.getCurrentUser();
-    if (currentUser == null) {
-      emit(const WarehouseTransportFailure(error: 'Usuário não autenticado'));
+    final token = _userCubit.getToken();
+    if (token == null) {
+      emit(const WarehouseTransportFailure(error: 'User not authenticated'));
       return;
     }
-    emit(const WarehouseTransportLoading());
-    // TODO: Implement API call to fetch incoming drones
-    await Future.delayed(const Duration(seconds: 1));
-    final mockDrones = [
-      Cart(
-        id: '1',
-        battery: '85%',
-        destination: 'Warehouse A',
-        load: 'Medical Supplies',
-      ),
-      Cart(
-        id: '2',
-        battery: '92%',
-        destination: 'Warehouse A',
-        load: 'Emergency Supplies',
-      ),
-    ];
 
-    emit(WarehouseTransportSuccess(incomingDrones: mockDrones));
+    emit(const WarehouseTransportLoading());
+
+    final result = await _fetchIncomingDrones(
+      FetchIncomingDronesParams(
+        jwtToken: token,
+        location: event.location,
+      ),
+    );
+
+    result.fold(
+      (failure) => emit(WarehouseTransportFailure(error: failure.message)),
+      (drones) => emit(WarehouseTransportSuccess(incomingDrones: drones)),
+    );
   }
 }

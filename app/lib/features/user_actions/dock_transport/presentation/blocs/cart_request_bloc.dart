@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import '../../../../../core/common/cubit/user/user_cubit.dart';
 import '../../../../cart/domain/entities/cart.dart';
 import '../../../../cart/domain/usecases/get_cart_details.dart';
+import '../../../../cart/domain/usecases/release_drone.dart';
+import '../../domain/usecases/upload_cart_photo.dart';
 
 part 'cart_request_event.dart';
 part 'cart_request_state.dart';
@@ -12,16 +14,24 @@ part 'cart_request_state.dart';
 class CartRequestBloc extends Bloc<CartRequestEvent, CartRequestState> {
   final UserCubit _userCubit;
   final GetCartDetails _requestCartDetails;
+  final UploadCartPhoto _uploadCartPhoto;
+  final ReleaseDrone _releaseDrone;
   XFile? cartPhoto;
+  String? currentCartId;
 
   CartRequestBloc({
     required UserCubit userCubit,
     required GetCartDetails requestCartDetails,
+    required UploadCartPhoto uploadCartPhoto,
+    required ReleaseDrone releaseDrone,
   })  : _userCubit = userCubit,
         _requestCartDetails = requestCartDetails,
+        _uploadCartPhoto = uploadCartPhoto,
+        _releaseDrone = releaseDrone,
         super(CartRequestInitial()) {
     on<RequestCartInformationRequested>(_onRequestCartInformation);
     on<CartPhotoSubmitted>(_onCartPhotoSubmitted);
+    on<ReleaseCartRequested>(_onReleaseCartRequested);
   }
 
   bool get hasPhoto => cartPhoto != null;
@@ -42,16 +52,67 @@ class CartRequestBloc extends Bloc<CartRequestEvent, CartRequestState> {
     ));
     result.fold(
       (failure) => emit(CartRequestFailure(failure.message)),
-      (cart) => emit(CartRequestCartDetailsSuccess(cart)),
+      (cart) {
+        currentCartId = cart.id;
+        emit(CartRequestCartDetailsSuccess(cart));
+      },
     );
   }
 
   void _onCartPhotoSubmitted(
     CartPhotoSubmitted event,
     Emitter<CartRequestState> emit,
-  ) {
-    // TODO: Implementar a chamada para enviar a foto via API
-    cartPhoto = event.photo;
-    emit(CartRequestSuccess());
+  ) async {
+    final currentUser = _userCubit.getCurrentUser();
+    if (currentUser == null) {
+      emit(CartRequestFailure('Usuário não autenticado'));
+      return;
+    }
+    if (currentCartId == null) {
+      emit(CartRequestFailure('ID do carrinho não disponível'));
+      return;
+    }
+    emit(CartRequestInProgress());
+    final result = await _uploadCartPhoto(UploadCartPhotoParams(
+      jwtToken: currentUser.jwtToken,
+      cartId: currentCartId!,
+      photo: event.photo,
+    ));
+    result.fold(
+      (failure) => emit(CartRequestFailure(failure.message)),
+      (_) {
+        cartPhoto = event.photo;
+        emit(CartRequestSuccess());
+      },
+    );
+  }
+
+  void _onReleaseCartRequested(
+    ReleaseCartRequested event,
+    Emitter<CartRequestState> emit,
+  ) async {
+    final currentUser = _userCubit.getCurrentUser();
+    if (currentUser == null) {
+      emit(CartRequestFailure('Usuário não autenticado'));
+      return;
+    }
+    if (currentCartId == null) {
+      emit(CartRequestFailure('ID do carrinho não disponível'));
+      return;
+    }
+    if (!hasPhoto) {
+      emit(CartRequestFailure(
+          'É necessário tirar uma foto antes de liberar o carrinho'));
+      return;
+    }
+    emit(CartRequestInProgress());
+    final result = await _releaseDrone(ReleaseDroneParams(
+      jwtToken: currentUser.jwtToken,
+      droneId: currentCartId!,
+    ));
+    result.fold(
+      (failure) => emit(CartRequestFailure(failure.message)),
+      (_) => emit(CartReleased()),
+    );
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
@@ -62,8 +63,7 @@ class _CartRequestSummaryScreenState extends State<CartRequestSummaryScreen> {
       );
       return;
     }
-    context.read<DockTransportBloc>().add(ResetTransportEvent());
-    context.go('/home/docksTransport');
+    context.read<CartRequestBloc>().add(ReleaseCartRequested());
   }
 
   @override
@@ -78,12 +78,16 @@ class _CartRequestSummaryScreenState extends State<CartRequestSummaryScreen> {
         listener: (context, state) {
           if (state is CartRequestFailure) {
             showSnackBar(context, message: state.message, isError: true);
+          } else if (state is CartReleased) {
+            showSnackBar(context, message: 'Carrinho liberado com sucesso');
+            context.read<DockTransportBloc>().add(ResetTransportEvent());
+            context.go('/home/docksTransport');
           }
         },
         builder: (context, state) {
-          if (state is CartRequestInitial) {
+          if (state is CartRequestInitial || state is CartRequestInProgress) {
             return const Center(child: CircularProgressIndicator());
-          } else if (state is CartRequestCartDetailsFailure) {
+          } else if (state is CartRequestFailure) {
             return Center(
                 child: Column(
               children: [
@@ -192,7 +196,7 @@ class _CartRequestSummaryScreenState extends State<CartRequestSummaryScreen> {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(8),
                               image: DecorationImage(
-                                image: NetworkImage(_pickedImage!.path),
+                                image: FileImage(File(_pickedImage!.path)),
                                 fit: BoxFit.cover,
                               ),
                             ),

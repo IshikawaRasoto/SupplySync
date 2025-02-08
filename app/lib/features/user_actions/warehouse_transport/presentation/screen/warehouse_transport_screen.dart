@@ -1,13 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supplysync/core/utils/show_snackbar.dart';
 
 import '../../../../../features/cart/domain/entities/cart.dart';
 import '../blocs/warehouse_transport_bloc.dart';
 
-class WarehouseTransportScreen extends StatelessWidget {
+class WarehouseTransportScreen extends StatefulWidget {
   const WarehouseTransportScreen({super.key});
+
+  @override
+  State<WarehouseTransportScreen> createState() =>
+      _WarehouseTransportScreenState();
+}
+
+class _WarehouseTransportScreenState extends State<WarehouseTransportScreen> {
+  final _locationController = TextEditingController();
+
+  @override
+  void dispose() {
+    _locationController.dispose();
+    super.dispose();
+  }
+
+  void _fetchDrones() {
+    if (_locationController.text.isNotEmpty) {
+      context.read<WarehouseTransportBloc>().add(
+            FetchIncomingDronesEvent(location: _locationController.text),
+          );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,30 +37,62 @@ class WarehouseTransportScreen extends StatelessWidget {
         title: const Text('Drones em Chegada'),
         centerTitle: true,
       ),
-      body: BlocConsumer<WarehouseTransportBloc, WarehouseTransportState>(
-        listener: (context, state) {
-          if (state is WarehouseTransportFailure) {
-            showSnackBar(context, message: state.error!, isError: true);
-          }
-        },
-        builder: (context, state) {
-          if (state is WarehouseTransportInitial) {
-            context.read<WarehouseTransportBloc>().add(FetchIncomingDrones());
-            return const Center(child: CircularProgressIndicator());
-          }
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _locationController,
+                    decoration: const InputDecoration(
+                      labelText: 'Local',
+                      hintText: 'Digite seu local',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: _fetchDrones,
+                  child: const Text('Buscar'),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child:
+                BlocConsumer<WarehouseTransportBloc, WarehouseTransportState>(
+              listener: (context, state) {
+                if (state is WarehouseTransportFailure) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(state.error ?? 'Ocorreu um erro'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
+              },
+              builder: (context, state) {
+                if (state is WarehouseTransportLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-          if (state is WarehouseTransportLoading &&
-              state.incomingDrones.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
+                if (state is WarehouseTransportSuccess) {
+                  return _buildDroneList(context, state.incomingDrones);
+                }
 
-          return RefreshIndicator(
-            onRefresh: () async {
-              context.read<WarehouseTransportBloc>().add(FetchIncomingDrones());
-            },
-            child: _buildDroneList(context, state.incomingDrones),
-          );
-        },
+                return Center(
+                  child: Text(
+                    'Digite seu local e clique em buscar',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -64,7 +117,7 @@ class WarehouseTransportScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Puxe para baixo para atualizar',
+              'Tente outro local',
               style: TextStyle(color: Colors.grey),
             ),
           ],
@@ -81,7 +134,6 @@ class WarehouseTransportScreen extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 16),
           child: InkWell(
             onTap: () {
-              // Navigate to drone details screen
               context.go('/home/warehouseTransport/${drone.id}');
             },
             borderRadius: BorderRadius.circular(12),
@@ -130,15 +182,15 @@ class WarehouseTransportScreen extends StatelessWidget {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 8),
                   if (drone.load != null) ...[
+                    const SizedBox(height: 8),
                     Text(
                       'Carga: ${drone.load}',
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
-                    const SizedBox(height: 4),
                   ],
                   if (drone.destination != null) ...[
+                    const SizedBox(height: 4),
                     Text(
                       'Destino: ${drone.destination}',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(

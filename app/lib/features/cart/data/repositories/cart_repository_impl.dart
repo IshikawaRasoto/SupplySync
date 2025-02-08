@@ -133,4 +133,24 @@ class CartRepositoryImpl implements CartRepository {
       return left(Failure(e.toString()));
     }
   }
+
+  @override
+  Future<Either<Failure, Unit>> releaseDrone({
+    required String jwtToken,
+    required String droneId,
+  }) async {
+    try {
+      await remoteDataSource.releaseDrone(
+        jwtToken: jwtToken,
+        droneId: droneId,
+      );
+      return right(unit);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    } on ConversionException catch (e) {
+      return left(Failure(e.message));
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
 }

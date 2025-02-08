@@ -1,28 +1,24 @@
 part of 'cart_request_bloc.dart';
 
 @immutable
-sealed class CartRequestState {}
+abstract class CartRequestState {}
 
-final class CartRequestInitial extends CartRequestState {}
+class CartRequestInitial extends CartRequestState {}
 
-final class CartRequestInProgress extends CartRequestState {}
+class CartRequestInProgress extends CartRequestState {}
 
-final class CartRequestCartDetailsSuccess extends CartRequestState {
+class CartRequestSuccess extends CartRequestState {}
+
+class CartRequestFailure extends CartRequestState {
+  final String message;
+
+  CartRequestFailure(this.message);
+}
+
+class CartRequestCartDetailsSuccess extends CartRequestState {
   final Cart cart;
 
   CartRequestCartDetailsSuccess(this.cart);
 }
 
-final class CartRequestCartDetailsFailure extends CartRequestState {
-  final String message;
-
-  CartRequestCartDetailsFailure(this.message);
-}
-
-final class CartRequestSuccess extends CartRequestState {}
-
-final class CartRequestFailure extends CartRequestState {
-  final String message;
-
-  CartRequestFailure(this.message);
-}
+class CartReleased extends CartRequestState {}

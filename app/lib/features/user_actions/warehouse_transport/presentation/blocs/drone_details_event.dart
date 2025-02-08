@@ -13,8 +13,13 @@ class ConfirmDroneArrival extends DroneDetailsEvent {}
 
 class CaptureDronePhoto extends DroneDetailsEvent {
   final XFile photo;
+  final String droneId;
 
-  CaptureDronePhoto({required this.photo});
+  CaptureDronePhoto({required this.photo, required this.droneId});
 }
 
-class ReleaseDrone extends DroneDetailsEvent {}
+class ReleaseDroneEvent extends DroneDetailsEvent {
+  final String droneId;
+
+  ReleaseDroneEvent({required this.droneId});
+}

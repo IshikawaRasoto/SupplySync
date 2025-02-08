@@ -27,4 +27,8 @@ abstract class CartRepository {
     required String jwtToken,
     required String id,
   });
+  Future<Either<Failure, Unit>> releaseDrone({
+    required String jwtToken,
+    required String droneId,
+  });
 }
