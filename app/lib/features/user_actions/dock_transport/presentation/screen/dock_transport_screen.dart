@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../blocs/dock_transport_bloc.dart';
 
@@ -78,7 +79,6 @@ class _DockTransportScreenState extends State<DockTransportScreen>
 
   void _handleQRCodeScanned(String code) {
     try {
-      print('Scanned code: $code, last code: $_lastCode');
       if (code == _lastCode) return;
       final currentState = context.read<DockTransportBloc>().state;
       if (!currentState.hasLocation) {
@@ -181,7 +181,9 @@ class _DockTransportScreenState extends State<DockTransportScreen>
                 onPressed: () {
                   _locationController.clear();
                   _lastCode = null;
-                  context.read<DockTransportBloc>().add(ResetTransportEvent());
+                  context
+                      .read<DockTransportBloc>()
+                      .add(ResetTransportLocationEvent());
                 },
                 style: IconButton.styleFrom(
                   backgroundColor: Colors.deepPurple,
@@ -215,7 +217,7 @@ class _DockTransportScreenState extends State<DockTransportScreen>
 
                     context
                         .read<DockTransportBloc>()
-                        .add(ResetTransportEvent());
+                        .add(ResetTransportItemEvent());
                     _destinationController.clear();
                   },
                   icon: const Icon(Icons.qr_code_scanner),
@@ -302,7 +304,7 @@ class _DockTransportScreenState extends State<DockTransportScreen>
       );
     }
 
-    if (state.hasAllInfo && state is DockTransportInProgress) {
+    if (state.hasAllInfo) {
       return ElevatedButton.icon(
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.deepPurple,
@@ -357,6 +359,7 @@ class _DockTransportScreenState extends State<DockTransportScreen>
               } else if (state is DockTransportSuccess) {
                 _showTemporaryFeedback(
                     'Transporte solicitado com sucesso!', true);
+                context.go('/home/docksTransport/${state.cartId}');
               } else if (state is DockTransportInProgress) {
                 _showTemporaryFeedback('Informações atualizadas', true);
               }

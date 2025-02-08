@@ -13,6 +13,10 @@ abstract interface class CartRemoteDataSource {
   });
   Future<void> requestCartUse({
     required String jwtToken,
+    required String id,
+  });
+  Future<String> requestAnyCartUse({
+    required String jwtToken,
     required CartRequestModel cartRequest,
   });
   Future<void> requestShutdown({
@@ -34,10 +38,10 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
   Future<List<Cart>> getAllCarts(String jwtToken) async {
     try {
       final response = await apiService.fetchData(
-        endPoint: ApiEndpoints.carts,
+        endPoint: ApiEndpoints.getCarts,
         jwtToken: jwtToken,
       );
-      return (response['data'] as List)
+      return (response['carts'] as List)
           .map((json) => Cart.fromJson(json))
           .toList();
     } on ServerException {
@@ -58,7 +62,6 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
         jwtToken: jwtToken,
         pathParams: {'id': id},
       );
-      print('Cachorro response: $response');
       return Cart.fromJson(response['data']);
     } on ServerException {
       rethrow;
@@ -70,14 +73,33 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
   @override
   Future<void> requestCartUse({
     required String jwtToken,
-    required CartRequestModel cartRequest,
+    required String id,
   }) async {
     try {
       await apiService.postData(
         endPoint: ApiEndpoints.cartUse,
         jwtToken: jwtToken,
+        body: {'id': id},
+      );
+    } on ServerException {
+      rethrow;
+    } catch (e) {
+      throw ConversionException(e.toString());
+    }
+  }
+
+  @override
+  Future<String> requestAnyCartUse({
+    required String jwtToken,
+    required CartRequestModel cartRequest,
+  }) async {
+    try {
+      final response = await apiService.postData(
+        endPoint: ApiEndpoints.cartRequest,
+        jwtToken: jwtToken,
         body: cartRequest.toJson(),
       );
+      return response['id'].toString();
     } on ServerException {
       rethrow;
     } catch (e) {

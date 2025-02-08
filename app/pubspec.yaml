@@ -34,6 +34,7 @@ dependencies:
 
   # Video, Camera, and Image dependencies
   mobile_scanner: ^6.0.2 # New QR_Code reader
+  image_picker: ^1.0.7 # Image picker for camera and gallery
 
   # UI dependencies
   cupertino_icons: ^1.0.8 # Cupertino icons

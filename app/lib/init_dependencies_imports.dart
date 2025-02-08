@@ -1,6 +1,7 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
+import 'package:supplysync/features/cart/domain/usecases/request_any_cart_usage.dart';
 
 import 'core/common/cubit/settings/settings_cubit.dart';
 import 'core/common/cubit/user/user_cubit.dart';
@@ -41,6 +42,7 @@ import 'features/notifications/domain/usecases/save_channel_enabled_state.dart';
 import 'features/notifications/domain/usecases/show_notification.dart';
 import 'features/notifications/domain/usecases/update_firebase_token.dart';
 import 'features/notifications/presentation/cubit/notification_cubit.dart';
+import 'features/user_actions/dock_transport/presentation/blocs/cart_request_bloc.dart';
 import 'features/user_actions/dock_transport/presentation/blocs/dock_transport_bloc.dart';
 import 'features/user_actions/log/data/repositories/log_repository_impl.dart';
 import 'features/user_actions/user_profiles/data/repositories/user_actions_repository_impl.dart';
@@ -56,5 +58,7 @@ import 'features/user_actions/log/presentation/blocs/log_bloc.dart';
 import 'features/user_actions/user_profiles/domain/use_cases/user_update_profile.dart';
 import 'features/user_actions/user_profiles/presentation/blocs/user_actions_bloc.dart';
 import 'features/user_actions/user_profiles/presentation/blocs/user_request_bloc.dart';
+import 'features/user_actions/warehouse_transport/presentation/blocs/drone_details_bloc.dart';
+import 'features/user_actions/warehouse_transport/presentation/blocs/warehouse_transport_bloc.dart';
 
 part 'init_dependencies.dart';

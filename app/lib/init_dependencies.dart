@@ -10,6 +10,7 @@ class InitDependencies {
     _initCarts();
     _initNotifications();
     _initDockTransport();
+    _initWarehouseTransport();
 
     // * Core
     // Local Data
@@ -139,6 +140,8 @@ class InitDependencies {
       ..registerFactory(() => ShutdownCart(serviceLocator<CartRepository>()))
       ..registerFactory(() => GetCartDetails(serviceLocator<CartRepository>()))
       ..registerFactory(() => GetAllCarts(serviceLocator<CartRepository>()))
+      ..registerFactory(
+          () => RequestAnyCartUsage(serviceLocator<CartRepository>()))
       // Blocs
       ..registerLazySingleton(() => CartBloc(
             requestCartUse: serviceLocator<RequestCartUsage>(),
@@ -222,13 +225,32 @@ class InitDependencies {
 
   static void _initDockTransport() {
     serviceLocator
-        // DataSources
-        // Repositories
-        // UseCases
-        // Blocs
-        .registerLazySingleton(() => DockTransportBloc(
-              requestCartUsage: serviceLocator<RequestCartUsage>(),
-              userCubit: serviceLocator<UserCubit>(),
-            ));
+      // DataSources
+      // Repositories
+      // UseCases
+      // Blocs
+      ..registerLazySingleton(() => DockTransportBloc(
+            requestCartUsage: serviceLocator<RequestAnyCartUsage>(),
+            userCubit: serviceLocator<UserCubit>(),
+          ))
+      ..registerLazySingleton(() => CartRequestBloc(
+            userCubit: serviceLocator<UserCubit>(),
+            requestCartDetails: serviceLocator<GetCartDetails>(),
+          ));
+  }
+
+  static void _initWarehouseTransport() {
+    serviceLocator
+      // DataSources
+      // Repositories
+      // UseCases
+      // Blocs
+      ..registerLazySingleton(() => WarehouseTransportBloc(
+            userCubit: serviceLocator<UserCubit>(),
+          ))
+      ..registerLazySingleton(() => DroneDetailsBloc(
+            userCubit: serviceLocator<UserCubit>(),
+            getCartDetails: serviceLocator<GetCartDetails>(),
+          ));
   }
 }

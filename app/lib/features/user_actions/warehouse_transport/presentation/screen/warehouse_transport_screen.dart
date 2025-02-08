@@ -3,89 +3,68 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supplysync/core/utils/show_snackbar.dart';
 
-import '../../../../core/theme/theme.dart';
-import '../../domain/entities/cart.dart';
-import '../bloc/cart_bloc.dart';
+import '../../../../../features/cart/domain/entities/cart.dart';
+import '../blocs/warehouse_transport_bloc.dart';
 
-class CartScreen extends StatefulWidget {
-  const CartScreen({super.key});
-
-  @override
-  State<CartScreen> createState() => _CartScreenState();
-}
-
-class _CartScreenState extends State<CartScreen> {
-  @override
-  void initState() {
-    super.initState();
-    context.read<CartBloc>().add(CartLoadAllRequested());
-  }
+class WarehouseTransportScreen extends StatelessWidget {
+  const WarehouseTransportScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Cart's Info"),
+        title: const Text('Drones em Chegada'),
         centerTitle: true,
       ),
-      body: BlocConsumer<CartBloc, CartState>(
+      body: BlocConsumer<WarehouseTransportBloc, WarehouseTransportState>(
         listener: (context, state) {
-          if (state is CartRequestFailure) {
-            showSnackBar(context, message: state.failure, isError: true);
+          if (state is WarehouseTransportFailure) {
+            showSnackBar(context, message: state.error!, isError: true);
           }
         },
         builder: (context, state) {
-          if (state is CartInitial || state is CartLoading) {
+          if (state is WarehouseTransportInitial) {
+            context.read<WarehouseTransportBloc>().add(FetchIncomingDrones());
             return const Center(child: CircularProgressIndicator());
           }
-          if (state is AllCartsSuccess) {
-            return RefreshIndicator(
-              onRefresh: () async {
-                context.read<CartBloc>().add(CartLoadAllRequested());
-              },
-              child: _buildCartList(context, state.carts),
-            );
+
+          if (state is WarehouseTransportLoading &&
+              state.incomingDrones.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
           }
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text('Algo deu errado'),
-                ElevatedButton(
-                  onPressed: () {
-                    context.read<CartBloc>().add(CartLoadAllRequested());
-                  },
-                  child: const Text('Tente novamente'),
-                ),
-              ],
-            ),
+
+          return RefreshIndicator(
+            onRefresh: () async {
+              context.read<WarehouseTransportBloc>().add(FetchIncomingDrones());
+            },
+            child: _buildDroneList(context, state.incomingDrones),
           );
         },
       ),
     );
   }
 
-  Widget _buildCartList(BuildContext context, List<Cart> carts) {
-    if (carts.isEmpty) {
+  Widget _buildDroneList(BuildContext context, List<Cart> drones) {
+    if (drones.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const Icon(
-              Icons.local_shipping,
+              Icons.flight_land,
               size: 64,
               color: Colors.grey,
             ),
             const SizedBox(height: 16),
             Text(
-              'No carts available',
+              'Nenhum drone a caminho',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     color: Colors.grey,
                   ),
             ),
             const SizedBox(height: 8),
             const Text(
-              'Pull down to refresh',
+              'Puxe para baixo para atualizar',
               style: TextStyle(color: Colors.grey),
             ),
           ],
@@ -95,14 +74,15 @@ class _CartScreenState extends State<CartScreen> {
 
     return ListView.builder(
       padding: const EdgeInsets.all(16),
-      itemCount: carts.length,
+      itemCount: drones.length,
       itemBuilder: (context, index) {
-        final cart = carts[index];
+        final drone = drones[index];
         return Card(
           margin: const EdgeInsets.only(bottom: 16),
           child: InkWell(
             onTap: () {
-              context.go('/home/carts/${cart.id}');
+              // Navigate to drone details screen
+              context.go('/home/warehouseTransport/${drone.id}');
             },
             borderRadius: BorderRadius.circular(12),
             child: Padding(
@@ -114,7 +94,7 @@ class _CartScreenState extends State<CartScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Cart ${cart.id}',
+                        'Drone ${drone.id}',
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -126,22 +106,22 @@ class _CartScreenState extends State<CartScreen> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.green.withOpacity(0.1),
+                          color: Colors.green.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.battery_charging_full,
                               size: 16,
-                              color: AppColors.green,
+                              color: Colors.green,
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              cart.battery,
-                              style: TextStyle(
-                                color: AppColors.green,
+                              drone.battery,
+                              style: const TextStyle(
+                                color: Colors.green,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -150,17 +130,17 @@ class _CartScreenState extends State<CartScreen> {
                       ),
                     ],
                   ),
-                  if (cart.load != null) ...[
-                    const SizedBox(height: 8),
+                  const SizedBox(height: 8),
+                  if (drone.load != null) ...[
                     Text(
-                      'Load: ${cart.load}',
+                      'Carga: ${drone.load}',
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
-                  ],
-                  if (cart.destination != null) ...[
                     const SizedBox(height: 4),
+                  ],
+                  if (drone.destination != null) ...[
                     Text(
-                      'Destination: ${cart.destination}',
+                      'Destino: ${drone.destination}',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Colors.grey[600],
                           ),
@@ -176,7 +156,7 @@ class _CartScreenState extends State<CartScreen> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Tap for details',
+                        'Toque para ver detalhes',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Colors.blue,
                             ),

@@ -4,49 +4,30 @@ class ApiConstants {
 
 enum ApiEndpoints {
   // User
-  login,
-  createLogin,
-  updateLogin,
-  getUser,
-  getOtherUser,
-  getAllUsers,
-  logout,
+  login('login'),
+  createLogin('create_login'),
+  updateLogin('update_login'),
+  getUser('get_user'),
+  getOtherUser('get_user/{userName}'),
+  getAllUsers('get_all_users'),
+  logout('logout'),
 
   // Warehouse
-  warehouse,
-  warehouseProducts,
-  records,
+  warehouse('warehouse'),
+  warehouseProducts('warehouses/{warehouseId}/products'),
+  records('get_logs'),
 
   // Notification
-  updateFirebaseToken,
+  updateFirebaseToken('updateFirebaseToken'),
 
   // Carts
-  carts,
-  cartDetails,
-  cartUse,
-  cartShutdown,
-  cartMaintenance,
-}
+  getCarts('get_carts'),
+  cartDetails('cart_details'),
+  cartUse('cart_use'),
+  cartRequest('cart_request'),
+  cartShutdown('cart_shutdown'),
+  cartMaintenance('cart_maintenance');
 
-extension ApiEndpointsExtension on ApiEndpoints {
-  String get path {
-    switch (this) {
-      case ApiEndpoints.warehouseProducts:
-        return 'warehouses/{warehouseId}/products';
-      case ApiEndpoints.createLogin:
-        return 'create_login';
-      case ApiEndpoints.updateLogin:
-        return 'update_login';
-      case ApiEndpoints.getUser:
-        return 'get_user';
-      case ApiEndpoints.getAllUsers:
-        return 'get_all_users';
-      case ApiEndpoints.getOtherUser:
-        return 'get_user/{userName}';
-      case ApiEndpoints.records:
-        return 'get_logs';
-      default:
-        return name;
-    }
-  }
+  final String path;
+  const ApiEndpoints(this.path);
 }

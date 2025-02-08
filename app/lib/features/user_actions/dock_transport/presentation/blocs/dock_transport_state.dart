@@ -47,7 +47,9 @@ class DockTransportInProgress extends DockTransportState {
 }
 
 class DockTransportSuccess extends DockTransportState {
-  const DockTransportSuccess();
+  const DockTransportSuccess(this.cartId);
+
+  final String cartId;
 }
 
 class DockTransportFailure extends DockTransportState {

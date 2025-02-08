@@ -10,8 +10,11 @@ import 'core/theme/theme.dart';
 import 'features/auth/presentation/cubit/auth_credentials_cubit.dart';
 import 'features/cart/presentation/bloc/cart_bloc.dart';
 import 'features/notifications/presentation/cubit/notification_cubit.dart';
+import 'features/user_actions/dock_transport/presentation/blocs/cart_request_bloc.dart';
 import 'features/user_actions/dock_transport/presentation/blocs/dock_transport_bloc.dart';
 import 'features/user_actions/user_profiles/presentation/blocs/user_request_bloc.dart';
+import 'features/user_actions/warehouse_transport/presentation/blocs/drone_details_bloc.dart';
+import 'features/user_actions/warehouse_transport/presentation/blocs/warehouse_transport_bloc.dart';
 import 'init_dependencies_imports.dart';
 import 'core/common/cubit/user/user_cubit.dart';
 import 'features/user_actions/log/presentation/blocs/log_bloc.dart';
@@ -36,6 +39,9 @@ void main() async {
         BlocProvider(create: (_) => serviceLocator<NotificationCubit>()),
         BlocProvider(create: (_) => serviceLocator<CartBloc>()),
         BlocProvider(create: (_) => serviceLocator<DockTransportBloc>()),
+        BlocProvider(create: (_) => serviceLocator<CartRequestBloc>()),
+        BlocProvider(create: (_) => serviceLocator<WarehouseTransportBloc>()),
+        BlocProvider(create: (_) => serviceLocator<DroneDetailsBloc>()),
       ],
       child: const MyApp(),
     ),

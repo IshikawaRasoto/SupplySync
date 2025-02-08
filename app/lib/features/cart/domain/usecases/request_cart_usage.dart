@@ -12,26 +12,17 @@ class RequestCartUsage implements UseCase<Unit, RequestCartUsageParams> {
   Future<Either<Failure, Unit>> call(RequestCartUsageParams param) async {
     return await repository.requestCartUse(
       jwtToken: param.jwtToken,
-      load: param.load,
-      loadQuantity: param.loadQuantity,
-      destination: param.destination,
-      origin: param.origin,
+      id: param.id,
     );
   }
 }
 
 class RequestCartUsageParams {
   final String jwtToken;
-  final String load;
-  final String loadQuantity;
-  final String destination;
-  final String origin;
+  final String id;
 
   RequestCartUsageParams({
     required this.jwtToken,
-    required this.load,
-    required this.loadQuantity,
-    required this.destination,
-    required this.origin,
+    required this.id,
   });
 }

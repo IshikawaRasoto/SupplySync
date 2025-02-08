@@ -10,6 +10,10 @@ abstract class CartRepository {
   });
   Future<Either<Failure, Unit>> requestCartUse({
     required String jwtToken,
+    required String id,
+  });
+  Future<Either<Failure, String>> requestAnyCartUse({
+    required String jwtToken,
     required String load,
     required String loadQuantity,
     required String destination,

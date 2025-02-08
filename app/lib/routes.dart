@@ -2,11 +2,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logger/logger.dart';
 import 'package:supplysync/core/helper/ui_helper.dart';
-import 'package:supplysync/features/cart/presentation/screen/cart_detail_screen.dart';
-import 'package:supplysync/features/cart/presentation/screen/cart_screen.dart';
+import 'package:supplysync/features/user_actions/warehouse_transport/presentation/screen/drone_details_screen.dart';
 
 import 'features/auth/presentation/blocs/auth_bloc.dart';
 import 'core/common/cubit/user/user_cubit.dart';
+import 'features/cart/presentation/screen/cart_detail_screen.dart';
+import 'features/cart/presentation/screen/cart_screen.dart';
+import 'features/user_actions/dock_transport/presentation/screen/cart_request_summary_screen.dart';
 import 'features/user_actions/user_profiles/presentation/screen/change_profile_screen.dart';
 import 'features/user_actions/log/presentation/screens/record_screen.dart';
 import 'core/screen/home_screen.dart';
@@ -14,6 +16,7 @@ import 'features/auth/presentation/screen/login_screen.dart';
 import 'features/user_actions/user_profiles/presentation/screen/register_user_screen.dart';
 import 'features/user_actions/user_profiles/presentation/screen/workers_screen.dart';
 import 'features/user_actions/dock_transport/presentation/screen/dock_transport_screen.dart';
+import 'features/user_actions/warehouse_transport/presentation/screen/warehouse_transport_screen.dart';
 import 'screen/warehouses_detais_screen.dart';
 import 'screen/warehouses_screen.dart';
 
@@ -63,30 +66,60 @@ class RouterMain {
                 builder: (context, state) {
                   return DockTransportScreen();
                 },
+                routes: [
+                  GoRoute(
+                    path: '/:cartId/:data',
+                    name: 'cartTransportDetails',
+                    builder: (context, state) {
+                      final cartId = state.pathParameters['cartId']!;
+                      return CartRequestSummaryScreen(
+                        cartId: cartId,
+                      );
+                    },
+                  ),
+                ],
               ),
               GoRoute(
-                  path: '/carts',
-                  name: 'carts',
-                  builder: (context, state) {
-                    return CartScreen();
-                  },
-                  routes: [
-                    GoRoute(
-                      path: '/:cartId',
-                      name: 'cartDetails',
-                      redirect: (context, state) {
-                        final cartId = state.pathParameters['cartId']!;
-                        if (cartId.isEmpty) {
-                          return '/home/carts';
-                        }
-                        return null;
-                      },
-                      builder: (context, state) {
-                        final cartId = state.pathParameters['cartId']!;
-                        return CartDetailScreen(cartId: cartId);
-                      },
-                    ),
-                  ]),
+                path: '/warehouseTransport',
+                name: 'warehouseTransport',
+                builder: (context, state) {
+                  return WarehouseTransportScreen();
+                },
+                routes: [
+                  GoRoute(
+                    path: '/:cartId',
+                    name: 'warehouseTransportDetails',
+                    builder: (context, state) {
+                      final cartId = state.pathParameters['cartId']!;
+                      return DroneDetailsScreen(droneId: cartId);
+                    },
+                  ),
+                ],
+              ),
+              GoRoute(
+                path: '/carts',
+                name: 'carts',
+                builder: (context, state) {
+                  return CartScreen();
+                },
+                routes: [
+                  GoRoute(
+                    path: '/:cartId',
+                    name: 'cartDetails',
+                    redirect: (context, state) {
+                      final cartId = state.pathParameters['cartId']!;
+                      if (cartId.isEmpty) {
+                        return '/home/carts';
+                      }
+                      return null;
+                    },
+                    builder: (context, state) {
+                      final cartId = state.pathParameters['cartId']!;
+                      return CartDetailScreen(cartId: cartId);
+                    },
+                  ),
+                ],
+              ),
               GoRoute(
                 path: '/records',
                 name: 'records',

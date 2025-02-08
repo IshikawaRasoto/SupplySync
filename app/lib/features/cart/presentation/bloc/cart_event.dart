@@ -5,17 +5,11 @@ sealed class CartEvent {}
 
 final class CartUseRequested extends CartEvent {
   final String jwtToken;
-  final String load;
-  final String loadQuantity;
-  final String destination;
-  final String origin;
+  final String id;
 
   CartUseRequested({
     required this.jwtToken,
-    required this.load,
-    required this.loadQuantity,
-    required this.destination,
-    required this.origin,
+    required this.id,
   });
 }
 

@@ -11,7 +11,7 @@ class CartRequestModel {
   final String loadQuantity;
   final String origin;
 
-  Map<String, dynamic> toJson() => {
+  Map<String, String> toJson() => {
         'destination': destination,
         'load': load,
         'loadQuantity': loadQuantity,

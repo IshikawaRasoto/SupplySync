@@ -47,10 +47,7 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     final result = await _requestCartUse(
       RequestCartUsageParams(
         jwtToken: event.jwtToken,
-        load: event.load,
-        loadQuantity: event.loadQuantity,
-        destination: event.destination,
-        origin: event.origin,
+        id: event.id,
       ),
     );
     result.fold(

@@ -194,6 +194,7 @@ class _LoginScreenState extends State<LoginScreen> with RouteAware {
                 if (state is AuthCredentialsLoaded) {
                   setState(() {
                     _userNameController.text = state.username ?? '';
+                    _savedUsername = state.username ?? '';
                     _savedPassword = state.password ?? '';
                     _savePassword = state.savePassword ?? false;
                   });

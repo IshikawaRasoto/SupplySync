@@ -1,4 +1,6 @@
 import 'package:fpdart/fpdart.dart';
+import 'package:supplysync/core/error/server_exception.dart';
+import '../../../../core/error/conversion_exception.dart';
 import '../../../../core/error/failure.dart';
 import '../../domain/entities/cart.dart';
 import '../../domain/repositories/cart_repository.dart';
@@ -15,6 +17,10 @@ class CartRepositoryImpl implements CartRepository {
     try {
       final carts = await remoteDataSource.getAllCarts(jwtToken);
       return right(carts);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    } on ConversionException catch (e) {
+      return left(Failure(e.message));
     } catch (e) {
       return left(Failure(e.toString()));
     }
@@ -31,6 +37,10 @@ class CartRepositoryImpl implements CartRepository {
         id: id,
       );
       return right(cart);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    } on ConversionException catch (e) {
+      return left(Failure(e.message));
     } catch (e) {
       return left(Failure(e.toString()));
     }
@@ -39,13 +49,33 @@ class CartRepositoryImpl implements CartRepository {
   @override
   Future<Either<Failure, Unit>> requestCartUse({
     required String jwtToken,
+    required String id,
+  }) async {
+    try {
+      await remoteDataSource.requestCartUse(
+        jwtToken: jwtToken,
+        id: id,
+      );
+      return right(unit);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    } on ConversionException catch (e) {
+      return left(Failure(e.message));
+    } catch (e) {
+      return left(Failure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> requestAnyCartUse({
+    required String jwtToken,
     required String load,
     required String loadQuantity,
     required String destination,
     required String origin,
   }) async {
     try {
-      await remoteDataSource.requestCartUse(
+      final cartId = await remoteDataSource.requestAnyCartUse(
         jwtToken: jwtToken,
         cartRequest: CartRequestModel(
           load: load,
@@ -54,7 +84,11 @@ class CartRepositoryImpl implements CartRepository {
           origin: origin,
         ),
       );
-      return right(unit);
+      return right(cartId);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    } on ConversionException catch (e) {
+      return left(Failure(e.message));
     } catch (e) {
       return left(Failure(e.toString()));
     }
@@ -71,6 +105,10 @@ class CartRepositoryImpl implements CartRepository {
         id: id,
       );
       return right(unit);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    } on ConversionException catch (e) {
+      return left(Failure(e.message));
     } catch (e) {
       return left(Failure(e.toString()));
     }
@@ -87,6 +125,10 @@ class CartRepositoryImpl implements CartRepository {
         id: id,
       );
       return right(unit);
+    } on ServerException catch (e) {
+      return left(Failure(e.message));
+    } on ConversionException catch (e) {
+      return left(Failure(e.message));
     } catch (e) {
       return left(Failure(e.toString()));
     }

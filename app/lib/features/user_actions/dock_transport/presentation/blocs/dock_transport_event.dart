@@ -25,6 +25,10 @@ class UpdateDestinationEvent extends DockTransportEvent {
 
 class ResetTransportEvent extends DockTransportEvent {}
 
+class ResetTransportLocationEvent extends DockTransportEvent {}
+
+class ResetTransportItemEvent extends DockTransportEvent {}
+
 class DockTransportRequested extends DockTransportEvent {
   final String item;
   final int quantity;

@@ -17,6 +17,7 @@ enum UserRoles {
     AppServices.fetchWarehouse,
     AppServices.fetchRecords,
     AppServices.carts,
+    AppServices.loadingWarehouses,
   ]),
   doca([
     AppServices.loadingDock,
@@ -38,6 +39,8 @@ enum AppServices {
   fetchWarehouse('', '', Icons.warehouse),
   updateProfile('Perfil', '/home/changeprofile', Icons.person),
   loadingDock('Docas', '/home/docksTransport', Icons.local_shipping),
+  loadingWarehouses(
+      'Drones Chegando', '/home/warehouseTransport', Icons.flight_land),
   carts('Drones', '/home/carts', Icons.drive_eta),
   fetchRecords('Registros', '/home/records', Icons.receipt_long),
   fetchWorkers('Funcionários', '/home/workers', Icons.people),

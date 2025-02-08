@@ -86,10 +86,6 @@ class _CartDetailScreen extends State<CartDetailScreen> {
                     text: "Carga: ${cart!.load}",
                     icon: Icons.local_shipping,
                   ),
-                  InfoCardWidget(
-                    text: "Atendimento: ${cart!.attendance}",
-                    icon: Icons.confirmation_number,
-                  ),
                   const Spacer(),
                   ElevatedButton(
                     onPressed: () => showDialogConfirmation(

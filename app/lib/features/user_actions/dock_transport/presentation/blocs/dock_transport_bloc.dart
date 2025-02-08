@@ -3,18 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../../core/common/cubit/user/user_cubit.dart';
-import '../../../../cart/domain/usecases/request_cart_usage.dart';
+import '../../../../cart/domain/usecases/request_any_cart_usage.dart';
 
 part 'dock_transport_event.dart';
 part 'dock_transport_state.dart';
 
 class DockTransportBloc extends Bloc<DockTransportEvent, DockTransportState> {
   final UserCubit _userCubit;
-  final RequestCartUsage _requestCartUsage;
+  final RequestAnyCartUsage _requestCartUsage;
 
   DockTransportBloc({
     required UserCubit userCubit,
-    required RequestCartUsage requestCartUsage,
+    required RequestAnyCartUsage requestCartUsage,
   })  : _userCubit = userCubit,
         _requestCartUsage = requestCartUsage,
         super(const DockTransportInitial()) {
@@ -22,8 +22,10 @@ class DockTransportBloc extends Bloc<DockTransportEvent, DockTransportState> {
     on<ScanLocationQRCodeEvent>(_onLocationQRCodeScanned);
     on<UpdateLocationManuallyEvent>(_onLocationManuallyUpdated);
     on<UpdateDestinationEvent>(_onDestinationUpdated);
-    on<ResetTransportEvent>(_onResetTransport);
     on<DockTransportRequested>(_dockTransportRequested);
+    on<ResetTransportEvent>(_onResetTransport);
+    on<ResetTransportLocationEvent>(_onResetTransportLocation);
+    on<ResetTransportItemEvent>(_onResetTransportItem);
   }
 
   void _onItemQRCodeScanned(
@@ -105,9 +107,34 @@ class DockTransportBloc extends Bloc<DockTransportEvent, DockTransportState> {
     Emitter<DockTransportState> emit,
   ) {
     emit(DockTransportLoading(
+      item: null,
+      quantity: null,
+      location: null,
+      destination: null,
+    ));
+    emit(const DockTransportInitial());
+  }
+
+  void _onResetTransportLocation(
+    ResetTransportLocationEvent event,
+    Emitter<DockTransportState> emit,
+  ) {
+    emit(DockTransportLoading(
       item: state.item,
       quantity: state.quantity,
       location: null,
+      destination: state.destination,
+    ));
+  }
+
+  void _onResetTransportItem(
+    ResetTransportItemEvent event,
+    Emitter<DockTransportState> emit,
+  ) {
+    emit(DockTransportLoading(
+      item: null,
+      quantity: null,
+      location: state.location,
       destination: state.destination,
     ));
   }
@@ -135,7 +162,7 @@ class DockTransportBloc extends Bloc<DockTransportEvent, DockTransportState> {
     }
 
     try {
-      await _requestCartUsage(RequestCartUsageParams(
+      final result = await _requestCartUsage(RequestAnyCartUsageParams(
         jwtToken: currentUser.jwtToken,
         load: event.item,
         loadQuantity: event.quantity.toString(),
@@ -143,7 +170,10 @@ class DockTransportBloc extends Bloc<DockTransportEvent, DockTransportState> {
         origin: event.origin,
       ));
 
-      emit(const DockTransportSuccess());
+      result.fold(
+        (failure) => _emitFailure(emit, failure.message),
+        (cartId) => emit(DockTransportSuccess(cartId)),
+      );
     } catch (e) {
       _emitFailure(emit, e.toString());
     }
