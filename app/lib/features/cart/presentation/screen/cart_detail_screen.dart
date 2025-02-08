@@ -20,8 +20,8 @@ class _CartDetailScreen extends State<CartDetailScreen> {
 
   @override
   void initState() {
-    super.initState();
     context.read<CartBloc>().add(CartDetailsRequested(widget.cartId));
+    super.initState();
   }
 
   @override
@@ -62,6 +62,8 @@ class _CartDetailScreen extends State<CartDetailScreen> {
                 ],
               ),
             );
+          } else if (cart == null) {
+            return const Center(child: Text("Cart not found"));
           }
           return SafeArea(
             minimum: const EdgeInsets.only(top: 10),

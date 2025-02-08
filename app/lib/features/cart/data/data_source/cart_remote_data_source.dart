@@ -58,6 +58,7 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
         jwtToken: jwtToken,
         pathParams: {'id': id},
       );
+      print('Cachorro response: $response');
       return Cart.fromJson(response['data']);
     } on ServerException {
       rethrow;
