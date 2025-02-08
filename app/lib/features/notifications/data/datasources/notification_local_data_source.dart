@@ -7,7 +7,10 @@ import '../../domain/entities/notification_message.dart';
 
 abstract class LocalNotificationsDataSource {
   Future<void> initialize();
-  Future<void> showNotification(NotificationMessage message);
+  Future<void> showNotification(
+    NotificationMessage message, {
+    AndroidNotificationDetails? androidNotificationDetails,
+  });
 }
 
 class LocalNotificationsDataSourceImpl implements LocalNotificationsDataSource {
@@ -49,24 +52,30 @@ class LocalNotificationsDataSourceImpl implements LocalNotificationsDataSource {
   }
 
   @override
-  Future<void> showNotification(NotificationMessage message) async {
+  Future<void> showNotification(
+    NotificationMessage message, {
+    AndroidNotificationDetails? androidNotificationDetails,
+  }) async {
     try {
-      final androidDetails = AndroidNotificationDetails(
-        message.channel.id,
-        message.channel.name,
-        channelDescription: message.channel.description,
-        importance: Importance.high,
-        priority: Priority.high,
-        icon: 'notification_small_icon',
-        largeIcon: DrawableResourceAndroidBitmap('notification_large_icon'),
-        color: AppColors.red,
+      final platformChannelSpecifics = NotificationDetails(
+        android: androidNotificationDetails ??
+            AndroidNotificationDetails(
+              message.channel.id,
+              message.channel.name,
+              channelDescription: message.channel.description,
+              importance: Importance.high,
+              priority: Priority.high,
+              icon: 'notification_small_icon',
+              // largeIcon: DrawableResourceAndroidBitmap('notification_large_icon'),
+              color: AppColors.red,
+            ),
       );
 
       await _notifications.show(
         DateTime.now().millisecondsSinceEpoch.hashCode,
         message.title,
         message.body,
-        NotificationDetails(android: androidDetails),
+        platformChannelSpecifics,
         payload: message.payload?.toString(),
       );
 

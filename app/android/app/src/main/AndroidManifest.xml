@@ -47,10 +47,13 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-        <!-- Firebase Messaging Service for background messaging - Set default icon for background messaging -->
+        <!-- Firebase Messaging Service for background messaging - Set default icon and channel for background messaging -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/notification_small_icon" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="system"  />
          <!-- Service for handling foreground notifications -->
         <service
             android:name="com.dexterous.flutterlocalnotifications.ForegroundService"        

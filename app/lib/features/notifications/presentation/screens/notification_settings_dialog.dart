@@ -12,7 +12,6 @@ import '../../domain/entities/notification_channel.dart';
 import '../cubit/notification_cubit.dart';
 
 class NotificationSettingsDialog extends StatefulWidget {
-  // Alterado para StatefulWidget para gerenciar estado
   final FlutterLocalNotificationsPlugin notifications =
       FlutterLocalNotificationsPlugin();
 
@@ -51,6 +50,93 @@ class _NotificationSettingsDialogState
     AppSettings.openAppSettings(type: AppSettingsType.notification);
   }
 
+  Widget _buildChannelTile(NotificationChannel channel, bool isEnabled) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isSmallScreen = constraints.maxWidth < 400;
+
+        return Card(
+          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  channel.name,
+                  style: Theme.of(context).textTheme.titleMedium,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  channel.description,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(height: 8),
+                if (isSmallScreen)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.notifications),
+                        onPressed: () =>
+                            context.read<NotificationCubit>().showNotification(
+                                  title: 'Test ${channel.name}',
+                                  body:
+                                      'This is a test notification for ${channel.description}',
+                                  channel: channel,
+                                ),
+                      ),
+                      Switch(
+                        value: isEnabled,
+                        onChanged: (newValue) => context
+                            .read<NotificationCubit>()
+                            .updateChannelEnabledState(channel, newValue),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.settings),
+                        tooltip: 'Configurações Avançadas do Canal',
+                        onPressed: () =>
+                            _openChannelSettings(context, channel.id),
+                      ),
+                    ],
+                  )
+                else
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.notifications),
+                        onPressed: () =>
+                            context.read<NotificationCubit>().showNotification(
+                                  title: 'Test ${channel.name}',
+                                  body:
+                                      'This is a test notification for ${channel.description}',
+                                  channel: channel,
+                                ),
+                      ),
+                      Switch(
+                        value: isEnabled,
+                        onChanged: (newValue) => context
+                            .read<NotificationCubit>()
+                            .updateChannelEnabledState(channel, newValue),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.settings),
+                        tooltip: 'Configurações Avançadas do Canal',
+                        onPressed: () =>
+                            _openChannelSettings(context, channel.id),
+                      ),
+                    ],
+                  ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<NotificationCubit, NotificationState>(
@@ -70,75 +156,58 @@ class _NotificationSettingsDialogState
         }
         return AlertDialog(
           title: const Text('Notification Settings'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ...NotificationChannel.values.map(
-                (channel) => ListTile(
-                  title: Text(channel.name),
-                  subtitle: Text(channel.description),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.notifications),
-                        onPressed: () =>
-                            context.read<NotificationCubit>().showNotification(
-                                  title: 'Test ${channel.name}',
-                                  body:
-                                      'This is a test notification for ${channel.description}',
-                                  channel: channel,
-                                ),
-                      ),
-                      Switch(
-                          value: channelEnabledStates[channel] ?? true,
-                          onChanged: (newValue) => context
-                              .read<NotificationCubit>()
-                              .updateChannelEnabledState(channel, newValue)),
-                      IconButton(
-                        icon: const Icon(Icons.settings),
-                        tooltip:
-                            'Configurações Avançadas do Canal', // Tooltip para melhor UX
-                        onPressed: () =>
-                            _openChannelSettings(context, channel.id),
-                      ),
-                    ],
+          content: Container(
+            constraints: const BoxConstraints(maxHeight: 400),
+            width: double.maxFinite,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  ...NotificationChannel.values.map(
+                    (channel) => _buildChannelTile(
+                      channel,
+                      channelEnabledStates[channel] ?? true,
+                    ),
                   ),
-                ),
-              ),
-              const Divider(),
-              TextButton(
-                onPressed: _openNotificationSettings,
-                child: const Text(
-                    'Configurações Avançadas do Sistema'), // Texto mais claro
-              ),
-              if (_user.roles.contains(UserRoles.admin))
-                TextButton(
-                  onPressed: () => context
-                      .read<NotificationCubit>()
-                      .getFirebaseToken()
-                      .then((value) {
-                    setState(
-                        () => firebaseToken = value ?? 'Erro ao obter token');
-                  }),
-                  child: const Text('Pegar Token do Firebase'),
-                ),
-              if (_user.roles.contains(UserRoles.admin) &&
-                  firebaseToken.isNotEmpty)
-                SelectableText.rich(
-                  TextSpan(
-                    children: [
-                      const TextSpan(text: 'Firebase Token: '),
-                      TextSpan(
-                        text: firebaseToken,
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                  const Divider(),
+                  TextButton(
+                    onPressed: _openNotificationSettings,
+                    child: const Text('Configurações Avançadas do Sistema'),
                   ),
-                  onTap: () =>
-                      Clipboard.setData(ClipboardData(text: firebaseToken)),
-                ),
-            ],
+                  if (_user.roles.contains(UserRoles.admin))
+                    TextButton(
+                      onPressed: () => context
+                          .read<NotificationCubit>()
+                          .getFirebaseToken()
+                          .then((value) {
+                        setState(() =>
+                            firebaseToken = value ?? 'Erro ao obter token');
+                      }),
+                      child: const Text('Pegar Token do Firebase'),
+                    ),
+                  if (_user.roles.contains(UserRoles.admin) &&
+                      firebaseToken.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: SelectableText.rich(
+                        TextSpan(
+                          children: [
+                            const TextSpan(text: 'Firebase Token: '),
+                            TextSpan(
+                              text: firebaseToken,
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ],
+                        ),
+                        textAlign: TextAlign.center,
+                        onTap: () => Clipboard.setData(
+                            ClipboardData(text: firebaseToken)),
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
           actions: [
             TextButton(

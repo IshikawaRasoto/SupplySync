@@ -61,15 +61,43 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
 
   void _handleForegroundMessage(RemoteMessage message) {
     _logger.i(
-        'Handling foreground message: \n${message.notification?.title}\n${message.notification?.body}\n${message.data}');
+        'Handling foreground message: \nTitle: ${message.notification?.title}\nBody: ${message.notification?.body}\nChannel: ${message.notification?.android?.channelId}\nData: ${message.data}');
+
+    final NotificationChannel channel =
+        _getChannel(message.notification?.android?.channelId) ??
+            _getChannel(message.data['category'] as String?) ??
+            NotificationChannel.system;
+
     showLocalNotification(
       NotificationMessage(
         title: message.notification?.title ?? 'New Message',
         body: message.notification?.body ?? '',
-        channel: NotificationChannel.system,
+        channel: channel,
         payload: message.data,
       ),
     );
+  }
+
+  NotificationChannel? _getChannel(String? name) {
+    if (name == null) {
+      return null;
+    }
+    switch (name) {
+      case 'inventory':
+        return NotificationChannel.inventory;
+      case 'cart_ops':
+        return NotificationChannel.cartOperation;
+      case 'shipping':
+        return NotificationChannel.shipping;
+      case 'maintenance':
+        return NotificationChannel.maintenance;
+      case 'user_actions':
+        return NotificationChannel.userActions;
+      case 'system':
+        return NotificationChannel.system;
+      default:
+        return null;
+    }
   }
 
   @override
