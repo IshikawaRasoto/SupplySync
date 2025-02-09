@@ -157,7 +157,7 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
         endPoint: ApiEndpoints.releaseDrone,
         jwtToken: jwtToken,
         pathParams: {
-          'droneId': droneId,
+          'cartId': droneId,
         },
       );
     } on ServerException {

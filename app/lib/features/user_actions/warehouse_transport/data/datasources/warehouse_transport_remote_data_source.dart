@@ -32,10 +32,10 @@ class WarehouseTransportRemoteDataSourceImpl
     try {
       final response = await apiService.fetchData(
         endPoint: ApiEndpoints.fetchIncomingDrones,
-        jwtToken: jwtToken,
         pathParams: {
-          'location': location,
+          'warehouseId': location,
         },
+        jwtToken: jwtToken,
       );
 
       return (response['drones'] as List)
@@ -60,7 +60,7 @@ class WarehouseTransportRemoteDataSourceImpl
         jwtToken: jwtToken,
         image: photo,
         pathParams: {
-          'droneId': droneId,
+          'cartId': droneId,
         },
       );
     } on ServerException {
