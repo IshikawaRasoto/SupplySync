@@ -83,21 +83,42 @@ class _CartDetailScreen extends State<CartDetailScreen> {
                     icon: Icons.flag,
                   ),
                   InfoCardWidget(
+                    text: "Origin: ${cart!.origin}",
+                    icon: Icons.flag,
+                  ),
+                  InfoCardWidget(
                     text: "Carga: ${cart!.load}",
                     icon: Icons.local_shipping,
                   ),
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () => showDialogConfirmation(
-                      context,
-                      title: "Enviar para Manutenção?",
-                      onConfirm: () => context
-                          .read<CartBloc>()
-                          .add(CartMaintenanceRequested(cart!.id)),
-                    ),
-                    style: AppStyles.redButtonStyle,
-                    child: const Text("Enviar para Manutenção"),
+                  InfoCardWidget(
+                    text: "Status: ${cart!.status}",
+                    icon: Icons.info,
                   ),
+                  const Spacer(),
+                  if (cart!.status != 'manutencao')
+                    ElevatedButton(
+                      onPressed: () => showDialogConfirmation(
+                        context,
+                        title: "Enviar para Manutenção?",
+                        onConfirm: () => context
+                            .read<CartBloc>()
+                            .add(CartMaintenanceRequested(cart!.id)),
+                      ),
+                      style: AppStyles.redButtonStyle,
+                      child: const Text("Enviar para Manutenção"),
+                    ),
+                  if (cart!.status == 'manutencao')
+                    ElevatedButton(
+                      onPressed: () => showDialogConfirmation(
+                        context,
+                        title: "Liberar da Manutenção",
+                        onConfirm: () => context
+                            .read<CartBloc>()
+                            .add(CartMaintenanceRequested(cart!.id)),
+                      ),
+                      style: AppStyles.redButtonStyle,
+                      child: const Text("Liberar da Manutenção"),
+                    ),
                   const SizedBox(height: 10),
                   ElevatedButton(
                     onPressed: () => showDialogConfirmation(context,

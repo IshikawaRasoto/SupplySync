@@ -40,7 +40,7 @@ class _RecordScreenState extends State<RecordScreen> {
             } else if (state is LogsError) {
               return Center(child: Text('Error: ${state.message}'));
             } else if (state is LogsLoaded) {
-              final logs = state.logs;
+              final logs = state.logs.reversed.toList();
               return Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(

@@ -1,28 +1,30 @@
 part of 'warehouse_transport_bloc.dart';
 
 @immutable
-abstract class WarehouseTransportState {
-  final List<Cart> incomingDrones;
-  final String? error;
-
-  const WarehouseTransportState({
-    this.incomingDrones = const [],
-    this.error,
-  });
+sealed class WarehouseTransportState {
+  const WarehouseTransportState();
 }
 
 class WarehouseTransportInitial extends WarehouseTransportState {
-  const WarehouseTransportInitial() : super();
+  const WarehouseTransportInitial();
 }
 
 class WarehouseTransportLoading extends WarehouseTransportState {
-  const WarehouseTransportLoading() : super();
+  const WarehouseTransportLoading();
 }
 
 class WarehouseTransportSuccess extends WarehouseTransportState {
-  const WarehouseTransportSuccess({required super.incomingDrones});
+  final List<Cart> incomingDrones;
+  final List<Warehouse> warehouses;
+
+  const WarehouseTransportSuccess({
+    required this.incomingDrones,
+    required this.warehouses,
+  });
 }
 
 class WarehouseTransportFailure extends WarehouseTransportState {
-  const WarehouseTransportFailure({required super.error});
+  final String? error;
+
+  const WarehouseTransportFailure({this.error});
 }

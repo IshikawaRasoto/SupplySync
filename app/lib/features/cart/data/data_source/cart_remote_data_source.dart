@@ -41,7 +41,7 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
   @override
   Future<List<Cart>> getAllCarts(String jwtToken) async {
     try {
-      final response = await apiService.fetchData(
+      final response = await apiService.getData(
         endPoint: ApiEndpoints.getCarts,
         jwtToken: jwtToken,
       );
@@ -61,12 +61,12 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
     required String id,
   }) async {
     try {
-      final response = await apiService.fetchData(
+      final response = await apiService.getData(
         endPoint: ApiEndpoints.cartDetails,
         jwtToken: jwtToken,
-        pathParams: {'id': id},
+        pathParams: {'cartId': id},
       );
-      return Cart.fromJson(response['data']);
+      return Cart.fromJson(response);
     } on ServerException {
       rethrow;
     } catch (e) {

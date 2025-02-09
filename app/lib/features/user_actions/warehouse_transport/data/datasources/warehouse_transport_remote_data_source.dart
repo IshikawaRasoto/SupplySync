@@ -30,7 +30,7 @@ class WarehouseTransportRemoteDataSourceImpl
     required String location,
   }) async {
     try {
-      final response = await apiService.fetchData(
+      final response = await apiService.getData(
         endPoint: ApiEndpoints.fetchIncomingDrones,
         pathParams: {
           'warehouseId': location,

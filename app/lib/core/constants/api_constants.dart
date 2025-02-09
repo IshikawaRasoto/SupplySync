@@ -13,8 +13,8 @@ enum ApiEndpoints {
   logout('logout'),
 
   // Warehouse
-  warehouse('warehouse'),
-  warehouseProducts('warehouses/{warehouseId}/products'),
+  warehouses('warehouses'),
+  warehouseProducts('warehouses/{warehouseId}'),
   records('get_logs'),
 
   // Notification
@@ -22,7 +22,7 @@ enum ApiEndpoints {
 
   // Carts
   getCarts('get_carts'),
-  cartDetails('cart_details'),
+  cartDetails('cart_details/{cartId}'),
   cartUse('cart_use'),
   cartRequest('cart_request'),
   cartShutdown('cart_shutdown'),

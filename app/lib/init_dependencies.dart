@@ -3,11 +3,13 @@ part of 'init_dependencies_imports.dart';
 final serviceLocator = GetIt.instance;
 
 class InitDependencies {
+  static const String type = 'prod';
   static Future<void> init() async {
     _initAuth();
     _initUserActions();
     _initLog();
     _initCarts();
+    _initWarehouse();
     _initNotifications();
     _initDockTransport();
     _initWarehouseTransport();
@@ -128,13 +130,18 @@ class InitDependencies {
   }
 
   static void _initCarts() {
+    const String localType = type;
     serviceLocator
       // DataSources
       ..registerFactory<CartRemoteDataSource>(
-          () => CartRemoteDataSourceImpl(serviceLocator<ApiService>()))
+          () => CartRemoteDataSourceImplMock(),
+          instanceName: 'mock')
+      ..registerFactory<CartRemoteDataSource>(
+          () => CartRemoteDataSourceImpl(serviceLocator<ApiService>()),
+          instanceName: 'prod')
       // Repositories
-      ..registerFactory<CartRepository>(
-          () => CartRepositoryImpl(serviceLocator<CartRemoteDataSource>()))
+      ..registerFactory<CartRepository>(() => CartRepositoryImpl(
+          serviceLocator<CartRemoteDataSource>(instanceName: localType)))
       // UseCases
       ..registerFactory(
           () => RequestCartUsage(serviceLocator<CartRepository>()))
@@ -153,6 +160,51 @@ class InitDependencies {
             getCartDetails: serviceLocator<GetCartDetails>(),
             getAllCarts: serviceLocator<GetAllCarts>(),
             userCubit: serviceLocator<UserCubit>(),
+          ));
+  }
+
+  static void _initWarehouse() {
+    final String localType = type;
+    serviceLocator
+      // DataSources
+      ..registerFactory<WarehouseRemoteDataSource>(
+          () => WarehouseRemoteDataSourceImplMock(),
+          instanceName: 'mock')
+      ..registerFactory<WarehouseRemoteDataSource>(
+          () => WarehouseRemoteDataSourceImpl(
+              apiService: serviceLocator<ApiService>()),
+          instanceName: 'prod')
+      // Repositories
+      ..registerFactory<WarehouseRepository>(() => WarehouseRepositoryImpl(
+            remoteDataSource: serviceLocator<WarehouseRemoteDataSource>(
+                instanceName: localType),
+          ))
+      // UseCases
+      ..registerFactory(
+          () => GetWarehouses(serviceLocator<WarehouseRepository>()))
+      ..registerFactory(() => GetWarehouseProducts(
+            serviceLocator<WarehouseRepository>(),
+          ))
+      ..registerFactory(() => UpdateWarehouseProduct(
+            serviceLocator<WarehouseRepository>(),
+          ))
+      ..registerFactory(() => AddWarehouseProduct(
+            serviceLocator<WarehouseRepository>(),
+          ))
+      ..registerFactory(() => RemoveWarehouseProduct(
+            serviceLocator<WarehouseRepository>(),
+          ))
+      // Blocs
+      ..registerLazySingleton(() => WarehousesBloc(
+            getWarehouses: serviceLocator<GetWarehouses>(),
+            userCubit: serviceLocator<UserCubit>(),
+          ))
+      ..registerLazySingleton(() => WarehouseProductsBloc(
+            userCubit: serviceLocator<UserCubit>(),
+            getWarehouseProducts: serviceLocator<GetWarehouseProducts>(),
+            updateWarehouseProduct: serviceLocator<UpdateWarehouseProduct>(),
+            addWarehouseProduct: serviceLocator<AddWarehouseProduct>(),
+            removeWarehouseProduct: serviceLocator<RemoveWarehouseProduct>(),
           ));
   }
 
@@ -226,16 +278,21 @@ class InitDependencies {
   }
 
   static void _initDockTransport() {
+    const String localType = type;
     serviceLocator
       // DataSources
-      ..registerFactory<DockTransportRemoteDataSource>(() =>
-          DockTransportRemoteDataSourceImpl(
-              apiService: serviceLocator<ApiService>()))
+      ..registerFactory<DockTransportRemoteDataSource>(
+          () => DockTransportRemoteDataSourceImplMock(),
+          instanceName: 'mock')
+      ..registerFactory<DockTransportRemoteDataSource>(
+          () => DockTransportRemoteDataSourceImpl(
+              apiService: serviceLocator<ApiService>()),
+          instanceName: 'prod')
       // Repositories
       ..registerFactory<DockTransportRepository>(() =>
           DockTransportRepositoryImpl(
-              remoteDataSource:
-                  serviceLocator<DockTransportRemoteDataSource>()))
+              remoteDataSource: serviceLocator<DockTransportRemoteDataSource>(
+                  instanceName: localType)))
       // UseCases
       ..registerFactory(
           () => UploadCartPhoto(serviceLocator<DockTransportRepository>()))
@@ -253,26 +310,34 @@ class InitDependencies {
   }
 
   static void _initWarehouseTransport() {
+    const String localType = type;
     serviceLocator
       // DataSources
-      ..registerFactory<WarehouseTransportRemoteDataSource>(() =>
-          WarehouseTransportRemoteDataSourceImpl(
-              apiService: serviceLocator<ApiService>()))
+      ..registerFactory<WarehouseTransportRemoteDataSource>(
+          () => WarehouseTransportRemoteDataSourceImplMock(),
+          instanceName: 'mock')
+      ..registerFactory<WarehouseTransportRemoteDataSource>(
+          () => WarehouseTransportRemoteDataSourceImpl(
+              apiService: serviceLocator<ApiService>()),
+          instanceName: 'prod')
       // Repositories
       ..registerFactory<WarehouseTransportRepository>(
           () => WarehouseTransportRepositoryImpl(
                 remoteDataSource:
-                    serviceLocator<WarehouseTransportRemoteDataSource>(),
+                    serviceLocator<WarehouseTransportRemoteDataSource>(
+                        instanceName: localType),
               ))
       // UseCases
       ..registerFactory(() =>
           FetchIncomingDrones(serviceLocator<WarehouseTransportRepository>()))
       ..registerFactory(() =>
           UploadDronePhoto(serviceLocator<WarehouseTransportRepository>()))
+      ..registerFactory(() => ReleaseDrone(serviceLocator<CartRepository>()))
       // Blocs
       ..registerLazySingleton(() => WarehouseTransportBloc(
             userCubit: serviceLocator<UserCubit>(),
             fetchIncomingDrones: serviceLocator<FetchIncomingDrones>(),
+            getWarehouses: serviceLocator<GetWarehouses>(),
           ))
       ..registerLazySingleton(() => DroneDetailsBloc(
             userCubit: serviceLocator<UserCubit>(),

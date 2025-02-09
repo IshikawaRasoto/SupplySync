@@ -16,9 +16,9 @@ import 'features/auth/presentation/screen/login_screen.dart';
 import 'features/user_actions/user_profiles/presentation/screen/register_user_screen.dart';
 import 'features/user_actions/user_profiles/presentation/screen/workers_screen.dart';
 import 'features/user_actions/dock_transport/presentation/screen/dock_transport_screen.dart';
+import 'features/user_actions/warehouse/presentation/screens/warehouse_details_screen.dart';
+import 'features/user_actions/warehouse/presentation/screens/warehouses_screen.dart';
 import 'features/user_actions/warehouse_transport/presentation/screen/warehouse_transport_screen.dart';
-import 'screen/warehouses_detais_screen.dart';
-import 'screen/warehouses_screen.dart';
 
 class RouterMain {
   static final Logger _logger = Logger();
@@ -158,7 +158,7 @@ class RouterMain {
                     },
                     builder: (context, state) {
                       final warehouseId = state.pathParameters['warehouseId']!;
-                      return WarehouseDetailsScreen(id: warehouseId);
+                      return WarehouseDetailsScreen(warehouseId: warehouseId);
                     },
                   ),
                 ],

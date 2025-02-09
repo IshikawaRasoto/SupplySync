@@ -17,6 +17,7 @@ class DroneDetailsBloc extends Bloc<DroneDetailsEvent, DroneDetailsState> {
   final UploadDronePhoto _uploadDronePhoto;
   final ReleaseDrone _releaseDrone;
   XFile? dronePhoto;
+  bool hasArrived = false;
 
   DroneDetailsBloc({
     required UserCubit userCubit,
@@ -40,6 +41,8 @@ class DroneDetailsBloc extends Bloc<DroneDetailsEvent, DroneDetailsState> {
     LoadDroneDetails event,
     Emitter<DroneDetailsState> emit,
   ) async {
+    dronePhoto = null;
+    hasArrived = false;
     final currentUser = _userCubit.getCurrentUser();
     if (currentUser == null) {
       emit(DroneDetailsFailure('User not authenticated'));
@@ -63,7 +66,7 @@ class DroneDetailsBloc extends Bloc<DroneDetailsEvent, DroneDetailsState> {
     ConfirmDroneArrival event,
     Emitter<DroneDetailsState> emit,
   ) async {
-    // TODO: Implement API call to confirm drone arrival
+    hasArrived = true;
     await Future.delayed(const Duration(seconds: 1));
     emit(DroneDetailsArrivalConfirmed());
   }

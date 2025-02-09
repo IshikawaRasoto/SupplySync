@@ -15,6 +15,7 @@ class CartScreen extends StatefulWidget {
 }
 
 class _CartScreenState extends State<CartScreen> {
+  List<Cart> carts = [];
   @override
   void initState() {
     super.initState();
@@ -39,11 +40,14 @@ class _CartScreenState extends State<CartScreen> {
             return const Center(child: CircularProgressIndicator());
           }
           if (state is AllCartsSuccess) {
+            carts = state.carts;
+          }
+          if (carts.isNotEmpty) {
             return RefreshIndicator(
               onRefresh: () async {
                 context.read<CartBloc>().add(CartLoadAllRequested());
               },
-              child: _buildCartList(context, state.carts),
+              child: _buildCartList(context, carts),
             );
           }
           return Center(
@@ -150,22 +154,14 @@ class _CartScreenState extends State<CartScreen> {
                       ),
                     ],
                   ),
-                  if (cart.load != null) ...[
-                    const SizedBox(height: 8),
+                  const SizedBox(height: 8),
+                  if (cart.status != null)
                     Text(
-                      'Load: ${cart.load}',
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                  ],
-                  if (cart.destination != null) ...[
-                    const SizedBox(height: 4),
-                    Text(
-                      'Destination: ${cart.destination}',
+                      'Status: ${cart.status}',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Colors.grey[600],
                           ),
                     ),
-                  ],
                   const SizedBox(height: 12),
                   Row(
                     children: [

@@ -5,6 +5,10 @@ sealed class WarehouseTransportEvent {
   const WarehouseTransportEvent();
 }
 
+class FetchWarehousesEvent extends WarehouseTransportEvent {
+  const FetchWarehousesEvent();
+}
+
 class FetchIncomingDronesEvent extends WarehouseTransportEvent {
   final String location;
 

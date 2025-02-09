@@ -72,7 +72,7 @@ class UserActionsRemoteDataSourceImpl implements UserActionsRemoteDataSource {
   Future<TargetUserModel> getUserByUserName(
       {required String jwtToken, required String userName}) async {
     try {
-      final response = await _apiService.fetchData(
+      final response = await _apiService.getData(
         endPoint: ApiEndpoints.getOtherUser,
         jwtToken: jwtToken,
         pathParams: {'userName': userName},
@@ -129,7 +129,7 @@ class UserActionsRemoteDataSourceImpl implements UserActionsRemoteDataSource {
   @override
   Future<List<TargetUserModel>> getAllUsers({required String jwtToken}) async {
     try {
-      final response = await _apiService.fetchData(
+      final response = await _apiService.getData(
         endPoint: ApiEndpoints.getAllUsers,
         jwtToken: jwtToken,
       );
@@ -179,7 +179,7 @@ class UserActionsRemoteDataSourceImpl implements UserActionsRemoteDataSource {
         }
       }
 
-      final result = await _apiService.fetchData(
+      final result = await _apiService.getData(
         endPoint: ApiEndpoints.records,
         jwtToken: jwtToken,
         pathParams: queryParams,

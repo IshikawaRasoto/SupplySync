@@ -13,6 +13,8 @@ import 'features/notifications/presentation/cubit/notification_cubit.dart';
 import 'features/user_actions/dock_transport/presentation/blocs/cart_request_bloc.dart';
 import 'features/user_actions/dock_transport/presentation/blocs/dock_transport_bloc.dart';
 import 'features/user_actions/user_profiles/presentation/blocs/user_request_bloc.dart';
+import 'features/user_actions/warehouse/presentation/bloc/warehouse_products/warehouse_products_bloc.dart';
+import 'features/user_actions/warehouse/presentation/bloc/warehouses/warehouses_bloc.dart';
 import 'features/user_actions/warehouse_transport/presentation/blocs/drone_details_bloc.dart';
 import 'features/user_actions/warehouse_transport/presentation/blocs/warehouse_transport_bloc.dart';
 import 'init_dependencies_imports.dart';
@@ -42,6 +44,8 @@ void main() async {
         BlocProvider(create: (_) => serviceLocator<CartRequestBloc>()),
         BlocProvider(create: (_) => serviceLocator<WarehouseTransportBloc>()),
         BlocProvider(create: (_) => serviceLocator<DroneDetailsBloc>()),
+        BlocProvider(create: (_) => serviceLocator<WarehousesBloc>()),
+        BlocProvider(create: (_) => serviceLocator<WarehouseProductsBloc>()),
       ],
       child: const MyApp(),
     ),

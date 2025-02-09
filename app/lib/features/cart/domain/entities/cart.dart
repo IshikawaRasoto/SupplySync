@@ -2,13 +2,17 @@ class Cart {
   final String id;
   final String battery;
   final String? destination;
+  final String? origin;
   final String? load;
+  final String? status;
 
   Cart({
     required this.id,
     required this.battery,
     this.destination,
+    this.origin,
     this.load,
+    this.status,
   });
 
   factory Cart.fromJson(Map<String, dynamic> json) {
@@ -16,7 +20,9 @@ class Cart {
       id: json['id'] as String,
       battery: json['battery'] as String,
       destination: json['destination'] as String?,
+      origin: json['origin'] as String?,
       load: json['load'] as String?,
+      status: json['status'] as String?,
     );
   }
 
@@ -25,7 +31,9 @@ class Cart {
       'id': id,
       'battery': battery,
       'destination': destination,
+      'origin': origin,
       'load': load,
+      'status': status,
     };
   }
 }

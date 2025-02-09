@@ -10,7 +10,7 @@ import '../domain/repositories/config_repository.dart';
 import '../error/server_exception.dart';
 
 abstract interface class ApiService {
-  Future<Map<String, dynamic>> fetchData({
+  Future<Map<String, dynamic>> getData({
     required ApiEndpoints endPoint,
     required String jwtToken,
     Map<String, String>? header,
@@ -36,6 +36,7 @@ abstract interface class ApiService {
   Future<void> deleteData({
     required ApiEndpoints endPoint,
     required String jwtToken,
+    Map<String, String>? body,
     Map<String, String>? header,
     Map<String, String>? pathParams,
   });
@@ -60,7 +61,7 @@ class ApiServiceImpl implements ApiService {
   }
 
   @override
-  Future<Map<String, dynamic>> fetchData(
+  Future<Map<String, dynamic>> getData(
       {required ApiEndpoints endPoint,
       required String jwtToken,
       Map<String, String>? header,
@@ -154,6 +155,7 @@ class ApiServiceImpl implements ApiService {
   Future<void> deleteData(
       {required ApiEndpoints endPoint,
       required String jwtToken,
+      Map<String, String>? body,
       Map<String, String>? header,
       Map<String, String>? pathParams}) async {
     try {
@@ -166,8 +168,11 @@ class ApiServiceImpl implements ApiService {
         ...?header,
       };
       _debugSendPrint(
-          path: uri.toString(), header: headers.toString(), body: '');
-      final response = await http.delete(uri, headers: headers);
+          path: uri.toString(),
+          header: headers.toString(),
+          body: body.toString());
+      final response =
+          await http.delete(uri, headers: headers, body: jsonEncode(body));
       _statusHandler(response);
     } on ServerException {
       rethrow;

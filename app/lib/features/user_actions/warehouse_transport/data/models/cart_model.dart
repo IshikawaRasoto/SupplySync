@@ -2,32 +2,22 @@ import '../../../../../features/cart/domain/entities/cart.dart';
 
 class CartModel extends Cart {
   CartModel({
-    required String id,
-    required String battery,
-    String? destination,
-    String? load,
-  }) : super(
-          id: id,
-          battery: battery,
-          destination: destination,
-          load: load,
-        );
+    required super.id,
+    required super.battery,
+    super.destination = '',
+    super.origin = '',
+    super.load = '',
+    super.status = 'Free',
+  });
 
   factory CartModel.fromJson(Map<String, dynamic> json) {
     return CartModel(
-      id: json['id'].toString(),
-      battery: json['battery'].toString(),
-      destination: json['destination'],
-      load: json['load'],
+      id: json['id'] as String,
+      battery: json['battery'] as String,
+      destination: json['destination'] as String,
+      origin: json['origin'] as String,
+      load: json['load'] as String,
+      status: json['status'] as String,
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'battery': battery,
-      'destination': destination,
-      'load': load,
-    };
   }
 }

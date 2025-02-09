@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../../features/cart/domain/entities/cart.dart';
+import '../../../../../features/user_actions/warehouse/domain/entities/warehouse.dart';
 import '../blocs/warehouse_transport_bloc.dart';
 
 class WarehouseTransportScreen extends StatefulWidget {
@@ -14,18 +15,19 @@ class WarehouseTransportScreen extends StatefulWidget {
 }
 
 class _WarehouseTransportScreenState extends State<WarehouseTransportScreen> {
-  final _locationController = TextEditingController();
+  Warehouse? _selectedWarehouse;
+  List<Warehouse> _warehouses = [];
 
   @override
-  void dispose() {
-    _locationController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    context.read<WarehouseTransportBloc>().add(const FetchWarehousesEvent());
   }
 
   void _fetchDrones() {
-    if (_locationController.text.isNotEmpty) {
+    if (_selectedWarehouse != null) {
       context.read<WarehouseTransportBloc>().add(
-            FetchIncomingDronesEvent(location: _locationController.text),
+            FetchIncomingDronesEvent(location: _selectedWarehouse!.name),
           );
     }
   }
@@ -44,18 +46,36 @@ class _WarehouseTransportScreenState extends State<WarehouseTransportScreen> {
             child: Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    controller: _locationController,
-                    decoration: const InputDecoration(
-                      labelText: 'Local',
-                      hintText: 'Digite seu local',
-                      border: OutlineInputBorder(),
-                    ),
+                  child: BlocBuilder<WarehouseTransportBloc,
+                      WarehouseTransportState>(
+                    builder: (context, state) {
+                      if (state is WarehouseTransportSuccess) {
+                        _warehouses = state.warehouses;
+                      }
+                      return DropdownButtonFormField<Warehouse>(
+                        decoration: const InputDecoration(
+                          labelText: 'Armazém',
+                          border: OutlineInputBorder(),
+                        ),
+                        value: _selectedWarehouse,
+                        items: _warehouses.map((warehouse) {
+                          return DropdownMenuItem(
+                            value: warehouse,
+                            child: Text(warehouse.name),
+                          );
+                        }).toList(),
+                        onChanged: (Warehouse? value) {
+                          setState(() {
+                            _selectedWarehouse = value;
+                          });
+                        },
+                      );
+                    },
                   ),
                 ),
                 const SizedBox(width: 16),
                 ElevatedButton(
-                  onPressed: _fetchDrones,
+                  onPressed: _selectedWarehouse != null ? _fetchDrones : null,
                   child: const Text('Buscar'),
                 ),
               ],

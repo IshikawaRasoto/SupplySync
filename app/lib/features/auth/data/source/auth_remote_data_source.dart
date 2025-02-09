@@ -52,7 +52,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<User> getUser({required String jwtToken}) async {
     try {
-      final response = await _apiService.fetchData(
+      final response = await _apiService.getData(
         endPoint: ApiEndpoints.getUser,
         jwtToken: jwtToken,
       );
