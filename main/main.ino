@@ -119,12 +119,14 @@ void setMotors(int sumWeights, int counter){
   Serial.println(sumWeights);
   if(sumWeights>0){
     go_right();
-    delay(100*sumWeights);
+    //delay(100*sumWeights);
+    delay(100);
     stand_still();
   }
   else if(sumWeights<0){
     go_left();
-    delay(100*abs(sumWeights));
+    //delay(100*abs(sumWeights));
+    delay(100);
     stand_still();
   }
   else{
