@@ -12,6 +12,7 @@ import 'core/data/repositories/local_storage_repository_impl.dart';
 import 'core/data/repositories/secure_storage_repository_impl.dart';
 import 'core/domain/repositories/config_repository.dart';
 import 'core/domain/repositories/local_storage_repository.dart';
+import 'core/services/auth_interceptor_service.dart';
 import 'features/auth/data/repositories/auth_credentials_repository_impl.dart';
 import 'features/auth/data/repositories/auth_repository_impl.dart';
 import 'features/auth/data/source/auth_remote_data_source.dart';

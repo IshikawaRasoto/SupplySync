@@ -51,7 +51,7 @@ class LogoAndHelpWidget extends StatelessWidget {
               top: 1,
               child: IconButton(
                 alignment: Alignment.topLeft,
-                onPressed: context.pop,
+                onPressed: () => context.go('/'),
                 icon: Icon(
                   Icons.logout,
                   size: 30,

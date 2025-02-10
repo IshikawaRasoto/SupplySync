@@ -25,8 +25,8 @@ enum ApiEndpoints {
   cartDetails('cart_details/{cartId}'),
   cartUse('cart_use'),
   cartRequest('cart_request'),
-  cartShutdown('cart_shutdown'),
-  cartMaintenance('cart_maintenance'),
+  cartShutdown('cart_shutdown/{cartId}'),
+  cartMaintenance('cart_maintenance/{cartId}'),
 
   // Warehouse Transport
   fetchIncomingDrones('warehouse/{warehouseId}/incoming-drones'),

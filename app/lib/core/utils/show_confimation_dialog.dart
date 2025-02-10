@@ -12,13 +12,13 @@ Future<bool?> showDialogConfirmation(BuildContext context,
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(false);
-              onConfirm?.call();
             },
             child: Text('Cancelar'),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop(true);
+              onConfirm?.call();
             },
             child: Text('Confirmar'),
           ),

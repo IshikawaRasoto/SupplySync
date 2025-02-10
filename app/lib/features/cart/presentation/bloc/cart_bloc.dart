@@ -69,7 +69,10 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     );
     result.fold(
       (failure) => emit(CartRequestFailure(failure.message)),
-      (_) => emit(CartRequestSuccess()),
+      (_) {
+        emit(CartRequestSuccess());
+        add(CartDetailsRequested(event.id));
+      },
     );
   }
 
@@ -86,7 +89,10 @@ class CartBloc extends Bloc<CartEvent, CartState> {
     );
     result.fold(
       (failure) => emit(CartRequestFailure(failure.message)),
-      (_) => emit(CartRequestSuccess()),
+      (_) {
+        emit(CartRequestSuccess());
+        add(CartDetailsRequested(event.id));
+      },
     );
   }
 

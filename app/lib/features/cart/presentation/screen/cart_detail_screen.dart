@@ -120,15 +120,28 @@ class _CartDetailScreen extends State<CartDetailScreen> {
                       child: const Text("Liberar da Manutenção"),
                     ),
                   const SizedBox(height: 10),
-                  ElevatedButton(
-                    onPressed: () => showDialogConfirmation(context,
-                        title: "Forçar Desligamento?",
+                  if (cart!.status != 'desligado')
+                    ElevatedButton(
+                      onPressed: () => showDialogConfirmation(context,
+                          title: "Forçar Desligamento?",
+                          onConfirm: () => context.read<CartBloc>().add(
+                                CartShutdownRequested(cart!.id),
+                              )),
+                      style: AppStyles.redButtonStyle,
+                      child: const Text("Forçar Desligamento"),
+                    ),
+                  if (cart!.status == 'desligado')
+                    ElevatedButton(
+                      onPressed: () => showDialogConfirmation(
+                        context,
+                        title: "Ligar Cart?",
                         onConfirm: () => context
                             .read<CartBloc>()
-                            .add(CartShutdownRequested(cart!.id))),
-                    style: AppStyles.redButtonStyle,
-                    child: const Text("Forçar Desligamento"),
-                  ),
+                            .add(CartShutdownRequested(cart!.id)),
+                      ),
+                      style: AppStyles.redButtonStyle,
+                      child: const Text("Ligar Cart"),
+                    ),
                 ],
               ),
             ),

@@ -39,10 +39,17 @@ class InitDependencies {
           serviceLocator<ConfigRepository>(),
         ),
       );
+
+    // Services
+    serviceLocator.registerLazySingleton<AuthInterceptorService>(
+      () => AuthInterceptorServiceImpl(),
+    );
+
     // Api
     serviceLocator.registerLazySingleton<ApiService>(
       () => ApiServiceImpl(
-        serviceLocator<ConfigRepository>(),
+        configRepository: serviceLocator<ConfigRepository>(),
+        authInterceptorService: serviceLocator<AuthInterceptorService>(),
       ),
     );
     // Cubits

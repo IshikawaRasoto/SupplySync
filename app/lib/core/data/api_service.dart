@@ -7,7 +7,9 @@ import 'package:http/http.dart' as http;
 
 import '../constants/api_constants.dart';
 import '../domain/repositories/config_repository.dart';
+import '../error/auth_exception.dart';
 import '../error/server_exception.dart';
+import '../services/auth_interceptor_service.dart';
 
 abstract interface class ApiService {
   Future<Map<String, dynamic>> getData({
@@ -53,8 +55,13 @@ abstract interface class ApiService {
 class ApiServiceImpl implements ApiService {
   static final _logger = Logger();
   final ConfigRepository _configRepository;
+  final AuthInterceptorService _authInterceptorService;
 
-  ApiServiceImpl(this._configRepository);
+  ApiServiceImpl({
+    required ConfigRepository configRepository,
+    required AuthInterceptorService authInterceptorService,
+  })  : _authInterceptorService = authInterceptorService,
+        _configRepository = configRepository;
 
   Future<String> _getBaseUrl() async {
     return await _configRepository.getApiUrl();
@@ -77,10 +84,12 @@ class ApiServiceImpl implements ApiService {
       _debugSendPrint(
           path: uri.toString(), header: headers.toString(), body: '');
       final response = await http.get(uri, headers: headers);
-      _statusHandler(response);
+      await _statusHandler(response);
       return jsonDecode(response.body) as Map<String, dynamic>;
     } on ServerException {
       rethrow;
+    } on AuthException catch (e) {
+      throw ServerException(e.message);
     } catch (e) {
       _logger.e('An error occurred while deleting data: $e');
       throw ServerException(e.toString());
@@ -109,10 +118,12 @@ class ApiServiceImpl implements ApiService {
           body: body.toString());
       final response =
           await http.post(uri, headers: headers, body: jsonEncode(body));
-      _statusHandler(response);
+      await _statusHandler(response);
       return jsonDecode(response.body) as Map<String, dynamic>;
     } on ServerException {
       rethrow;
+    } on AuthException catch (e) {
+      throw ServerException(e.message);
     } catch (e) {
       _logger.e('An error occurred while deleting data: $e');
       throw ServerException(e.toString());
@@ -141,10 +152,12 @@ class ApiServiceImpl implements ApiService {
           body: body.toString());
       final response =
           await http.put(uri, headers: headers, body: jsonEncode(body));
-      _statusHandler(response);
+      await _statusHandler(response);
       return true;
     } on ServerException {
       rethrow;
+    } on AuthException catch (e) {
+      throw ServerException(e.message);
     } catch (e) {
       _logger.e('An error occurred while deleting data: $e');
       throw ServerException(e.toString());
@@ -173,9 +186,11 @@ class ApiServiceImpl implements ApiService {
           body: body.toString());
       final response =
           await http.delete(uri, headers: headers, body: jsonEncode(body));
-      _statusHandler(response);
+      await _statusHandler(response);
     } on ServerException {
       rethrow;
+    } on AuthException catch (e) {
+      throw ServerException(e.message);
     } catch (e) {
       _logger.e('An error occurred while deleting data on server: $e');
       throw ServerException(e.toString());
@@ -204,9 +219,11 @@ class ApiServiceImpl implements ApiService {
           path: uri.toString(), header: headers.toString(), body: '');
       final streamedResponse = await request.send();
       final response = await http.Response.fromStream(streamedResponse);
-      _statusHandler(response);
+      await _statusHandler(response);
     } on ServerException {
       rethrow;
+    } on AuthException catch (e) {
+      throw ServerException(e.message);
     } catch (e) {
       _logger.e('An error occurred while sending image: $e');
       throw ServerException(e.toString());
@@ -221,24 +238,34 @@ class ApiServiceImpl implements ApiService {
     }
   }
 
-  void _statusHandler(http.Response response) {
+  Future<void> _statusHandler(http.Response response) async {
     if (kDebugMode) {
       _logger.d('Server Response: ${response.body}');
     }
     if (response.statusCode == 200 || response.statusCode == 201) {
       _logger.i('Request successful');
-    } else {
-      final errorData = jsonDecode(response.body);
-      final statusCode = errorData['error']['code'] != null
-          ? '${response.statusCode}: ${errorData['error']['code']}'
-          : response.statusCode.toString();
-      final errorMessage = errorData['error']['message'] ?? 'Ocorreu um erro';
-      final errorDetails = errorData['error']['details'] ?? '';
-      _logger.e('Request failed. Status code: $statusCode\n'
-          'Message: $errorMessage\n'
-          'Details: $errorDetails');
-      throw ServerException('$statusCode, $errorMessage. $errorDetails');
+      return;
     }
+
+    final errorData = jsonDecode(response.body);
+    final statusCode = errorData['error']['code'] != null
+        ? '${response.statusCode}: ${errorData['error']['code']}'
+        : response.statusCode.toString();
+    final errorMessage = errorData['error']['message'] ?? 'Ocorreu um erro';
+    final errorDetails = errorData['error']['details'] ?? '';
+    _logger.e('Request failed. Status code: $statusCode\n'
+        'Message: $errorMessage\n'
+        'Details: $errorDetails');
+
+    if (response.statusCode == 401) {
+      final isLoggedIn = await _authInterceptorService.handleUnauthorized();
+      if (isLoggedIn) {
+        throw AuthException(isLoggedIn: true);
+      }
+      throw AuthException();
+    }
+
+    throw ServerException('$statusCode, $errorMessage. $errorDetails');
   }
 
   String _buildPath(ApiEndpoints requestType, Map<String, String>? pathParams) {

@@ -31,6 +31,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthLogin>(_onLogin);
     on<AuthLogout>(_onLogout);
     on<AuthGetCurrentUser>(_getCurrentUser);
+    on<AuthResetEvent>(_onReset);
   }
 
   Future<void> _onLogin(AuthLogin event, Emitter<AuthState> emit) async {
@@ -71,6 +72,10 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     emit(AuthLoading());
     await _logoutUseCase((_userCubit.state as UserLoggedIn).user);
     _userCubit.updateUser(null);
+    emit(AuthInitial());
+  }
+
+  void _onReset(AuthResetEvent event, Emitter<AuthState> emit) {
     emit(AuthInitial());
   }
 }

@@ -120,7 +120,7 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
       await apiService.postData(
         endPoint: ApiEndpoints.cartShutdown,
         jwtToken: jwtToken,
-        pathParams: {'id': id},
+        pathParams: {'cartId': id},
       );
     } on ServerException {
       rethrow;
@@ -138,7 +138,7 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
       await apiService.postData(
         endPoint: ApiEndpoints.cartMaintenance,
         jwtToken: jwtToken,
-        pathParams: {'id': id},
+        pathParams: {'cartId': id},
       );
     } on ServerException {
       rethrow;
