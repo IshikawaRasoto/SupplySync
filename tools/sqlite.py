@@ -69,6 +69,38 @@ class SqliteConfig:
         except sqlite3.OperationalError:
             self.logger.info("Banco de dados do armazem validos ja existe")
 
+
+        try:
+            database = sqlite3.connect('res/carts.db')
+            cursor = database.cursor()
+            cursor.execute('''
+                                 CREATE TABLE carts  (
+                                        id TEXT NOT NULL,
+                                        origin TEXT NOT NULL,
+                                        destination TEXT NOT NULL,
+                                        load TEXT NOT NULL,
+                                        status TEXT NOT NULL,
+                                        battery TEXT NOT NULL,
+                                        PRIMARY KEY (id)
+                                 );
+                            ''')
+            
+            self.logger.info("Banco de dados dos drones criado")
+
+            cursor.execute('''
+                    INSERT INTO carts (id, origin, destination, load, status, battery) VALUES ("1", 'doca1', 'nenhum', 'vazio', 'disponivel', "0")
+                ''')
+            
+            cursor.execute('''
+                    INSERT INTO carts (id, origin, destination, load, status, battery) VALUES ("2", 'doca2', 'nenhum', 'vazio', 'disponivel', "0")
+                ''')
+
+            database.commit()
+            database.close()
+
+        except sqlite3.OperationalError:
+            self.logger.info("Banco de dados dos drones ja existe")
+
     def insert_data(self, data_received):
 
         try:
@@ -251,7 +283,7 @@ class SqliteConfig:
                             SELECT username, email, name, roles FROM login_data WHERE username = ? ''', (
             username_received,))
         result = cursor.fetchone()
-
+        database.close()
         if result:
             return result
 
@@ -265,9 +297,130 @@ class SqliteConfig:
         cursor.execute('''
                             SELECT username, name FROM login_data;''')
         result = cursor.fetchall()
+        database.close()
+        if result:
+            return result
+
+        else:
+            return "error"
+        
+
+    def get_all_carts (self):
+        database = sqlite3.connect('res/carts.db')
+        cursor = database.cursor()
+        cursor.execute('''
+                            SELECT id, battery, status FROM carts;''')
+        result = cursor.fetchall()
+        database.close()
+        if result:
+            return result
+
+        else:
+            return "error"
+
+    def get_cart_detail(self, id):
+        database = sqlite3.connect('res/carts.db')
+        cursor = database.cursor()
+        cursor.execute('''
+                            SELECT battery, origin, destination, load, status FROM carts WHERE id = ? ''', (
+            id,))
+        
+        result = cursor.fetchone()
+        database.close()
 
         if result:
             return result
 
         else:
             return "error"
+        
+
+    def check_if_status_maintenance(self, id):
+        database = sqlite3.connect('res/carts.db')
+        cursor = database.cursor()
+        cursor.execute('''
+                            SELECT status FROM carts WHERE id = ? ''', (
+            id,))
+        
+        result = cursor.fetchone()
+        database.close()    
+
+        if result:
+            if result[0] == "manutencao":
+                return True
+            
+            else:
+                return False
+
+        else:
+            return "error"
+
+    def check_if_status_off(self, id):
+        database = sqlite3.connect('res/carts.db')
+        cursor = database.cursor()
+        cursor.execute('''
+                            SELECT status, status FROM carts WHERE id = ? ''', (
+            id,))
+        
+        result = cursor.fetchone()
+        database.close()    
+
+        if result:
+            if result[0] == "desligado":
+                return True
+            
+            else:
+                return False
+
+        else:
+            return "error"
+        
+    def update_cart_status_maintenance(self, id):
+        
+        if (self.check_if_status_maintenance(id) == True):
+            database = sqlite3.connect('res/carts.db')
+            cursor = database.cursor()
+            cursor.execute('''
+                    UPDATE carts set status = "disponivel" WHERE id = ?
+                ''', (id,))
+            
+            database.commit()
+            database.close()
+            
+            return "ok1"
+
+        database = sqlite3.connect('res/carts.db')
+        cursor = database.cursor()
+        cursor.execute('''
+                            UPDATE carts set status = "manutencao" WHERE id = ? ''', (
+            id,))
+        
+        database.commit()
+        database.close()
+
+        return "ok2"
+
+    def update_cart_status_off(self, id):
+        
+        if (self.check_if_status_off(id) == True):
+            database = sqlite3.connect('res/carts.db')
+            cursor = database.cursor()
+            cursor.execute('''
+                    UPDATE carts set status = "disponivel" WHERE id = ?
+                ''', (id,))
+            
+            database.commit()
+            database.close()
+            
+            return "ok1"
+
+        database = sqlite3.connect('res/carts.db')
+        cursor = database.cursor()
+        cursor.execute('''
+                            UPDATE carts set status = "desligado" WHERE id = ? ''', (
+            id,))
+        
+        database.commit()
+        database.close()
+
+        return "ok2"

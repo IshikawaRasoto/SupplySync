@@ -1,4 +1,6 @@
 logs/supply_sync.log
+
+firebase.json
 # Pasta de ambiente virtual (não deve ser versionada)
 venv/
 # Arquivos de log (logs geralmente são gerados dinamicamente e não precisam ser versionados)
