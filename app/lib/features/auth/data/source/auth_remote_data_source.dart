@@ -5,7 +5,11 @@ import '../../../../core/constants/api_constants.dart';
 import '../../../../core/common/entities/user.dart';
 
 abstract interface class AuthRemoteDataSource {
-  Future<User> login({required String username, required String password});
+  Future<User> login({
+    required String username,
+    required String password,
+    required String firebaseToken,
+  });
   Future<void> logout({required String jwtToken});
   Future<User> getUser({required String jwtToken});
 }
@@ -16,11 +20,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<User> login(
-      {required String username, required String password}) async {
+      {required String username,
+      required String password,
+      required String firebaseToken}) async {
     try {
       final response = await _apiService.postData(
         endPoint: ApiEndpoints.login,
-        body: {'username': username, 'password': password},
+        body: {
+          'username': username,
+          'password': password,
+          'firebase_token': firebaseToken
+        },
       );
       if (response['jwt_token'] == null) {
         throw const ServerException('User is NULL');

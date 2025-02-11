@@ -13,6 +13,7 @@ class AppColors {
   static const Color grey = Colors.grey;
   static const Color white = Colors.white;
   static const Color blue = Colors.blue;
+  static const Color deepPurple = Colors.deepPurple;
   static const Color orange = Colors.orange;
   static const Color buttonText = Colors.white;
   static const Color green = Colors.green;

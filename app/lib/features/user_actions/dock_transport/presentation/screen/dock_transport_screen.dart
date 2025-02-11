@@ -147,6 +147,14 @@ class _DockTransportScreenState extends State<DockTransportScreen>
   }
 
   Widget _buildInfoContent(BuildContext context, DockTransportState state) {
+    if (state is DockTransportSuccess) {
+      return const Center(
+        child: Text(
+          'Transporte solicitado com sucesso!',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+      );
+    }
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -166,11 +174,13 @@ class _DockTransportScreenState extends State<DockTransportScreen>
                     hintText: 'Escaneie ou digite o local',
                     border: OutlineInputBorder(),
                   ),
-                  onChanged: (value) {
+                  onSubmitted: (value) {
+                    FocusScope.of(context).unfocus();
                     if (value.isNotEmpty) {
                       context.read<DockTransportBloc>().add(
                             UpdateLocationManuallyEvent(location: value),
                           );
+                      print('Cachorro teste 1');
                     }
                   },
                 ),
@@ -249,7 +259,7 @@ class _DockTransportScreenState extends State<DockTransportScreen>
             ),
           ],
           const SizedBox(height: 16),
-          _buildInstructions(state),
+          Center(child: _buildInstructions(state)),
         ],
       ),
     );
@@ -259,21 +269,21 @@ class _DockTransportScreenState extends State<DockTransportScreen>
     if (!state.hasLocation) {
       return const Text(
         'Defina seu local atual para continuar',
-        style: TextStyle(color: Colors.grey),
+        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
       );
     }
 
     if (!state.hasItem) {
       return const Text(
         'Agora escaneie o QR Code do item',
-        style: TextStyle(color: Colors.grey),
+        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
       );
     }
 
     if (state.destination == null || state.destination!.isEmpty) {
       return const Text(
         'Digite o destino para continuar',
-        style: TextStyle(color: Colors.grey),
+        style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
       );
     }
 
@@ -282,25 +292,46 @@ class _DockTransportScreenState extends State<DockTransportScreen>
 
   Widget _buildActionButtons(BuildContext context, DockTransportState state) {
     if (state is DockTransportSuccess) {
-      return ElevatedButton.icon(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.deepPurple,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        ),
-        onPressed: () {
-          _destinationController.clear();
-          _locationController.clear();
-          _lastCode = null;
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.deepPurple,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+            ),
+            onPressed: () =>
+                context.push('/home/docksTransport/${state.cartId}'),
+            icon: const Icon(Icons.local_shipping, color: Colors.white),
+            label: const Text(
+              'Acompanhar Transporte',
+              style: TextStyle(fontSize: 16),
+            ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.deepPurple,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
+            ),
+            onPressed: () {
+              _destinationController.clear();
+              _locationController.clear();
+              _lastCode = null;
 
-          context.read<DockTransportBloc>().add(ResetTransportEvent());
-        },
-        icon: const Icon(Icons.refresh),
-        label: const Text(
-          'Novo Transporte',
-          style: TextStyle(fontSize: 16),
-        ),
+              context.read<DockTransportBloc>().add(ResetTransportEvent());
+            },
+            icon: const Icon(Icons.refresh, color: Colors.white),
+            label: const Text(
+              'Novo Transporte',
+              style: TextStyle(fontSize: 16),
+            ),
+          ),
+        ],
       );
     }
 
@@ -359,8 +390,8 @@ class _DockTransportScreenState extends State<DockTransportScreen>
               } else if (state is DockTransportSuccess) {
                 _showTemporaryFeedback(
                     'Transporte solicitado com sucesso!', true);
-                context.go('/home/docksTransport/${state.cartId}');
-              } else if (state is DockTransportInProgress) {
+                context.push('/home/docksTransport/${state.cartId}');
+              } else if (state is DockTransportQrCodeReaded) {
                 _showTemporaryFeedback('Informações atualizadas', true);
               }
             },

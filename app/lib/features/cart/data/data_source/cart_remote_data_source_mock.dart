@@ -134,4 +134,19 @@ class CartRemoteDataSourceImplMock implements CartRemoteDataSource {
       throw ServerException('Failed to release drone');
     }
   }
+
+  @override
+  Future<void> reportProblem({
+    required String jwtToken,
+    required String cartId,
+    required String problemDescription,
+  }) async {
+    try {
+      await Future.delayed(const Duration(seconds: 1));
+    } on ServerException {
+      rethrow;
+    } catch (e) {
+      throw ServerException('Failed to report problem');
+    }
+  }
 }

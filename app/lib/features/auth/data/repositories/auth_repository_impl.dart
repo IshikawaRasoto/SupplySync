@@ -12,12 +12,16 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(this._remoteDataSource);
 
   @override
-  Future<Either<Failure, User>> login(
-      {required String username, required String password}) async {
+  Future<Either<Failure, User>> login({
+    required String username,
+    required String password,
+    required String firebaseToken,
+  }) async {
     try {
       final response = await _remoteDataSource.login(
         username: username,
         password: password,
+        firebaseToken: firebaseToken,
       );
       return right(response);
     } on ServerException catch (e) {

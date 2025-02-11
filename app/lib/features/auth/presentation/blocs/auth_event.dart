@@ -8,7 +8,12 @@ final class AuthResetEvent extends AuthEvent {}
 final class AuthLogin extends AuthEvent {
   final String username;
   final String password;
-  AuthLogin({required this.username, required this.password});
+  final String firebaseToken;
+  AuthLogin({
+    required this.username,
+    required this.password,
+    required this.firebaseToken,
+  });
 }
 
 final class AuthLogout extends AuthEvent {}

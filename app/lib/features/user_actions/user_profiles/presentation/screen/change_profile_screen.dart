@@ -4,8 +4,8 @@ import 'package:supplysync/core/common/entities/user.dart';
 import 'package:supplysync/core/utils/show_snackbar.dart';
 
 import '../../../../../core/common/cubit/user/user_cubit.dart';
-import '../../../../../core/common/widgets/logo_and_help_widget.dart';
 import '../../../../../core/constants/constants.dart';
+import '../../../../../core/theme/theme.dart';
 import '../../../../../core/utils/capitalize_utils.dart';
 import '../../../../../core/utils/email_checker_utils.dart';
 import '../../../../auth/presentation/blocs/auth_bloc.dart';
@@ -60,229 +60,217 @@ class _ChangeProfileScreenState extends State<ChangeProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: BlocConsumer<UserRequestBloc, UserRequestState>(
+      appBar: AppBar(
+        title: const Text('Alterar Perfil'),
+        centerTitle: true,
+      ),
+      body: BlocConsumer<UserRequestBloc, UserRequestState>(
           listener: (context, state) {
-            if (state is UserRequestUserSuccess) {
-              _tagetUser = state.user;
-              _isUserInitialized = true;
-            } else if (state is UserRequestFailure) {
+        if (state is UserRequestUserSuccess) {
+          _tagetUser = state.user;
+          _isUserInitialized = true;
+        } else if (state is UserRequestFailure) {
+          showSnackBar(context, message: state.message, isError: true);
+        }
+      }, builder: (context, state) {
+        if (!_isUserInitialized) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return BlocListener<UserActionsBloc, UserActionsState>(
+          listener: (context, state) {
+            if (state is UserActionsSuccess) {
+              showSnackBar(
+                context,
+                message: state.message,
+                isSucess: true,
+              );
+              if (widget.targetUserName != null) {
+                context
+                    .read<UserRequestBloc>()
+                    .add(GetUserByUserName(widget.targetUserName!));
+              } else {
+                context.read<AuthBloc>().add(AuthGetCurrentUser());
+              }
+            } else if (state is UserActionsFailure) {
               showSnackBar(context, message: state.message, isError: true);
             }
           },
-          builder: (context, state) {
-            if (!_isUserInitialized) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            return BlocListener<UserActionsBloc, UserActionsState>(
-              listener: (context, state) {
-                if (state is UserActionsSuccess) {
-                  showSnackBar(
-                    context,
-                    message: state.message,
-                    isSucess: true,
-                  );
-                  if (widget.targetUserName != null) {
-                    context
-                        .read<UserRequestBloc>()
-                        .add(GetUserByUserName(widget.targetUserName!));
-                  } else {
-                    context.read<AuthBloc>().add(AuthGetCurrentUser());
-                  }
-                } else if (state is UserActionsFailure) {
-                  showSnackBar(context, message: state.message, isError: true);
-                }
-              },
-              child: Column(
-                children: [
-                  Expanded(child: LogoAndHelpWidget()),
-                  const SizedBox(height: 10),
-                  Text('Alterar perfil de ${_tagetUser.userName}',
-                      style:
-                          TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 10),
-                  Expanded(
-                    flex: 3,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey
-                                .withAlpha(Color.getAlphaFromOpacity(0.5)),
-                            spreadRadius: 5,
-                            blurRadius: 7,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16.0),
+                  margin: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: getColorWithOpacity(AppColors.grey, 0.2),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 2),
                       ),
-                      padding:
-                          EdgeInsets.symmetric(vertical: 10, horizontal: 24),
-                      margin:
-                          EdgeInsets.symmetric(vertical: 10, horizontal: 24),
-                      child: SingleChildScrollView(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text.rich(
+                    ],
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text.rich(
+                          TextSpan(
+                            text: 'Nome: ',
+                            children: [
                               TextSpan(
-                                text: 'Nome: ',
-                                children: [
-                                  TextSpan(
-                                    text: _tagetUser.userName,
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                ],
+                                text: _tagetUser.userName,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
                               ),
-                            ),
-                            Form(
-                              key: _nameFormKey,
-                              child: Column(
-                                children: [
-                                  const SizedBox(height: 20),
-                                  Text.rich(
-                                    TextSpan(
-                                      text: 'Nome: ',
-                                      children: [
-                                        TextSpan(
-                                          text: _tagetUser.name,
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  InputFormField(
-                                    controller: _newNameController,
-                                    hintText: 'Novo Nome',
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      _nameFormKey.currentState!.validate()
-                                          ? context.read<UserActionsBloc>().add(
-                                                ChangeUserProfile(
-                                                  targetUserName:
-                                                      _tagetUser.userName,
-                                                  newName: _newNameController
-                                                      .text
-                                                      .trim(),
-                                                ),
-                                              )
-                                          : null;
-                                    },
-                                    child: const Text('Alterar Nome'),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Form(
-                              key: _emailFormKey,
-                              child: Column(
-                                children: [
-                                  const SizedBox(height: 20),
-                                  Text.rich(
-                                    TextSpan(
-                                      text: 'E-mail: ',
-                                      children: [
-                                        TextSpan(
-                                          text: _tagetUser.email,
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  InputFormField(
-                                    controller: _newEmailController,
-                                    hintText: 'Novo E-mail',
-                                    validator: (email) => !isValidEmail(email)
-                                        ? 'E-mail inválido'
-                                        : null,
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      _emailFormKey.currentState!.validate()
-                                          ? context.read<UserActionsBloc>().add(
-                                                ChangeUserProfile(
-                                                  targetUserName:
-                                                      _tagetUser.userName,
-                                                  newEmail: _newEmailController
-                                                      .text
-                                                      .trim(),
-                                                ),
-                                              )
-                                          : null;
-                                    },
-                                    child: const Text('Alterar E-mail'),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            Form(
-                              key: _passowrdFormKey,
-                              child: Column(
-                                children: [
-                                  InputFormField(
-                                    controller: _passwordController,
-                                    hintText: 'Senha Atual',
-                                    isObscureText: true,
-                                  ),
-                                  InputFormField(
-                                    controller: _newPasswordController,
-                                    hintText: 'Nova Senha',
-                                    isObscureText: true,
-                                    validator: (value) => value.length <
-                                            AuthConstants.minPasswordLength
-                                        ? 'A senha deve ter no mínimo ${AuthConstants.minPasswordLength} caracteres'
-                                        : null,
-                                  ),
-                                  InputFormField(
-                                    controller: _newConfirmPasswordController,
-                                    hintText: 'Confirme a Nova Senha',
-                                    isObscureText: true,
-                                    validator: (text) =>
-                                        text != _newPasswordController.text
-                                            ? 'As senhas não coincidem'
-                                            : null,
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      _passowrdFormKey.currentState!.validate()
-                                          ? context.read<UserActionsBloc>().add(
-                                                ChangeUserPassword(
-                                                  targetUserName:
-                                                      _tagetUser.userName,
-                                                  newPassword:
-                                                      _newPasswordController
-                                                          .text,
-                                                  oldPassword:
-                                                      _passwordController.text,
-                                                ),
-                                              )
-                                          : null;
-                                    },
-                                    child: const Text('Alterar Senha'),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            PermisionsWidgets(user: _tagetUser),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
+                        Form(
+                          key: _nameFormKey,
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 20),
+                              Text.rich(
+                                TextSpan(
+                                  text: 'Nome: ',
+                                  children: [
+                                    TextSpan(
+                                      text: _tagetUser.name,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              InputFormField(
+                                controller: _newNameController,
+                                hintText: 'Novo Nome',
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  _nameFormKey.currentState!.validate()
+                                      ? context.read<UserActionsBloc>().add(
+                                            ChangeUserProfile(
+                                              targetUserName:
+                                                  _tagetUser.userName,
+                                              newName: _newNameController.text
+                                                  .trim(),
+                                            ),
+                                          )
+                                      : null;
+                                },
+                                child: const Text('Alterar Nome'),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Form(
+                          key: _emailFormKey,
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 20),
+                              Text.rich(
+                                TextSpan(
+                                  text: 'E-mail: ',
+                                  children: [
+                                    TextSpan(
+                                      text: _tagetUser.email,
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              InputFormField(
+                                controller: _newEmailController,
+                                hintText: 'Novo E-mail',
+                                validator: (email) => !isValidEmail(email)
+                                    ? 'E-mail inválido'
+                                    : null,
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  _emailFormKey.currentState!.validate()
+                                      ? context.read<UserActionsBloc>().add(
+                                            ChangeUserProfile(
+                                              targetUserName:
+                                                  _tagetUser.userName,
+                                              newEmail: _newEmailController.text
+                                                  .trim(),
+                                            ),
+                                          )
+                                      : null;
+                                },
+                                child: const Text('Alterar E-mail'),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        Form(
+                          key: _passowrdFormKey,
+                          child: Column(
+                            children: [
+                              InputFormField(
+                                controller: _passwordController,
+                                hintText: 'Senha Atual',
+                                isObscureText: true,
+                              ),
+                              InputFormField(
+                                controller: _newPasswordController,
+                                hintText: 'Nova Senha',
+                                isObscureText: true,
+                                validator: (value) => value.length <
+                                        AuthConstants.minPasswordLength
+                                    ? 'A senha deve ter no mínimo ${AuthConstants.minPasswordLength} caracteres'
+                                    : null,
+                              ),
+                              InputFormField(
+                                controller: _newConfirmPasswordController,
+                                hintText: 'Confirme a Nova Senha',
+                                isObscureText: true,
+                                validator: (text) =>
+                                    text != _newPasswordController.text
+                                        ? 'As senhas não coincidem'
+                                        : null,
+                              ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  _passowrdFormKey.currentState!.validate()
+                                      ? context.read<UserActionsBloc>().add(
+                                            ChangeUserPassword(
+                                              targetUserName:
+                                                  _tagetUser.userName,
+                                              newPassword:
+                                                  _newPasswordController.text,
+                                              oldPassword:
+                                                  _passwordController.text,
+                                            ),
+                                          )
+                                      : null;
+                                },
+                                child: const Text('Alterar Senha'),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        PermisionsWidgets(user: _tagetUser),
+                      ],
                     ),
                   ),
-                ],
-              ),
-            );
-          },
-        ),
-      ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }),
     );
   }
 }

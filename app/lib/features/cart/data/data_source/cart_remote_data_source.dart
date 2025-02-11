@@ -31,6 +31,11 @@ abstract interface class CartRemoteDataSource {
     required String jwtToken,
     required String droneId,
   });
+  Future<void> reportProblem({
+    required String jwtToken,
+    required String cartId,
+    required String problemDescription,
+  });
 }
 
 class CartRemoteDataSourceImpl implements CartRemoteDataSource {
@@ -103,7 +108,10 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
         jwtToken: jwtToken,
         body: cartRequest.toJson(),
       );
-      return response['id'].toString();
+      if (response['id'] is! String) {
+        throw ConversionException('Failed to convert response to string');
+      }
+      return response['id'] as String;
     } on ServerException {
       rethrow;
     } catch (e) {
@@ -153,7 +161,7 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
     required String droneId,
   }) async {
     try {
-      await apiService.deleteData(
+      await apiService.postData(
         endPoint: ApiEndpoints.releaseDrone,
         jwtToken: jwtToken,
         pathParams: {
@@ -164,6 +172,28 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
       rethrow;
     } catch (e) {
       throw ServerException('Failed to release drone: ${e.toString()}');
+    }
+  }
+
+  @override
+  Future<void> reportProblem({
+    required String jwtToken,
+    required String cartId,
+    required String problemDescription,
+  }) async {
+    try {
+      await apiService.postData(
+        endPoint: ApiEndpoints.cartProblem,
+        jwtToken: jwtToken,
+        pathParams: {'cartId': cartId},
+        body: {
+          'problemDescription': problemDescription,
+        },
+      );
+    } on ServerException {
+      rethrow;
+    } catch (e) {
+      throw ConversionException(e.toString());
     }
   }
 }

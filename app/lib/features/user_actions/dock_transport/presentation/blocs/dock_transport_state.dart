@@ -46,6 +46,15 @@ class DockTransportInProgress extends DockTransportState {
   });
 }
 
+class DockTransportQrCodeReaded extends DockTransportState {
+  const DockTransportQrCodeReaded({
+    super.item,
+    super.quantity,
+    super.location,
+    super.destination,
+  });
+}
+
 class DockTransportSuccess extends DockTransportState {
   const DockTransportSuccess(this.cartId);
 

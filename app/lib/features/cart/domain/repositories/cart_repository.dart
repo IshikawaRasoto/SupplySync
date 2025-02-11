@@ -31,4 +31,9 @@ abstract class CartRepository {
     required String jwtToken,
     required String droneId,
   });
+  Future<Either<Failure, Unit>> reportProblem({
+    required String jwtToken,
+    required String cartId,
+    required String problemDescription,
+  });
 }

@@ -46,6 +46,12 @@ class DockTransportBloc extends Bloc<DockTransportEvent, DockTransportState> {
         _emitFailure(emit, 'QR Code do item inválido');
         return;
       }
+      emit(DockTransportQrCodeReaded(
+        item: data['item'] as String,
+        quantity: data['quantity'] as int,
+        location: state.location,
+        destination: data['destination'] as String?,
+      ));
       emit(DockTransportInProgress(
         item: data['item'] as String,
         quantity: data['quantity'] as int,
@@ -67,6 +73,12 @@ class DockTransportBloc extends Bloc<DockTransportEvent, DockTransportState> {
         _emitFailure(emit, 'QR Code do local inválido');
         return;
       }
+      emit(DockTransportQrCodeReaded(
+        item: state.item,
+        quantity: state.quantity,
+        location: data['location'] as String,
+        destination: state.destination,
+      ));
       emit(DockTransportInProgress(
         item: state.item,
         quantity: state.quantity,
@@ -172,7 +184,13 @@ class DockTransportBloc extends Bloc<DockTransportEvent, DockTransportState> {
 
       result.fold(
         (failure) => _emitFailure(emit, failure.message),
-        (cartId) => emit(DockTransportSuccess(cartId)),
+        (cartId) {
+          if (cartId.isEmpty) {
+            _emitFailure(emit, 'Erro ao solicitar transporte');
+            return;
+          }
+          emit(DockTransportSuccess(cartId));
+        },
       );
     } catch (e) {
       _emitFailure(emit, e.toString());

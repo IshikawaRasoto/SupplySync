@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:logger/logger.dart';
 import 'package:supplysync/features/auth/presentation/cubit/auth_credentials_cubit.dart';
+import 'package:supplysync/features/notifications/presentation/cubit/notification_cubit.dart';
 
 import '../../../../core/utils/show_snackbar.dart';
 import '../../../../core/common/widgets/logo_and_help_widget.dart';
@@ -98,8 +99,13 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (mounted && isAuthenticated) {
         _biometricAuth = true;
-        authBloc
-            .add(AuthLogin(username: _savedUsername, password: _savedPassword));
+        final firebaseToken =
+            await context.read<NotificationCubit>().getFirebaseToken() ?? '';
+        authBloc.add(AuthLogin(
+          username: _savedUsername,
+          password: _savedPassword,
+          firebaseToken: firebaseToken,
+        ));
       }
     } catch (e) {
       _logger.e('Biometric authentication error: $e');
@@ -118,7 +124,13 @@ class _LoginScreenState extends State<LoginScreen> {
       final username = _userNameController.text;
       final password = _passwordController.text;
       _biometricAuth = false;
-      authBloc.add(AuthLogin(username: username, password: password));
+      final firebaseToken =
+          await context.read<NotificationCubit>().getFirebaseToken() ?? '';
+      authBloc.add(AuthLogin(
+        username: username,
+        password: password,
+        firebaseToken: firebaseToken,
+      ));
     }
   }
 

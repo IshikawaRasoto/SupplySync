@@ -70,7 +70,7 @@ class RouterMain {
             },
             routes: [
               GoRoute(
-                path: '/:cartId/:data',
+                path: '/:cartId',
                 name: 'cartTransportDetails',
                 builder: (context, state) {
                   final cartId = state.pathParameters['cartId']!;

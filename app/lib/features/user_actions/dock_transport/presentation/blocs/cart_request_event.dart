@@ -16,3 +16,5 @@ class CartPhotoSubmitted extends CartRequestEvent {
 }
 
 class ReleaseCartRequested extends CartRequestEvent {}
+
+class ResetCartRequestEvent extends CartRequestEvent {}

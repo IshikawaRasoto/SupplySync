@@ -7,7 +7,7 @@ import 'package:supplysync/core/utils/show_snackbar.dart';
 
 import '../../../../../core/common/cubit/user/user_cubit.dart';
 import '../../../../../core/common/entities/user.dart';
-import '../../../../../core/common/widgets/logo_and_help_widget.dart';
+import '../../../../../core/theme/theme.dart';
 import '../../../../../core/utils/capitalize_utils.dart';
 import '../blocs/user_actions_bloc.dart';
 import 'widgets/input_form_widget.dart';
@@ -44,131 +44,149 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: BlocConsumer<UserActionsBloc, UserActionsState>(
-          listener: (context, state) {
-            if (state is UserActionsSuccess) {
-              showSnackBar(
-                context,
-                message: 'Usuário registrado com sucesso',
-                isSucess: true,
-              );
-              context.pop();
-            } else if (state is UserActionsFailure) {
-              showSnackBar(
-                context,
-                message: state.message,
-                isError: true,
-              );
-            }
-          },
-          builder: (context, state) {
-            return Column(
+      appBar: AppBar(
+        title: const Text('Registrar Usuário'),
+        centerTitle: true,
+      ),
+      body: BlocConsumer<UserActionsBloc, UserActionsState>(
+        listener: (context, state) {
+          if (state is UserActionsSuccess) {
+            showSnackBar(
+              context,
+              message: 'Usuário registrado com sucesso',
+              isSucess: true,
+            );
+            context.pop();
+          } else if (state is UserActionsFailure) {
+            showSnackBar(
+              context,
+              message: state.message,
+              isError: true,
+            );
+          }
+        },
+        builder: (context, state) {
+          return SingleChildScrollView(
+            child: Column(
               children: [
-                Expanded(child: LogoAndHelpWidget()),
-                Expanded(
-                  flex: 3,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey
-                              .withAlpha(Color.getAlphaFromOpacity(0.5)),
-                          spreadRadius: 5,
-                          blurRadius: 7,
-                          offset: const Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    padding: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
-                    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 24),
-                    child: SingleChildScrollView(
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          children: [
-                            const Text('Dados',
-                                style: TextStyle(
-                                    fontSize: 20, fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 5),
-                            InputFormField(
-                              controller: _userNameController,
-                              hintText: 'Username',
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16.0),
+                  margin: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: getColorWithOpacity(AppColors.grey, 0.2),
+                        spreadRadius: 2,
+                        blurRadius: 5,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: SingleChildScrollView(
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text(
+                            'Dados do Usuário',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
                             ),
-                            const SizedBox(height: 12),
-                            InputFormField(
-                              controller: _fullNameController,
-                              hintText: 'Nome Completo',
+                          ),
+                          const SizedBox(height: 20),
+                          InputFormField(
+                            controller: _userNameController,
+                            hintText: 'Username',
+                          ),
+                          const SizedBox(height: 12),
+                          InputFormField(
+                            controller: _fullNameController,
+                            hintText: 'Nome Completo',
+                          ),
+                          const SizedBox(height: 12),
+                          InputFormField(
+                            controller: _emailController,
+                            hintText: 'E-mail',
+                            validator: (value) =>
+                                !isValidEmail(value) ? 'E-mail inválido' : null,
+                          ),
+                          const SizedBox(height: 12),
+                          InputFormField(
+                            controller: _passwordController,
+                            hintText: 'Senha',
+                            isObscureText: true,
+                            validator: (value) => value.length <
+                                    AuthConstants.minPasswordLength
+                                ? 'Senha deve ter no mínimo ${AuthConstants.minPasswordLength} caracteres'
+                                : null,
+                          ),
+                          const SizedBox(height: 20),
+                          const Text(
+                            'Permissões',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
                             ),
-                            const SizedBox(height: 12),
-                            InputFormField(
-                              controller: _emailController,
-                              hintText: 'E-mail',
-                              validator: (value) => !isValidEmail(value)
-                                  ? 'E-mail inválido'
-                                  : null,
-                            ),
-                            const SizedBox(height: 12),
-                            InputFormField(
-                              controller: _passwordController,
-                              hintText: 'Senha',
-                              isObscureText: true,
-                              validator: (value) => value.length <
-                                      AuthConstants.minPasswordLength
-                                  ? 'Senha deve ter no mínimo ${AuthConstants.minPasswordLength} caracteres'
-                                  : null,
-                            ),
-                            const SizedBox(height: 12),
-                            const Text('Permissões',
-                                style: TextStyle(
-                                    fontSize: 20, fontWeight: FontWeight.bold)),
-                            for (var role in UserRoles.values)
-                              CheckboxListTile(
-                                title: Text(capitalize(
-                                    role.toString().split('.').last)),
-                                value: _roles.contains(role),
-                                onChanged: (value) {
-                                  setState(() {
-                                    if (value!) {
-                                      _roles.add(role);
-                                    } else {
-                                      _roles.remove(role);
-                                    }
-                                  });
-                                },
+                          ),
+                          const SizedBox(height: 12),
+                          ...UserRoles.values.map((role) {
+                            return CheckboxListTile(
+                              title: Text(
+                                capitalize(role.toString().split('.').last),
                               ),
-                            const SizedBox(height: 12),
-                            ElevatedButton(
-                              onPressed: () => _formKey.currentState!.validate()
-                                  ? context.read<UserActionsBloc>().add(
-                                        RegisterNewUser(
-                                          jwtToken: _user.jwtToken,
-                                          userName: _userNameController.text,
-                                          name: _fullNameController.text,
-                                          email: _emailController.text,
-                                          password: _passwordController.text,
-                                          roles: _roles,
-                                        ),
-                                      )
-                                  : null,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
-                              ),
-                              child: Text('Registrar'),
+                              value: _roles.contains(role),
+                              onChanged: (value) {
+                                setState(() {
+                                  if (value!) {
+                                    _roles.add(role);
+                                  } else {
+                                    _roles.remove(role);
+                                  }
+                                });
+                              },
+                            );
+                          }).toList(),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: () => _formKey.currentState!.validate()
+                                ? context.read<UserActionsBloc>().add(
+                                      RegisterNewUser(
+                                        jwtToken: _user.jwtToken,
+                                        userName:
+                                            _userNameController.text.trim(),
+                                        name: _fullNameController.text.trim(),
+                                        email: _emailController.text.trim(),
+                                        password: _passwordController.text,
+                                        roles: _roles,
+                                      ),
+                                    )
+                                : null,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.green,
+                              minimumSize: const Size(double.infinity, 45),
                             ),
-                          ],
-                        ),
+                            child: const Text(
+                              'Registrar',
+                              style: TextStyle(
+                                color: AppColors.buttonText,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
               ],
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }

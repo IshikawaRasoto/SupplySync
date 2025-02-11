@@ -32,6 +32,7 @@ class CartRequestBloc extends Bloc<CartRequestEvent, CartRequestState> {
     on<RequestCartInformationRequested>(_onRequestCartInformation);
     on<CartPhotoSubmitted>(_onCartPhotoSubmitted);
     on<ReleaseCartRequested>(_onReleaseCartRequested);
+    on<ResetCartRequestEvent>(_onResetCartRequest);
   }
 
   bool get hasPhoto => cartPhoto != null;
@@ -114,5 +115,14 @@ class CartRequestBloc extends Bloc<CartRequestEvent, CartRequestState> {
       (failure) => emit(CartRequestFailure(failure.message)),
       (_) => emit(CartReleased()),
     );
+  }
+
+  void _onResetCartRequest(
+    ResetCartRequestEvent event,
+    Emitter<CartRequestState> emit,
+  ) {
+    cartPhoto = null;
+    currentCartId = null;
+    emit(CartRequestInitial());
   }
 }

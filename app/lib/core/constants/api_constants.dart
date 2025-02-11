@@ -27,11 +27,12 @@ enum ApiEndpoints {
   cartRequest('cart_request'),
   cartShutdown('cart_shutdown/{cartId}'),
   cartMaintenance('cart_maintenance/{cartId}'),
+  cartProblem('cart_problem/{cartId}'),
 
   // Warehouse Transport
-  fetchIncomingDrones('warehouse/{warehouseId}/incoming-drones'),
-  uploadDronePhoto('cart/{cartId}/upload_drone_photo'),
-  releaseDrone('cart/{cartId}/release_cart');
+  fetchIncomingDrones('warehouses/incoming_drones/{warehouseId}'),
+  uploadDronePhoto('upload_drone_photo/{cartId}'),
+  releaseDrone('release_cart/{cartId}');
 
   final String path;
   const ApiEndpoints(this.path);

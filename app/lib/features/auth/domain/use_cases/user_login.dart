@@ -11,13 +11,21 @@ class UserLogin implements UseCase<User, UserLoginParams> {
   @override
   Future<Either<Failure, User>> call(UserLoginParams params) async {
     return await repository.login(
-        username: params.username, password: params.password);
+      username: params.username,
+      password: params.password,
+      firebaseToken: params.firebaseToken,
+    );
   }
 }
 
 class UserLoginParams {
   final String username;
   final String password;
+  final String firebaseToken;
 
-  UserLoginParams({required this.username, required this.password});
+  UserLoginParams({
+    required this.username,
+    required this.password,
+    required this.firebaseToken,
+  });
 }
