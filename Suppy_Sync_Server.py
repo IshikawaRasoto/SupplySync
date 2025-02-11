@@ -2,7 +2,6 @@ import time
 from tools import sqlite
 from tools import request
 from tools import mqtt
-from tools import notifications
 
 running = True
 
@@ -23,7 +22,7 @@ def main():
     request_obj.app.run(host="0.0.0.0", port=5000)
 
     mqtt_obj.join()
-    print("o cÃ³digo continua funfando")
+    print("o código continua funfando")
 
 if __name__ == '__main__':
     main()

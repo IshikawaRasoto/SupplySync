@@ -79,6 +79,7 @@ class SqliteConfig:
                                         origin TEXT NOT NULL,
                                         destination TEXT NOT NULL,
                                         load TEXT NOT NULL,
+                                        load_qnt TEXT NOT NULL,
                                         status TEXT NOT NULL,
                                         battery TEXT NOT NULL,
                                         PRIMARY KEY (id)
@@ -88,11 +89,11 @@ class SqliteConfig:
             self.logger.info("Banco de dados dos drones criado")
 
             cursor.execute('''
-                    INSERT INTO carts (id, origin, destination, load, status, battery) VALUES ("1", 'doca1', 'nenhum', 'vazio', 'disponivel', "0")
+                    INSERT INTO carts (id, origin, destination, load, load_qnt, status, battery) VALUES ("1", 'doca1', 'nenhum', 'vazio', "0", 'disponivel', "0")
                 ''')
             
             cursor.execute('''
-                    INSERT INTO carts (id, origin, destination, load, status, battery) VALUES ("2", 'doca2', 'nenhum', 'vazio', 'disponivel', "0")
+                    INSERT INTO carts (id, origin, destination, load, load_qnt, status, battery) VALUES ("2", 'doca2', 'nenhum', 'vazio', "0", 'disponivel', "0")
                 ''')
 
             database.commit()
@@ -424,3 +425,40 @@ class SqliteConfig:
         database.close()
 
         return "ok2"
+    
+    def update_cart_status_running(self, id, data):
+
+        database = sqlite3.connect('res/carts.db')
+        cursor = database.cursor()
+        cursor.execute('''
+                UPDATE carts set status = "ocupado", destination = ?, load = ?, load_qnt= ? WHERE id = ?
+            ''', (data["destination"], data["load"], data["loadQuantity"], id,))
+        
+        database.commit()
+        database.close()
+        
+
+
+    def check_available_carts(self):
+
+        database = sqlite3.connect('res/carts.db')
+        cursor = database.cursor()
+        cursor.execute('''
+                        SELECT id FROM carts WHERE status = "disponivel" ''')
+        result = cursor.fetchall()
+
+        database.close()    
+
+        return result
+    
+
+    def request_cart(self, data):
+
+        available_carts = self.check_available_carts()
+
+        if available_carts:
+           self.update_cart_status_running(available_carts[0][0], data)
+           return available_carts[0][0]
+
+        else:
+            return "no_available"

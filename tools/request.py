@@ -5,6 +5,7 @@ from tools import logger as log_class
 from tools import sqlite
 from tools import exceptions
 from flask import Flask, jsonify, request
+from tools import notifications
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from datetime import datetime
 
@@ -20,6 +21,7 @@ class Requests:
         self.db = sqlite.SqliteConfig()
 
         self.logger = log_class.Logger().logger_obj
+        self.noti = notifications.Notification()
 
         self.logger.info(("---------SISTEMA INICIADO---------"))
 
@@ -29,6 +31,7 @@ class Requests:
         self.app.add_url_rule('/cart_request', view_func=self.cart_request, methods=['POST'])
         self.app.add_url_rule('/cart_shutdown/<id>', view_func=self.cart_shutdown, methods=['POST'])
         self.app.add_url_rule('/cart_maintenance/<id>', view_func=self.cart_maintenance, methods=['POST'])
+        self.app.add_url_rule('/upload_drone_photo/<id>', view_func=self.upload_drone_photo, methods=['POST'])
         self.app.add_url_rule('/update_login', view_func=self.update_login, methods=['PUT'])
         self.app.add_url_rule('/get_user/<username>', view_func=self.get_user, methods=['GET'])
         self.app.add_url_rule('/get_myself', view_func=self.get_myself, methods=['GET'])
@@ -37,6 +40,11 @@ class Requests:
         self.app.add_url_rule('/get_carts', view_func=self.get_carts, methods=['GET'])
         self.app.add_url_rule('/cart_details/<id>', view_func=self.cart_details, methods=['GET'])
         self.app.add_url_rule('/logout', view_func=self.logout, methods=['DELETE'])
+
+
+        UPLOAD_FOLDER = './uploads'
+        os.makedirs(UPLOAD_FOLDER, exist_ok=True)  # Garante que a pasta exista
+        self.app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 
     def verify_jwt_token(self, token):
@@ -62,7 +70,7 @@ class Requests:
             diff_time = time_now - token_time_num
             print(diff_time.total_seconds())
             type(diff_time.total_seconds())
-            if diff_time.total_seconds() >= 900:
+            if diff_time.total_seconds() >= 3600:
                 ##print(list(item.keys())[0])
                 active_tokens.remove(item)
 
@@ -137,7 +145,12 @@ class Requests:
                     {'jwt_token': secret_key, 'username': data['username'], 'email': result[0], 'name': result[1],
                      'roles': result[2]})
 
-                new_item = {secret_key: (data['username'], result[2], datetime.now().strftime("%H:%M"))}
+                for item in active_tokens:
+                    key, value = list(item.items())[0]  
+                    if data['firebase_token'] in value: 
+                        active_tokens.remove(item)
+
+                new_item = {secret_key: (data['username'], result[2], datetime.now().strftime("%H:%M"), data['firebase_token'])}
                 active_tokens.append(new_item)
 
                 print("ACTIVE TOKENS FINAL")
@@ -436,8 +449,39 @@ class Requests:
             return ex.to_json(), ex.error_json['error']['code']
 
     def cart_request(self):
-        
-        pass
+        try:
+            data = request.headers
+            if self.verify_jwt_token(data['Authorization']) == False:
+                raise exceptions.HttpError(401, "Usuário não autorizado", "Usuário não autorizado")
+            
+            jwt_token = data['Authorization']
+
+            data = request.get_json()
+
+            result = self.db.request_cart(data)
+
+            if result != "no_available":
+                data_w_bearer = jwt_token.replace("Bearer ", "").strip()
+                for item in active_tokens:
+                    if data_w_bearer in item:  
+                        firebase_token = item[data_w_bearer][3]  
+                self.noti.request_cart_noti(firebase_token, result)
+                response = jsonify({'id': result})
+                return response, 200  
+
+            raise exceptions.HttpError(400, "Não existe carrinhos disponíveis", "Não existe carrinhos disponíveis")
+
+        except exceptions.HttpError as error:
+            return error.to_json(), error.error_json['error']['code']
+
+        except Exception as error:
+            self.logger.error(type(error))
+            self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
+            self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
+            self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
+            ex = exceptions.HttpError(401, "ERRO", "Verificar log do servidor para detalhes")
+            return ex.to_json(), ex.error_json['error']['code']        
+
 
     def cart_shutdown(self, id):   
         try:
@@ -488,3 +532,34 @@ class Requests:
             self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
             ex = exceptions.HttpError(401, "ERRO", "Verificar log do servidor para detalhes")
             return ex.to_json(), ex.error_json['error']['code']
+
+
+    def upload_drone_photo(self, id):
+
+        try:
+            # Verifica se a requisição contém um arquivo
+            if 'image' not in request.files:
+                raise exceptions.HttpError(401, "Não foi encaminhada uma imagem", "Não foi encaminhada uma imagem")
+
+            image = request.files['image']  # Obtém a imagem do formulário
+
+            image.filename = id + "_" + datetime.now().strftime("%H-%M-%S") + ".jpg"
+        
+            # Define o caminho para salvar a imagem
+            file_path = os.path.join(self.app.config['UPLOAD_FOLDER'], image.filename)
+            image.save(file_path)  # Salva a imagem no servidor
+
+            return jsonify({"status": "Imagem recebida com sucesso", "file_path": file_path}), 200
+
+        except exceptions.HttpError as error:
+            return error.to_json(), error.error_json['error']['code']
+
+        except Exception as error:
+            self.logger.error(type(error))
+            self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
+            self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
+            self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
+            ex = exceptions.HttpError(401, "ERRO", "Verificar log do servidor para detalhes")
+            return ex.to_json(), ex.error_json['error']['code']
+
+

@@ -13,6 +13,8 @@ __pycache__/
 # Configurações do PyCharm (se estiver usando)
 .idea/
 
+uploads/
+
 # Arquivos de banco de dados locais (caso use SQLite ou MySQL temporário)
 *.sqlite3
 *.db
