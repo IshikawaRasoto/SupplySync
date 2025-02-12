@@ -79,11 +79,12 @@ class _NotificationSettingsDialogState
                     children: [
                       IconButton(
                         icon: const Icon(Icons.notifications),
+                        tooltip: 'Enviar Notificação de Teste',
                         onPressed: () =>
                             context.read<NotificationCubit>().showNotification(
-                                  title: 'Test ${channel.name}',
+                                  title: 'Teste: ${channel.name}',
                                   body:
-                                      'This is a test notification for ${channel.description}',
+                                      'Essa é uma notificação teste do canal para: ${channel.description}',
                                   channel: channel,
                                 ),
                       ),
@@ -101,11 +102,12 @@ class _NotificationSettingsDialogState
                     children: [
                       IconButton(
                         icon: const Icon(Icons.notifications),
+                        tooltip: 'Enviar Notificação de Teste',
                         onPressed: () =>
                             context.read<NotificationCubit>().showNotification(
-                                  title: 'Test ${channel.name}',
+                                  title: 'Teste ${channel.name}',
                                   body:
-                                      'This is a test notification for ${channel.description}',
+                                      'Essa é uma notificação teste do canal para: ${channel.description}',
                                   channel: channel,
                                 ),
                       ),

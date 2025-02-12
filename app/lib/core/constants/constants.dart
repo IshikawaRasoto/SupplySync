@@ -14,19 +14,20 @@ enum DataKeys { apiUrl, companyName, savePassword }
 enum UserRoles {
   admin(AppServices.values),
   armazem([
-    AppServices.fetchWarehouse,
+    AppServices.fetchWarehouses,
     AppServices.fetchRecords,
-    AppServices.carts,
     AppServices.loadingWarehouses,
+    AppServices.updateProfile
   ]),
   doca([
     AppServices.loadingDock,
     AppServices.fetchRecords,
-    AppServices.carts,
+    AppServices.updateProfile
   ]),
   manutencao([
     AppServices.fetchRecords,
     AppServices.carts,
+    AppServices.updateProfile,
   ]),
   ;
 
@@ -36,7 +37,6 @@ enum UserRoles {
 
 enum AppServices {
   fetchWarehouses('Armazéns', '/home/warehouses', Icons.warehouse),
-  fetchWarehouse('', '', Icons.warehouse),
   updateProfile('Perfil', '/home/changeprofile', Icons.person),
   loadingDock('Docas', '/home/docksTransport', Icons.local_shipping),
   loadingWarehouses(

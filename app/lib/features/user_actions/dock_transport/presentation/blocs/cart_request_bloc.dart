@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:supplysync/features/cart/domain/usecases/report_cart_problem.dart';
 
 import '../../../../../core/common/cubit/user/user_cubit.dart';
 import '../../../../cart/domain/entities/cart.dart';
@@ -16,6 +17,7 @@ class CartRequestBloc extends Bloc<CartRequestEvent, CartRequestState> {
   final GetCartDetails _requestCartDetails;
   final UploadCartPhoto _uploadCartPhoto;
   final ReleaseDrone _releaseDrone;
+  final ReportCartProblem _reportCartProblem;
   XFile? cartPhoto;
   String? currentCartId;
 
@@ -24,15 +26,18 @@ class CartRequestBloc extends Bloc<CartRequestEvent, CartRequestState> {
     required GetCartDetails requestCartDetails,
     required UploadCartPhoto uploadCartPhoto,
     required ReleaseDrone releaseDrone,
+    required ReportCartProblem reportCartProblem,
   })  : _userCubit = userCubit,
         _requestCartDetails = requestCartDetails,
         _uploadCartPhoto = uploadCartPhoto,
         _releaseDrone = releaseDrone,
+        _reportCartProblem = reportCartProblem,
         super(CartRequestInitial()) {
     on<RequestCartInformationRequested>(_onRequestCartInformation);
     on<CartPhotoSubmitted>(_onCartPhotoSubmitted);
     on<ReleaseCartRequested>(_onReleaseCartRequested);
     on<ResetCartRequestEvent>(_onResetCartRequest);
+    on<CartReportProblemEvent>(_onReportProblem);
   }
 
   bool get hasPhoto => cartPhoto != null;
@@ -124,5 +129,33 @@ class CartRequestBloc extends Bloc<CartRequestEvent, CartRequestState> {
     cartPhoto = null;
     currentCartId = null;
     emit(CartRequestInitial());
+  }
+
+  void _onReportProblem(
+    CartReportProblemEvent event,
+    Emitter<CartRequestState> emit,
+  ) async {
+    final currentUser = _userCubit.getCurrentUser();
+    if (currentUser == null) {
+      emit(CartRequestFailure('Usuário não autenticado'));
+      return;
+    }
+    if (currentCartId == null) {
+      emit(CartRequestFailure('ID do carrinho não disponível'));
+      return;
+    }
+    emit(CartRequestInProgress());
+    final result = await _reportCartProblem(ReportCartProblemParams(
+      jwtToken: currentUser.jwtToken,
+      cartId: currentCartId!,
+      problemDescription: event.problemDescription,
+    ));
+    result.fold(
+      (failure) => emit(CartRequestFailure(failure.message)),
+      (_) {
+        emit(CartSendProblemSuccess());
+        emit(CartRequestSuccess());
+      },
+    );
   }
 }

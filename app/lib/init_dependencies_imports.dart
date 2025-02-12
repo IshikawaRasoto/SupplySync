@@ -29,6 +29,7 @@ import 'features/cart/data/repositories/cart_repository_impl.dart';
 import 'features/cart/domain/repositories/cart_repository.dart';
 import 'features/cart/domain/usecases/get_all_carts.dart';
 import 'features/cart/domain/usecases/get_cart_details.dart';
+import 'features/cart/domain/usecases/report_cart_problem.dart';
 import 'features/cart/domain/usecases/request_cart_usage.dart';
 import 'features/cart/domain/usecases/schedule_cart_maintenance.dart';
 import 'features/cart/domain/usecases/shutdown_cart.dart';

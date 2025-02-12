@@ -159,6 +159,9 @@ class InitDependencies {
       ..registerFactory(() => GetAllCarts(serviceLocator<CartRepository>()))
       ..registerFactory(
           () => RequestAnyCartUsage(serviceLocator<CartRepository>()))
+      ..registerFactory(() => ReleaseDrone(serviceLocator<CartRepository>()))
+      ..registerFactory(
+          () => ReportCartProblem(serviceLocator<CartRepository>()))
       // Blocs
       ..registerLazySingleton(() => CartBloc(
             requestCartUse: serviceLocator<RequestCartUsage>(),
@@ -297,6 +300,7 @@ class InitDependencies {
             requestCartDetails: serviceLocator<GetCartDetails>(),
             uploadCartPhoto: serviceLocator<UploadCartPhoto>(),
             releaseDrone: serviceLocator<ReleaseDrone>(),
+            reportCartProblem: serviceLocator<ReportCartProblem>(),
           ));
   }
 
@@ -323,7 +327,6 @@ class InitDependencies {
           FetchIncomingDrones(serviceLocator<WarehouseTransportRepository>()))
       ..registerFactory(() =>
           UploadDronePhoto(serviceLocator<WarehouseTransportRepository>()))
-      ..registerFactory(() => ReleaseDrone(serviceLocator<CartRepository>()))
       // Blocs
       ..registerLazySingleton(() => WarehouseTransportBloc(
             userCubit: serviceLocator<UserCubit>(),

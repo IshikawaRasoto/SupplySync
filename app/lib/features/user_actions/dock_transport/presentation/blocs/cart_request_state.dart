@@ -9,6 +9,8 @@ class CartRequestInProgress extends CartRequestState {}
 
 class CartRequestSuccess extends CartRequestState {}
 
+class CartSendProblemSuccess extends CartRequestState {}
+
 class CartRequestFailure extends CartRequestState {
   final String message;
 

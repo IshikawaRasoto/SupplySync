@@ -90,7 +90,11 @@ class _CartRequestSummaryScreenState extends State<CartRequestSummaryScreen> {
           if (state is CartRequestFailure) {
             showSnackBar(context, message: state.message, isError: true);
           } else if (state is CartReleased) {
-            showSnackBar(context, message: 'Carrinho liberado com sucesso');
+            showSnackBar(
+              context,
+              message: 'Carrinho liberado com sucesso',
+              isSucess: true,
+            );
             context.read<DockTransportBloc>().add(ResetTransportEvent());
             context.read<CartRequestBloc>().add(ResetCartRequestEvent());
             if (context.canPop()) {
@@ -104,6 +108,11 @@ class _CartRequestSummaryScreenState extends State<CartRequestSummaryScreen> {
               message: 'Operação realizada com sucesso',
               isSucess: true,
             );
+          } else if (state is CartSendProblemSuccess) {
+            setState(() {
+              _showProblemReport = false;
+              _problemController.clear();
+            });
           }
         },
         builder: (context, state) {
@@ -199,14 +208,11 @@ class _CartRequestSummaryScreenState extends State<CartRequestSummaryScreen> {
                         ElevatedButton.icon(
                           onPressed: () {
                             if (_problemController.text.trim().isNotEmpty) {
-                              setState(() {
-                                _showProblemReport = false;
-                                _problemController.clear();
-                              });
-                              showSnackBar(
-                                context,
-                                message: 'Problema relatado com sucesso',
-                              );
+                              context.read<CartRequestBloc>().add(
+                                    CartReportProblemEvent(
+                                      _problemController.text,
+                                    ),
+                                  );
                             } else {
                               showSnackBar(
                                 context,

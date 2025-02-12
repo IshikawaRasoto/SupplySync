@@ -187,7 +187,7 @@ class CartRemoteDataSourceImpl implements CartRemoteDataSource {
         jwtToken: jwtToken,
         pathParams: {'cartId': cartId},
         body: {
-          'problemDescription': problemDescription,
+          'problem': problemDescription,
         },
       );
     } on ServerException {

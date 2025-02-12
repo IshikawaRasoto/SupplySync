@@ -15,6 +15,12 @@ class CartPhotoSubmitted extends CartRequestEvent {
   CartPhotoSubmitted(this.photo);
 }
 
+class CartReportProblemEvent extends CartRequestEvent {
+  final String problemDescription;
+
+  CartReportProblemEvent(this.problemDescription);
+}
+
 class ReleaseCartRequested extends CartRequestEvent {}
 
 class ResetCartRequestEvent extends CartRequestEvent {}
