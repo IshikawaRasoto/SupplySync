@@ -7,7 +7,7 @@ enum ApiEndpoints {
   login('login'),
   createLogin('create_login'),
   updateLogin('update_login'),
-  getUser('get_user'),
+  getUser('get_myself'),
   getOtherUser('get_user/{userName}'),
   getAllUsers('get_all_users'),
   logout('logout'),
