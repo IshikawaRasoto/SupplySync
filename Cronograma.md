@@ -53,64 +53,52 @@ timeline
         Semana 1 - 4: Correções e Ajustes para as entregas finais
 ```
 
-## Atividades e acompanhamento
-
-### Drone
-
-- [ ] Desenvolvimento de Cruzamentos - Em andamento
-- [X] Estudo dos Controles 
-- [ ] Desenvolver Eletrônica - Em andamento
-- [ ] Testes MQTT
-- [ ] Desenvolver Firmware do Veículo
-- [ ] Fabricação do Hardware
-- [ ] Teste de Hardware e Firmware
-- [ ] Testes de Carregamento e Descarregamento
-
-### App
-
-- [X] Pesquisa Método de Autenticação 
-- [X] Criar sistema de Login
-- [X] Tela de Cadastramento
-- [ ] Tela de Abastecimento - Em andamento
-- [X] App <-> Server - Integração
-- [ ] Tela de Pedido - Em andamento
-- [ ] Tela de Armazém Carregamento
-- [ ] Tela de Armazém Descarregamento
-- [ ] Tela de Gerenciamento
-- [ ] Tela de Inventário
-- [ ] Tela de Avisos
-
-### Server
-
-- [X] Hostear DB
-- [X] App <-> Server - Integração
-- [ ] Tabela Log - Em andamento
-- [ ] Tabela Inventário
-- [ ] Tabela Drones
-- [ ] Implementar MQTT - Em andamento
-- [ ] Controle dos Drones
-- [ ] Simulação do controle
-- [ ] Implementar Auto Manutenção
-- [ ] Implementação Docker
-
-### Progresso
-
-Última atualização: 27/11/2024
+## Kanban
 
 ```mermaid
 
-pie title Progresso atual
-    "Finalizadas" : 7
-    "Em desenvolvimento" : 6
-    "Não iniciadas" : 16
+---
+config:
+  kanban:
+    ticketBaseUrl: 'https://supplysync.atlassian.net/browse/#TICKET#'
+---
+kanban
+  Todo
+    id1[Drone - Definição do Modelo]
+    id2[App - Desenvolvimento da Interface]
+    id3[Drone - Desenvolvimento de Cruzamentos]
+    id4[Drone - Estudo dos Controles]
+    id5[App - Pesquisa Método de Autenticação]
+    id6[App - Criar sistema de Login]
+    id7[App - Tela de Cadastramento]
+    id8[Server - Hostear DB]
+    id9[Drone - Desenvolver Eletrônica]
+    id10[App - Tela de Abastecimento]
+    id11[App <-> Server - Integração]
+    id12[Server - Tabela Log]
+    id13[Server - Tabela Inventário]
+    id14[Drone - Testes MQTT]
+    id15[App - Tela de Pedido]
+    id16[App - Tela de Armazém Carregamento]
+    id17[Server - Tabela Drones]
+    id18[Server - Implementar MQTT]
+    id19[Drone - Desenvolver Firmware do Veículo]
+    id20[App - Tela de Armazém Descarregamento]
+    id21[App - Tela de Gerenciamento]
+    id22[App - Tela de Inventário]
+    id23[Server - Controle dos Drones]
+    id24[Server - Simulação do Controle]
+    id25[Drone - Fabricação do Hardware]
+    id26[Drone - Teste de Hardware e Firmware]
+    id27[App - Tela de Avisos]
+    id28[Server - Implementar Auto Manutenção]
+    id29[Drone - Testes de Carregamento e Descarregamento]
+    id30[Server - Implementação Docker]
+    id31[Correções e Ajustes para as Entregas Finais]
+    
+  In_progress
+    id1[Drone - Definição do Modelo]
+    id2[App - Desenvolvimento da Interface]
 
-```
-
-```mermaid
-
-pie title Progresso planejado
-    "Finalizadas" : 6
-    "Em desenvolvimento" : 5
-    "Não iniciadas" : 18
-
+  Done
 ```

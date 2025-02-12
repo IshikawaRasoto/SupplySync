@@ -1,0 +1,52 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    id "dev.flutter.flutter-gradle-plugin"
+    id "com.google.gms.google-services" // Google Services plugin (firebase)
+}
+
+dependencies {
+  coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2' // Enable desugaring for Java 8 APIs. (flutter_local_notifications)
+  implementation(platform("com.google.firebase:firebase-bom:33.8.0")) // Add the Firebase BOM (Bill of Materials). (firebase)
+}
+
+android {
+    namespace = "br.com.supplysync"
+    compileSdk = 34
+    ndkVersion = "26.1.10909125"
+
+    compileOptions {
+        coreLibraryDesugaringEnabled true // Enable desugaring for Java 8 APIs. (flutter_local_notifications)
+        sourceCompatibility = JavaVersion.VERSION_11 // Enable Java 8 source compatibility. (flutter_local_notifications)
+        targetCompatibility = JavaVersion.VERSION_11 // Enable Java 8 target compatibility. (flutter_local_notifications)
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_11
+    }
+
+    defaultConfig {
+        applicationId = "br.com.supplysync"
+        // You can update the following values to match your application needs.
+        // For more information, see: https://flutter.dev/to/review-gradle-config.
+        minSdk = 21
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+        multiDexEnabled true // Enable MultiDex support for the application. (flutter_local_notifications)
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            signingConfig = signingConfigs.debug
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
