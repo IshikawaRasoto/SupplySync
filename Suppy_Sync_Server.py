@@ -12,17 +12,15 @@ def main():
     print("Iniciando o programa...")
     db = sqlite.SqliteConfig()
     db.verify_db()
-    mqtt_obj = mqtt.Mqtt("Thread 1")
-    mqtt_obj.start()
+    #mqtt_obj = mqtt.Mqtt("Thread 1")
+    #mqtt_obj.start()
 
     request_obj = request.Requests()
 
-    #noti = notifications.Notification()
-
     request_obj.app.run(host="0.0.0.0", port=5000)
 
-    mqtt_obj.join()
-    print("o código continua funfando")
+    #mqtt_obj.join()
+    print("o codigo continua funcionando")
 
 if __name__ == '__main__':
     main()

@@ -31,21 +31,30 @@ class SqliteConfig:
                             PRIMARY KEY (username)
                      );
                 ''')
-            database.close()
+            
             self.logger.info("Banco de dados de login criado")
+
+            cursor.execute('''
+                INSERT INTO login_data (username, password, email, name, roles) VALUES ("adm", "123", "adm@email.com", "admin", "admin")
+            ''')
+
+            database.commit()
+            database.close()
 
         except sqlite3.OperationalError:
             self.logger.info("Banco de dados de login ja existe")
 
         try:
-            database = sqlite3.connect('res/storage.db')
+            database = sqlite3.connect('res/warehouse.db')
             cursor = database.cursor()
             cursor.execute('''
-                                 CREATE TABLE storage  (
+                                 CREATE TABLE warehouse  (
                                         id INTEGER PRIMARY KEY AUTOINCREMENT ,
                                         name TEXT NOT NULL,
+                                        description TEXT NOT NULL,
                                         quantity INTEGER NOT NULL,
-                                        storage_id TEXT NOT NULL
+                                        unit TEXT NOT NULL,
+                                        storage_id INTEGER NOT NULL
                                  );
                             ''')
             database.close()
@@ -55,14 +64,23 @@ class SqliteConfig:
             self.logger.info("Banco de dados do armazem ja existe")
 
         try:
-            database = sqlite3.connect('res/valid_storage.db')
+            database = sqlite3.connect('res/valids_warehouses.db')
             cursor = database.cursor()
             cursor.execute('''
-                                 CREATE TABLE valid_storage  (
+                                 CREATE TABLE valids_warehouses  (
                                         id INTEGER PRIMARY KEY AUTOINCREMENT ,
                                         name TEXT NOT NULL
                                  );
                             ''')
+            
+            cursor.execute('''
+                INSERT INTO valids_warehouses (name) VALUES ("Armazem 1")
+            ''')
+            cursor.execute('''
+                INSERT INTO valids_warehouses (name) VALUES ("Armazem 2")
+            ''')
+
+            database.commit()
             database.close()
             self.logger.info("Banco de dados dos armazem validos criado")
 
@@ -82,6 +100,7 @@ class SqliteConfig:
                                         load_qnt TEXT NOT NULL,
                                         status TEXT NOT NULL,
                                         battery TEXT NOT NULL,
+                                        destination_temp TEXT NOT NULL,
                                         PRIMARY KEY (id)
                                  );
                             ''')
@@ -89,11 +108,11 @@ class SqliteConfig:
             self.logger.info("Banco de dados dos drones criado")
 
             cursor.execute('''
-                    INSERT INTO carts (id, origin, destination, load, load_qnt, status, battery) VALUES ("1", 'doca1', 'nenhum', 'vazio', "0", 'disponivel', "0")
+                    INSERT INTO carts (id, origin, destination, load, load_qnt, status, battery, destination_temp) VALUES ("1", 'doca1', 'nenhum', 'vazio', "0", 'disponivel', "50", 'nenhum')
                 ''')
             
             cursor.execute('''
-                    INSERT INTO carts (id, origin, destination, load, load_qnt, status, battery) VALUES ("2", 'doca2', 'nenhum', 'vazio', "0", 'disponivel', "0")
+                    INSERT INTO carts (id, origin, destination, load, load_qnt, status, battery, destination_temp) VALUES ("2", 'doca2', 'nenhum', 'vazio', "0", 'disponivel', "50", 'nenhum')
                 ''')
 
             database.commit()
@@ -132,14 +151,15 @@ class SqliteConfig:
                         ''', (
             data_received['username'], data_received['password']))
         result = cursor.fetchone()
+        database.close()
+
         if result:
             print("Login e senha validos.")
             return 1
         else:
             print("Login ou senha invalidos.")
             return 0
-        database.close()
-
+        
     def positive_login_response(self, data_received):
         database = sqlite3.connect('res/login_data.db')
         cursor = database.cursor()
@@ -431,8 +451,8 @@ class SqliteConfig:
         database = sqlite3.connect('res/carts.db')
         cursor = database.cursor()
         cursor.execute('''
-                UPDATE carts set status = "ocupado", destination = ?, load = ?, load_qnt= ? WHERE id = ?
-            ''', (data["destination"], data["load"], data["loadQuantity"], id,))
+                UPDATE carts set status = "ocupado", destination = ?, load = ?, load_qnt= ?, destination_temp = ? WHERE id = ?
+            ''', (data["destination"], data["load"], data["loadQuantity"], data["origin"], id,))
         
         database.commit()
         database.close()
@@ -446,11 +466,31 @@ class SqliteConfig:
         cursor.execute('''
                         SELECT id FROM carts WHERE status = "disponivel" ''')
         result = cursor.fetchall()
-
+    
         database.close()    
 
-        return result
+        if result: 
+            return result
+        
+        else:
+            return "error"
     
+    def warehouse_get_incoming_drones(self, id, warehouse):
+
+        database = sqlite3.connect('res/carts.db')
+        cursor = database.cursor()
+        cursor.execute(''' SELECT id, battery FROM carts WHERE destination = ? AND destination_temp = "nenhum" ''', (warehouse,))
+
+        result = cursor.fetchall()
+
+        database.close()   
+
+        if result: 
+            return result
+        
+        else:
+            return "no_carts"
+
 
     def request_cart(self, data):
 
@@ -462,3 +502,108 @@ class SqliteConfig:
 
         else:
             return "no_available"
+        
+
+    def release_cart(self, id):
+
+        database = sqlite3.connect('res/carts.db')
+        cursor = database.cursor()
+        cursor.execute('''
+                            SELECT destination, destination_temp FROM carts WHERE id = ? ''', (
+            id,))
+        result = cursor.fetchone()
+
+        var = 0
+
+        if result:
+            if result[1] != "nenhum":
+                cursor.execute('''UPDATE carts set destination_temp = "nenhum", origin = ? WHERE id = ? ''', (result[1], id,))
+                database.commit()
+                var = 1
+
+            else:
+                if result [0] != "nenhum":
+                    cursor.execute('''UPDATE carts set destination = "nenhum", status = "disponivel", load = "vazio", load_qnt = "0", origin = ? WHERE id = ? ''', (result[0], id,))
+                    database.commit()   
+                    var = 2
+        
+        database.close()
+        return var
+
+        
+
+    def get_warehouses(self):
+        
+        database = sqlite3.connect('res/valids_warehouses.db')
+        cursor = database.cursor()
+        cursor.execute(''' SELECT id, name FROM valids_warehouses''')
+
+        result = cursor.fetchall()
+        database.close()
+
+        if result:
+            return result
+        
+        else:
+            return "error"
+         
+    def warehouse_add_item (self, data, id):
+
+        database = sqlite3.connect('res/warehouse.db')
+        cursor = database.cursor()
+        cursor.execute('''INSERT INTO warehouse (name, description, quantity, unit, storage_id) VALUES (?, ?, ?, ?, ?)''', 
+                       (data["name"], data["description"], data["quantity"], data["unit"], id))
+
+        database.commit()  
+        database.close()
+
+    def warehouse_get_products (self, id):
+
+        database = sqlite3.connect('res/warehouse.db')
+        cursor = database.cursor()
+        cursor.execute('''SELECT id, name, description, quantity, unit FROM warehouse WHERE storage_id = ? ''', (
+            id,))
+        
+        result = cursor.fetchall()
+        database.close()
+
+        if result:
+            return result
+        
+        else:
+            return "error"
+        
+    def warehouse_update_item (self, data, id):
+
+        database = sqlite3.connect('res/warehouse.db')
+        cursor = database.cursor()
+        cursor.execute('''UPDATE warehouse set name = ?, description = ?, quantity = ?, unit = ? WHERE id = ? ''', (data["name"], data["description"], data["quantity"], data["unit"], data["id"]))
+        
+        database.commit()  
+        database.close()
+
+    def warehouse_delete_item (self, data):
+
+        database = sqlite3.connect('res/warehouse.db')
+        cursor = database.cursor()
+        cursor.execute('''DELETE FROM warehouse WHERE id = ?''', (data["id"],))
+        
+        database.commit()  
+        database.close()
+
+
+    def get_warehouse_by_cart (self, id):
+
+        database = sqlite3.connect('res/carts.db')
+        cursor = database.cursor()
+        cursor.execute('''SELECT destination FROM carts WHERE id = ? ''', (
+            id,))
+        
+        result = cursor.fetchone()
+        database.close()
+
+        if result:
+            return result
+        
+        else:
+            return "error"

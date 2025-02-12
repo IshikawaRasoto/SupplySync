@@ -32,14 +32,22 @@ class Requests:
         self.app.add_url_rule('/cart_shutdown/<id>', view_func=self.cart_shutdown, methods=['POST'])
         self.app.add_url_rule('/cart_maintenance/<id>', view_func=self.cart_maintenance, methods=['POST'])
         self.app.add_url_rule('/upload_drone_photo/<id>', view_func=self.upload_drone_photo, methods=['POST'])
+        self.app.add_url_rule('/release_cart/<id>', view_func=self.release_cart, methods=['POST'])
+        self.app.add_url_rule('/warehouses/<id>', view_func=self.warehouse_add_item, methods=['POST'])
+        self.app.add_url_rule('/cart_problem/<id>', view_func=self.cart_problem, methods=['POST'])
         self.app.add_url_rule('/update_login', view_func=self.update_login, methods=['PUT'])
+        self.app.add_url_rule('/warehouses/<id>', view_func=self.warehouse_update_item, methods=['PUT'])
         self.app.add_url_rule('/get_user/<username>', view_func=self.get_user, methods=['GET'])
         self.app.add_url_rule('/get_myself', view_func=self.get_myself, methods=['GET'])
         self.app.add_url_rule('/get_all_users', view_func=self.get_all_users, methods=['GET'])
         self.app.add_url_rule('/get_logs', view_func=self.get_logs, methods=['GET'])
         self.app.add_url_rule('/get_carts', view_func=self.get_carts, methods=['GET'])
         self.app.add_url_rule('/cart_details/<id>', view_func=self.cart_details, methods=['GET'])
+        self.app.add_url_rule('/warehouses', view_func=self.get_warehouses, methods=['GET'])
+        self.app.add_url_rule('/warehouses/<id>', view_func=self.get_warehouse_products, methods=['GET'])
+        self.app.add_url_rule('/warehouses/incoming_drones/<id>', view_func=self.get_warehouses_incoming_drones, methods=['GET'])
         self.app.add_url_rule('/logout', view_func=self.logout, methods=['DELETE'])
+        self.app.add_url_rule('/warehouses/<id>', view_func=self.warehouse_delete_item, methods=['DELETE'])
 
 
         UPLOAD_FOLDER = './uploads'
@@ -87,7 +95,7 @@ class Requests:
             print("DATA dentro de UPDATE LOGIN: " + str(data))
 
             if not self.verify_jwt_token(data.get('Authorization', '')):  # Usa .get() para evitar erro se 'Authorization' não existir
-                raise exceptions.HttpError(400, "JWT TOKEN inválido", "JWT TOKEN inválido")
+                raise exceptions.HttpError(401, "JWT TOKEN inválido", "JWT TOKEN inválido")
 
             if self.get_roles_by_jwt_token(data['Authorization']) != "admin":
                 flag_admin = False
@@ -116,7 +124,7 @@ class Requests:
             self.logger.error(f"Error Type: {type(error).__name__}")
             self.logger.error(f"Error Message: {error}")
             self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
-            ex = exceptions.HttpError(401, "ERRO", "Verificar log do servidor para detalhes")
+            ex = exceptions.HttpError(400, "ERRO", "Verificar log do servidor para detalhes")
             return ex.to_json(), ex.error_json['error']['code']
 
 
@@ -160,7 +168,7 @@ class Requests:
                 return result_final, 200
 
             else:
-                ex = exceptions.HttpError(401, "Dados invalidos", "Dados invalidos")
+                ex = exceptions.HttpError(400, "Dados invalidos", "Dados invalidos")
                 return ex.to_json(), ex.error_json['error']['code']
 
 
@@ -169,7 +177,7 @@ class Requests:
             self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
             self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
             self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
-            ex = exceptions.HttpError(401, "Dados invalidos", "Erro generico")
+            ex = exceptions.HttpError(400, "Dados invalidos", "Erro generico")
             return ex.to_json(), ex.error_json['error']['code']
 
     def create_login(self):
@@ -177,13 +185,17 @@ class Requests:
         try:
             data = request.headers
             if not self.verify_jwt_token(data['Authorization']):
-                raise exceptions.HttpError(400, "JWT TOKEN inválido", "JWT TOKEN inválido")
+                raise exceptions.HttpError(401, "JWT TOKEN inválido", "JWT TOKEN inválido")
             
             if self.get_roles_by_jwt_token(data['Authorization']) != "admin":
                 raise exceptions.HttpError(400, "Usuário não é admin", "Usuário não é admin")
 
             data = request.get_json()
             self.db.insert_data(data)
+            for item in active_tokens:
+                key, value = list(item.items())[0] 
+                if "admin" in value:
+                    self.noti.create_login_noti(data, value[3])
             response = jsonify({'status': "Login Criado"})
             return response, 200  
 
@@ -195,7 +207,7 @@ class Requests:
             self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
             self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
             self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
-            ex = exceptions.HttpError(401, "Dados invalidos", "Faltaram dados")
+            ex = exceptions.HttpError(400, "Dados invalidos", "Faltaram dados")
             return ex.to_json(), ex.error_json['error']['code']
 
     def get_user(self, username):
@@ -226,7 +238,7 @@ class Requests:
             self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
             self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
             self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
-            ex = exceptions.HttpError(401, "ERRO", "Verificar log do servidor para detalhes")
+            ex = exceptions.HttpError(400, "ERRO", "Verificar log do servidor para detalhes")
             return ex.to_json(), ex.error_json['error']['code']
 
     def get_roles_by_jwt_token(self, token):
@@ -269,7 +281,7 @@ class Requests:
             self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
             self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
             self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
-            ex = exceptions.HttpError(401, "ERRO", "Verificar log do servidor para detalhes")
+            ex = exceptions.HttpError(400, "ERRO", "Verificar log do servidor para detalhes")
             return ex.to_json(), ex.error_json['error']['code']
         
     def get_all_users(self):
@@ -281,7 +293,7 @@ class Requests:
                 raise exceptions.HttpError(401, "Usuário não autorizado", "Usuário não autorizado")
             
             if self.get_roles_by_jwt_token(data['Authorization']) != "admin":
-                raise exceptions.HttpError(400, "Usuário não é admin", "Usuário não é admin")
+                raise exceptions.HttpError(401, "Usuário não é admin", "Usuário não é admin")
 
             result = self.db.get_all_users_names()
             print("GET ALL USER RESULT:")
@@ -302,7 +314,7 @@ class Requests:
             self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
             self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
             self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
-            ex = exceptions.HttpError(401, "ERRO", "Verificar log do servidor para detalhes")
+            ex = exceptions.HttpError(400, "ERRO", "Verificar log do servidor para detalhes")
             return ex.to_json(), ex.error_json['error']['code']
         
     def logout(self):
@@ -329,7 +341,7 @@ class Requests:
             self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
             self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
             self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
-            ex = exceptions.HttpError(401, "ERRO", "Verificar log do servidor para detalhes")
+            ex = exceptions.HttpError(400, "ERRO", "Verificar log do servidor para detalhes")
             return ex.to_json(), ex.error_json['error']['code']
 
     def get_logs(self):
@@ -394,7 +406,7 @@ class Requests:
             self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
             self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
             self.logger.error(f"Error Line: {werror.__traceback__.tb_lineno}")
-            ex = exceptions.HttpError(401, "ERRO", "Verificar log do servidor para detalhes")
+            ex = exceptions.HttpError(400, "ERRO", "Verificar log do servidor para detalhes")
             return ex.to_json(), ex.error_json['error']['code']
  
     def get_carts(self):
@@ -404,7 +416,7 @@ class Requests:
             if self.verify_jwt_token(data['Authorization']) == False:
                 raise exceptions.HttpError(401, "Usuário não autorizado", "Usuário não autorizado")
             
-            if self.get_roles_by_jwt_token(data['Authorization']) != "admin":
+            if self.get_roles_by_jwt_token(data['Authorization']) != "admin" and self.get_roles_by_jwt_token(data['Authorization']) != "manutencao":
                 raise exceptions.HttpError(400, "Usuário não é admin", "Usuário não é admin")
 
             result = self.db.get_all_carts()
@@ -420,7 +432,7 @@ class Requests:
             self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
             self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
             self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
-            ex = exceptions.HttpError(401, "ERRO", "Verificar log do servidor para detalhes")
+            ex = exceptions.HttpError(400, "ERRO", "Verificar log do servidor para detalhes")
             return ex.to_json(), ex.error_json['error']['code']
 
 
@@ -445,7 +457,7 @@ class Requests:
             self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
             self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
             self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
-            ex = exceptions.HttpError(401, "ERRO", "Verificar log do servidor para detalhes")
+            ex = exceptions.HttpError(400, "ERRO", "Verificar log do servidor para detalhes")
             return ex.to_json(), ex.error_json['error']['code']
 
     def cart_request(self):
@@ -505,7 +517,7 @@ class Requests:
             self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
             self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
             self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
-            ex = exceptions.HttpError(401, "ERRO", "Verificar log do servidor para detalhes")
+            ex = exceptions.HttpError(400, "ERRO", "Verificar log do servidor para detalhes")
             return ex.to_json(), ex.error_json['error']['code']
 
     def cart_maintenance(self, id):
@@ -517,6 +529,11 @@ class Requests:
             result = self.db.update_cart_status_maintenance(id)
             print("RESULT- ------------------ "+ result)
             if result == "ok1" or result == "ok2":
+                if result == "ok2":
+                    for item in active_tokens:
+                        key, value = list(item.items())[0] 
+                        if "admin" in value or "manutencao" in value:
+                            self.noti.maintenance_noti(value[3], id)
                 response = jsonify({'status': "Alteração realizada com sucesso!"})
                 return response, 200  
 
@@ -530,24 +547,26 @@ class Requests:
             self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
             self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
             self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
-            ex = exceptions.HttpError(401, "ERRO", "Verificar log do servidor para detalhes")
+            ex = exceptions.HttpError(400, "ERRO", "Verificar log do servidor para detalhes")
             return ex.to_json(), ex.error_json['error']['code']
 
 
     def upload_drone_photo(self, id):
 
         try:
-            # Verifica se a requisição contém um arquivo
+            data = request.headers
+            if self.verify_jwt_token(data['Authorization']) == False:
+                raise exceptions.HttpError(401, "Usuário não autorizado", "Usuário não autorizado")
+
             if 'image' not in request.files:
                 raise exceptions.HttpError(401, "Não foi encaminhada uma imagem", "Não foi encaminhada uma imagem")
 
-            image = request.files['image']  # Obtém a imagem do formulário
+            image = request.files['image'] 
 
             image.filename = id + "_" + datetime.now().strftime("%H-%M-%S") + ".jpg"
         
-            # Define o caminho para salvar a imagem
             file_path = os.path.join(self.app.config['UPLOAD_FOLDER'], image.filename)
-            image.save(file_path)  # Salva a imagem no servidor
+            image.save(file_path)  
 
             return jsonify({"status": "Imagem recebida com sucesso", "file_path": file_path}), 200
 
@@ -559,7 +578,238 @@ class Requests:
             self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
             self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
             self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
-            ex = exceptions.HttpError(401, "ERRO", "Verificar log do servidor para detalhes")
+            ex = exceptions.HttpError(400, "ERRO", "Verificar log do servidor para detalhes")
             return ex.to_json(), ex.error_json['error']['code']
 
 
+    def release_cart(self, id):
+        try:
+            data = request.headers
+            if self.verify_jwt_token(data['Authorization']) == False:
+                raise exceptions.HttpError(401, "Usuário não autorizado", "Usuário não autorizado")
+
+            result = self.db.release_cart(id)
+
+            warehouse = self.db.get_warehouse_by_cart(id)
+
+            if result == 1:
+                for item in active_tokens:
+                    key, value = list(item.items())[0] 
+                    if "admin" in value or "armazem" in value:
+                        self.noti.first_release_noti(warehouse[0], value[3], id)
+
+            return jsonify({"status": "Carrinho liberado!"}), 200
+
+        except exceptions.HttpError as error:
+            return error.to_json(), error.error_json['error']['code']
+
+        except Exception as error:
+            self.logger.error(type(error))
+            self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
+            self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
+            self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
+            ex = exceptions.HttpError(400, "ERRO", "Verificar log do servidor para detalhes")
+            return ex.to_json(), ex.error_json['error']['code']
+
+    def get_warehouses(self):
+
+        try:
+            data = request.headers
+            if self.verify_jwt_token(data['Authorization']) == False:
+                raise exceptions.HttpError(401, "Usuário não autorizado", "Usuário não autorizado")
+
+            result = self.db.get_warehouses()
+
+            all_warehouses = [{"id": warehouse[0], "name": warehouse[1]} for warehouse in result]
+
+            return jsonify({"warehouses": all_warehouses}), 200
+
+        except exceptions.HttpError as error:
+            return error.to_json(), error.error_json['error']['code']
+
+        except Exception as error:
+            self.logger.error(type(error))
+            self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
+            self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
+            self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
+            ex = exceptions.HttpError(400, "ERRO", "Verificar log do servidor para detalhes")
+            return ex.to_json(), ex.error_json['error']['code']
+        
+    
+    def warehouse_add_item(self, id):
+
+        try:
+            data = request.headers
+            if self.verify_jwt_token(data['Authorization']) == False:
+                raise exceptions.HttpError(401, "Usuário não autorizado", "Usuário não autorizado")
+            
+            data = request.get_json()
+
+            result = self.db.warehouse_add_item(data, id)
+
+            for item in active_tokens:
+                key, value = list(item.items())[0] 
+                if "admin" in value or "armazem" in value:
+                    self.noti.item_add_noti(data, value[3], id)
+
+            return jsonify({"status": "Produto adicionado!"}), 200
+
+        except exceptions.HttpError as error:
+            return error.to_json(), error.error_json['error']['code']
+
+        except Exception as error:
+            self.logger.error(type(error))
+            self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
+            self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
+            self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
+            ex = exceptions.HttpError(400, "ERRO", "Verificar log do servidor para detalhes")
+            return ex.to_json(), ex.error_json['error']['code']
+        
+
+    def get_warehouse_products(self, id):
+
+        try:
+            data = request.headers
+            if self.verify_jwt_token(data['Authorization']) == False:
+                raise exceptions.HttpError(401, "Usuário não autorizado", "Usuário não autorizado")
+
+            result = self.db.warehouse_get_products(id)
+
+            if result != "error":
+                all_products = [{"id": product[0], "name": product[1], "description": product[2], "quantity": product[3], "unit": product[4]} for product in result]
+                return jsonify({"products": all_products}), 200
+
+            return jsonify({"products": []}), 200
+            
+
+        except exceptions.HttpError as error:
+            return error.to_json(), error.error_json['error']['code']
+
+        except Exception as error:
+            self.logger.error(type(error))
+            self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
+            self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
+            self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
+            ex = exceptions.HttpError(400, "ERRO", "Verificar log do servidor para detalhes")
+            return ex.to_json(), ex.error_json['error']['code']
+
+    def warehouse_update_item(self, id):
+
+        try:
+            data = request.headers
+            if self.verify_jwt_token(data['Authorization']) == False:
+                raise exceptions.HttpError(401, "Usuário não autorizado", "Usuário não autorizado")
+            
+            data = request.get_json()
+
+            result = self.db.warehouse_update_item(data, id)
+
+            for item in active_tokens:
+                key, value = list(item.items())[0] 
+                if "admin" in value or "armazem" in value:
+                    self.noti.item_update_noti(data, value[3], id)
+
+            return jsonify({"status": "Produto alterado com sucesso!"}), 200
+
+        except exceptions.HttpError as error:
+            return error.to_json(), error.error_json['error']['code']
+
+        except Exception as error:
+            self.logger.error(type(error))
+            self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
+            self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
+            self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
+            ex = exceptions.HttpError(400, "ERRO", "Verificar log do servidor para detalhes")
+            return ex.to_json(), ex.error_json['error']['code']
+
+    def warehouse_delete_item(self, id):
+
+        try:
+            data = request.headers
+            if self.verify_jwt_token(data['Authorization']) == False:
+                raise exceptions.HttpError(401, "Usuário não autorizado", "Usuário não autorizado")
+
+            data = request.get_json()
+
+            result = self.db.warehouse_delete_item(data)
+
+            for item in active_tokens:
+                key, value = list(item.items())[0] 
+                if "admin" in value or "armazem" in value:
+                    self.noti.item_delete_noti(data, value[3], id)
+
+            return jsonify({"status": "Produto excluido com sucesso!"}), 200
+
+        except exceptions.HttpError as error:
+            return error.to_json(), error.error_json['error']['code']
+
+        except Exception as error:
+            self.logger.error(type(error))
+            self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
+            self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
+            self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
+            ex = exceptions.HttpError(400, "ERRO", "Verificar log do servidor para detalhes")
+            return ex.to_json(), ex.error_json['error']['code']
+        
+    def get_warehouses_incoming_drones(self, id):
+
+        try:
+            data = request.headers
+            if self.verify_jwt_token(data['Authorization']) == False:
+                raise exceptions.HttpError(401, "Usuário não autorizado", "Usuário não autorizado")
+
+            warehouse = ""
+        
+            if id == "1":
+                warehouse = "Armazem 1"
+            
+            elif id == "2":
+                warehouse = "Armazem 2"
+
+            print("--------")
+            print(id)
+            print(warehouse)
+            result = self.db.warehouse_get_incoming_drones(id, warehouse)
+
+            if result != "no_carts":
+                carts = [{"id": cart[0], "battery": cart[1]} for cart in result]
+                return jsonify({"carts": carts}), 200
+
+            else:
+                return jsonify({"carts": ""}), 200
+
+        except exceptions.HttpError as error:
+            return error.to_json(), error.error_json['error']['code']
+
+        except Exception as error:
+            self.logger.error(type(error))
+            self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
+            self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
+            self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
+            ex = exceptions.HttpError(400, "ERRO", "Verificar log do servidor para detalhes")
+            return ex.to_json(), ex.error_json['error']['code']
+        
+
+    def cart_problem (self, id):
+
+        try:
+            data = request.headers
+            if self.verify_jwt_token(data['Authorization']) == False:
+                raise exceptions.HttpError(401, "Usuário não autorizado", "Usuário não autorizado")
+
+            data = request.get_json()
+
+            self.logger.warning ("O drone " + id + " foi reportado com o seguinte problema: " + data["problem"])
+
+            return jsonify({"status": "Problema relatado com sucesso"}), 200
+
+        except exceptions.HttpError as error:
+            return error.to_json(), error.error_json['error']['code']
+
+        except Exception as error:
+            self.logger.error(type(error))
+            self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
+            self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
+            self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
+            ex = exceptions.HttpError(400, "ERRO", "Verificar log do servidor para detalhes")
+            return ex.to_json(), ex.error_json['error']['code']
