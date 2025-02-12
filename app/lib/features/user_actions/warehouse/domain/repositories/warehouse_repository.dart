@@ -22,6 +22,6 @@ abstract class WarehouseRepository {
   Future<Either<Failure, Unit>> removeWarehouseProduct({
     required String jwtToken,
     required String warehouseId,
-    required String productId,
+    required int productId,
   });
 }

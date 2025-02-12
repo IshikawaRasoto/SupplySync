@@ -7,7 +7,7 @@ import '../../../../../features/cart/domain/entities/cart.dart';
 abstract class WarehouseTransportRepository {
   Future<Either<Failure, List<Cart>>> fetchIncomingDrones({
     required String jwtToken,
-    required String location,
+    required int warehouseId,
   });
 
   Future<Either<Failure, void>> uploadDronePhoto({

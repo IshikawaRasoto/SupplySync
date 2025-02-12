@@ -6,7 +6,7 @@ import '../repositories/warehouse_repository.dart';
 class RemoveWarehouseProductParams {
   final String jwtToken;
   final String warehouseId;
-  final String productId;
+  final int productId;
 
   const RemoveWarehouseProductParams({
     required this.jwtToken,

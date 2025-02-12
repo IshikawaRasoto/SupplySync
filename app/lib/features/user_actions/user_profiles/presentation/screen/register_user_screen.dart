@@ -150,7 +150,7 @@ class _RegisterUserScreenState extends State<RegisterUserScreen> {
                                 });
                               },
                             );
-                          }).toList(),
+                          }),
                           const SizedBox(height: 20),
                           ElevatedButton(
                             onPressed: () => _formKey.currentState!.validate()

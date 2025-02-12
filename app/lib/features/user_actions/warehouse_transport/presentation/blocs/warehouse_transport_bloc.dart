@@ -57,6 +57,9 @@ class WarehouseTransportBloc
     FetchIncomingDronesEvent event,
     Emitter<WarehouseTransportState> emit,
   ) async {
+    final List<Warehouse> warehouses = state is WarehouseTransportSuccess
+        ? (state as WarehouseTransportSuccess).warehouses
+        : [];
     final token = _userCubit.getToken();
     if (token == null) {
       emit(const WarehouseTransportFailure(error: 'User not authenticated'));
@@ -68,24 +71,17 @@ class WarehouseTransportBloc
     final result = await _fetchIncomingDrones(
       FetchIncomingDronesParams(
         jwtToken: token,
-        location: event.location,
+        warehouseId: event.warehouseId,
       ),
     );
 
     result.fold(
       (failure) => emit(WarehouseTransportFailure(error: failure.message)),
       (drones) {
-        if (state is WarehouseTransportSuccess) {
-          emit(WarehouseTransportSuccess(
-            incomingDrones: drones,
-            warehouses: (state as WarehouseTransportSuccess).warehouses,
-          ));
-        } else {
-          emit(WarehouseTransportSuccess(
-            incomingDrones: drones,
-            warehouses: const [],
-          ));
-        }
+        emit(WarehouseTransportSuccess(
+          incomingDrones: drones,
+          warehouses: warehouses,
+        ));
       },
     );
   }

@@ -9,7 +9,7 @@ import '../models/cart_model.dart';
 abstract class WarehouseTransportRemoteDataSource {
   Future<List<Cart>> fetchIncomingDrones({
     required String jwtToken,
-    required String location,
+    required int warehouseId,
   });
 
   Future<void> uploadDronePhoto({
@@ -27,19 +27,22 @@ class WarehouseTransportRemoteDataSourceImpl
   @override
   Future<List<Cart>> fetchIncomingDrones({
     required String jwtToken,
-    required String location,
+    required int warehouseId,
   }) async {
     try {
       final response = await apiService.getData(
         endPoint: ApiEndpoints.fetchIncomingDrones,
         pathParams: {
-          'warehouseId': location,
+          'warehouseId': warehouseId.toString(),
         },
         jwtToken: jwtToken,
       );
-
-      return (response['drones'] as List)
-          .map((json) => CartModel.fromJson(json))
+      if (response['carts'] == null || response['carts'].isEmpty) {
+        return [];
+      }
+      final List<dynamic> carts = response['carts'];
+      return carts
+          .map((json) => CartModel.fromJson(json as Map<String, dynamic>))
           .toList();
     } on ServerException {
       rethrow;

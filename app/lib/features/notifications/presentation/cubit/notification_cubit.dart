@@ -5,10 +5,8 @@ import 'package:fpdart/fpdart.dart';
 import '../../../../core/common/cubit/user/user_cubit.dart';
 import '../../domain/entities/notification_channel.dart';
 import '../../domain/entities/notification_message.dart';
-import '../../domain/usecases/get_channel_enabled_state.dart';
 import '../../domain/usecases/get_firebase_tolen.dart';
 import '../../domain/usecases/initialize_notifications.dart';
-import '../../domain/usecases/save_channel_enabled_state.dart';
 import '../../domain/usecases/show_notification.dart';
 import '../../domain/usecases/update_firebase_token.dart';
 
@@ -21,15 +19,11 @@ class NotificationCubit extends Cubit<NotificationState> {
     required GetFirebaseToken getFirebaseToken,
     required UpdateFirebaseToken updateFirebaseToken,
     required UserCubit userCubit,
-    required GetChannelEnabledState getChannelEnabledState,
-    required SaveChannelEnabledState saveChannelEnabledState,
   })  : _initializeNotifications = initializeNotifications,
         _showNotification = showNotification,
         _getFirebaseToken = getFirebaseToken,
         _updateFirebaseToken = updateFirebaseToken,
         _userCubit = userCubit,
-        _getChannelEnabledState = getChannelEnabledState,
-        _saveChannelEnabledState = saveChannelEnabledState,
         super(NotificationInitial());
 
   final InitializeNotifications _initializeNotifications;
@@ -37,52 +31,16 @@ class NotificationCubit extends Cubit<NotificationState> {
   final GetFirebaseToken _getFirebaseToken;
   final UpdateFirebaseToken _updateFirebaseToken;
   final UserCubit _userCubit;
-  final GetChannelEnabledState _getChannelEnabledState;
-  final SaveChannelEnabledState _saveChannelEnabledState;
 
   Map<NotificationChannel, bool> channelEnabledStates = {};
 
   Future<void> initialize() async {
     try {
       await _initializeNotifications(unit);
-      await _loadChannelStates();
       emit(NotificationInitialized());
     } catch (e) {
       emit(NotificationError(e.toString()));
     }
-  }
-
-  Future<void> _loadChannelStates() async {
-    for (var channel in NotificationChannel.values) {
-      final result = await _getChannelEnabledState(channel);
-      result.fold(
-        (failure) {
-          channelEnabledStates[channel] = true;
-        },
-        (enabled) {
-          channelEnabledStates[channel] = enabled ?? true;
-        },
-      );
-    }
-    emit(NotificationChannelStatesLoaded(Map.from(channelEnabledStates)));
-  }
-
-  Future<void> updateChannelEnabledState(
-    NotificationChannel channel,
-    bool enabled,
-  ) async {
-    channelEnabledStates[channel] = enabled;
-    emit(NotificationChannelStatesLoaded(Map.from(channelEnabledStates)));
-
-    final result = await _saveChannelEnabledState(
-        SaveChannelEnabledParams(channel: channel, enabled: enabled));
-    result.fold(
-      (failure) {
-        emit(NotificationError(
-            'Failed to save channel state: ${failure.message}'));
-      },
-      (_) {},
-    );
   }
 
   Future<void> showNotification({

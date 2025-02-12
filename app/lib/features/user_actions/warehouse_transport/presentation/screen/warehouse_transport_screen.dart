@@ -27,7 +27,7 @@ class _WarehouseTransportScreenState extends State<WarehouseTransportScreen> {
   void _fetchDrones() {
     if (_selectedWarehouse != null) {
       context.read<WarehouseTransportBloc>().add(
-            FetchIncomingDronesEvent(location: _selectedWarehouse!.name),
+            FetchIncomingDronesEvent(warehouseId: _selectedWarehouse!.id),
           );
     }
   }

@@ -16,12 +16,12 @@ class WarehouseTransportRepositoryImpl implements WarehouseTransportRepository {
   @override
   Future<Either<Failure, List<Cart>>> fetchIncomingDrones({
     required String jwtToken,
-    required String location,
+    required int warehouseId,
   }) async {
     try {
       final drones = await remoteDataSource.fetchIncomingDrones(
         jwtToken: jwtToken,
-        location: location,
+        warehouseId: warehouseId,
       );
       return Right(drones);
     } on ServerException catch (e) {

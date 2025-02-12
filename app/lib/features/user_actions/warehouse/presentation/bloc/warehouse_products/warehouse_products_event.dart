@@ -38,7 +38,7 @@ class AddWarehouseProductEvent extends WarehouseProductsEvent {
 
 class RemoveWarehouseProductEvent extends WarehouseProductsEvent {
   final String warehouseId;
-  final String productId;
+  final int productId;
 
   const RemoveWarehouseProductEvent({
     required this.warehouseId,

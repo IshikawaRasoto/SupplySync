@@ -38,7 +38,7 @@ abstract interface class ApiService {
   Future<void> deleteData({
     required ApiEndpoints endPoint,
     required String jwtToken,
-    Map<String, String>? body,
+    Map<String, dynamic>? body,
     Map<String, String>? header,
     Map<String, String>? pathParams,
   });
@@ -168,7 +168,7 @@ class ApiServiceImpl implements ApiService {
   Future<void> deleteData(
       {required ApiEndpoints endPoint,
       required String jwtToken,
-      Map<String, String>? body,
+      Map<String, dynamic>? body,
       Map<String, String>? header,
       Map<String, String>? pathParams}) async {
     try {

@@ -8,46 +8,37 @@ class WarehouseRemoteDataSourceImplMock implements WarehouseRemoteDataSource {
 
   final List<WarehouseModel> _mockWarehouses = [
     WarehouseModel(
-      id: '1',
+      id: 1,
       name: 'Warehouse 2',
-      location: 'São Paulo',
-      status: 'active',
     ),
     WarehouseModel(
-      id: '2',
+      id: 2,
       name: 'Warehouse 3',
-      location: 'Manaus',
-      status: 'active',
     ),
     WarehouseModel(
-      id: '3',
+      id: 3,
       name: 'South Storage',
-      location: 'Porto Alegre',
-      status: 'active',
     ),
   ];
 
   final Map<String, List<WarehouseProductModel>> _mockWarehouseProducts = {
     '1': [
       WarehouseProductModel(
-        id: '1',
-        productId: '1',
+        id: 1,
         name: 'Steel Pipes',
         description: 'Steel Pipes 1 inch',
         quantity: 100,
         unit: 'pcs',
       ),
       WarehouseProductModel(
-        id: '2',
-        productId: '2',
+        id: 2,
         name: 'Copper Wire',
         description: 'Copper Wire 1mm',
         quantity: 200,
         unit: 'm',
       ),
       WarehouseProductModel(
-        id: '3',
-        productId: '3',
+        id: 3,
         name: 'Safety Helmets',
         description: 'Safety Helmets Yellow',
         quantity: 50,
@@ -56,24 +47,21 @@ class WarehouseRemoteDataSourceImplMock implements WarehouseRemoteDataSource {
     ],
     '2': [
       WarehouseProductModel(
-        id: '4',
-        productId: '1',
+        id: 4,
         name: 'Steel Pipes',
         description: 'Steel Pipes 1 inch',
         quantity: 100,
         unit: 'pcs',
       ),
       WarehouseProductModel(
-        id: '5',
-        productId: '2',
+        id: 5,
         name: 'Copper Wire',
         description: 'Copper Wire 1mm',
         quantity: 200,
         unit: 'm',
       ),
       WarehouseProductModel(
-        id: '6',
-        productId: '3',
+        id: 6,
         name: 'Safety Helmets',
         description: 'Safety Helmets Yellow',
         quantity: 50,
@@ -82,24 +70,21 @@ class WarehouseRemoteDataSourceImplMock implements WarehouseRemoteDataSource {
     ],
     '3': [
       WarehouseProductModel(
-        id: '7',
-        productId: '1',
+        id: 7,
         name: 'Steel Pipes',
         description: 'Steel Pipes 1 inch',
         quantity: 100,
         unit: 'pcs',
       ),
       WarehouseProductModel(
-        id: '8',
-        productId: '2',
+        id: 8,
         name: 'Copper Wire',
         description: 'Copper Wire 1mm',
         quantity: 200,
         unit: 'm',
       ),
       WarehouseProductModel(
-        id: '9',
-        productId: '3',
+        id: 9,
         name: 'Safety Helmets',
         description: 'Safety Helmets Yellow',
         quantity: 50,
@@ -152,7 +137,7 @@ class WarehouseRemoteDataSourceImplMock implements WarehouseRemoteDataSource {
   Future<void> removeWarehouseProduct(
       {required String jwtToken,
       required String warehouseId,
-      required String productId}) async {
+      required int productId}) async {
     try {
       if (!_mockWarehouseProducts.containsKey(warehouseId)) {
         throw ServerException('Warehouse not found');

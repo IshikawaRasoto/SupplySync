@@ -1,5 +1,7 @@
 import 'package:fpdart/fpdart.dart';
+import 'package:supplysync/core/error/conversion_exception.dart';
 import '../../../../../core/error/failure.dart';
+import '../../../../../core/error/server_exception.dart';
 import '../../../../../core/error/server_failure.dart';
 import '../../domain/entities/warehouse.dart';
 import '../../domain/entities/warehouse_product.dart';
@@ -18,8 +20,13 @@ class WarehouseRepositoryImpl implements WarehouseRepository {
     try {
       final warehouses = await remoteDataSource.getWarehouses(jwtToken);
       return Right(warehouses);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on ConversionException catch (e) {
+      return Left(ServerFailure(e.message));
     } catch (e) {
-      return Left(ServerFailure('Failed to get warehouses'));
+      return Left(
+          ServerFailure('An unexpected error occurred: ${e.toString()}'));
     }
   }
 
@@ -34,8 +41,13 @@ class WarehouseRepositoryImpl implements WarehouseRepository {
         warehouseId: warehouseId,
       );
       return Right(products);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on ConversionException catch (e) {
+      return Left(ServerFailure(e.message));
     } catch (e) {
-      return Left(ServerFailure('Failed to get warehouse products'));
+      return Left(
+          ServerFailure('An unexpected error occurred: ${e.toString()}'));
     }
   }
 
@@ -51,7 +63,6 @@ class WarehouseRepositoryImpl implements WarehouseRepository {
         warehouseId: warehouseId,
         product: WarehouseProductModel(
           id: product.id,
-          productId: product.productId,
           name: product.name,
           description: product.description,
           quantity: product.quantity,
@@ -59,8 +70,13 @@ class WarehouseRepositoryImpl implements WarehouseRepository {
         ),
       );
       return const Right(unit);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on ConversionException catch (e) {
+      return Left(ServerFailure(e.message));
     } catch (e) {
-      return Left(ServerFailure('Failed to update product'));
+      return Left(
+          ServerFailure('An unexpected error occurred: ${e.toString()}'));
     }
   }
 
@@ -76,7 +92,6 @@ class WarehouseRepositoryImpl implements WarehouseRepository {
         warehouseId: warehouseId,
         product: WarehouseProductModel(
           id: product.id,
-          productId: product.productId,
           name: product.name,
           description: product.description,
           quantity: product.quantity,
@@ -84,8 +99,13 @@ class WarehouseRepositoryImpl implements WarehouseRepository {
         ),
       );
       return const Right(unit);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on ConversionException catch (e) {
+      return Left(ServerFailure(e.message));
     } catch (e) {
-      return Left(ServerFailure('Failed to add product'));
+      return Left(
+          ServerFailure('An unexpected error occurred: ${e.toString()}'));
     }
   }
 
@@ -93,7 +113,7 @@ class WarehouseRepositoryImpl implements WarehouseRepository {
   Future<Either<Failure, Unit>> removeWarehouseProduct({
     required String jwtToken,
     required String warehouseId,
-    required String productId,
+    required int productId,
   }) async {
     try {
       await remoteDataSource.removeWarehouseProduct(
@@ -102,8 +122,13 @@ class WarehouseRepositoryImpl implements WarehouseRepository {
         productId: productId,
       );
       return const Right(unit);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on ConversionException catch (e) {
+      return Left(ServerFailure(e.message));
     } catch (e) {
-      return Left(ServerFailure('Failed to remove product'));
+      return Left(
+          ServerFailure('An unexpected error occurred: ${e.toString()}'));
     }
   }
 }

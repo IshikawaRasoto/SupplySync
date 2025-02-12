@@ -4,16 +4,12 @@ class WarehouseModel extends Warehouse {
   WarehouseModel({
     required super.id,
     required super.name,
-    required super.location,
-    required super.status,
   });
 
   factory WarehouseModel.fromJson(Map<String, dynamic> json) {
     return WarehouseModel(
-      id: json['id'] as String,
+      id: json['id'] as int,
       name: json['name'] as String,
-      location: json['location'] as String,
-      status: json['status'] as String,
     );
   }
 
@@ -21,8 +17,6 @@ class WarehouseModel extends Warehouse {
     return {
       'id': id,
       'name': name,
-      'location': location,
-      'status': status,
     };
   }
 }

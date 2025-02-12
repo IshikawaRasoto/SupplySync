@@ -10,7 +10,7 @@ class FetchWarehousesEvent extends WarehouseTransportEvent {
 }
 
 class FetchIncomingDronesEvent extends WarehouseTransportEvent {
-  final String location;
+  final int warehouseId;
 
-  const FetchIncomingDronesEvent({required this.location});
+  const FetchIncomingDronesEvent({required this.warehouseId});
 }

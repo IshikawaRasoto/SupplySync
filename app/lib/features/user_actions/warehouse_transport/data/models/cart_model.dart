@@ -14,10 +14,10 @@ class CartModel extends Cart {
     return CartModel(
       id: json['id'] as String,
       battery: json['battery'] as String,
-      destination: json['destination'] as String,
-      origin: json['origin'] as String,
-      load: json['load'] as String,
-      status: json['status'] as String,
+      destination: json['destination'] as String?,
+      origin: json['origin'] as String?,
+      load: json['load'] as String?,
+      status: json['status'] as String?,
     );
   }
 }

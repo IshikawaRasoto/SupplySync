@@ -28,14 +28,14 @@ class _CartDetailScreen extends State<CartDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Cart #${widget.cartId}"),
+        title: Text("Drone #${widget.cartId}"),
       ),
       body: BlocConsumer<CartBloc, CartState>(
         listener: (context, state) {
           if (state is CartRequestSuccess) {
             showSnackBar(
               context,
-              message: "Request Success",
+              message: "Requisição realizada com sucesso",
               isSucess: true,
             );
           } else if (state is CartRequestFailure) {
@@ -57,13 +57,13 @@ class _CartDetailScreen extends State<CartDetailScreen> {
                     onPressed: () => context
                         .read<CartBloc>()
                         .add(CartDetailsRequested(widget.cartId)),
-                    child: const Text("Try Again"),
+                    child: const Text("Tente Novamente"),
                   ),
                 ],
               ),
             );
           } else if (cart == null) {
-            return const Center(child: Text("Cart not found"));
+            return const Center(child: Text("Drone não encontrado"));
           }
           return SafeArea(
             minimum: const EdgeInsets.only(top: 10),
@@ -72,7 +72,7 @@ class _CartDetailScreen extends State<CartDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  InfoCardWidget(text: "Cart #${cart!.id}", isTitle: true),
+                  InfoCardWidget(text: "Drone #${cart!.id}", isTitle: true),
                   const SizedBox(height: 20),
                   InfoCardWidget(
                     text: "Bateria: ${cart!.battery}%",
@@ -134,13 +134,13 @@ class _CartDetailScreen extends State<CartDetailScreen> {
                     ElevatedButton(
                       onPressed: () => showDialogConfirmation(
                         context,
-                        title: "Ligar Cart?",
+                        title: "Ligar Drone?",
                         onConfirm: () => context
                             .read<CartBloc>()
                             .add(CartShutdownRequested(cart!.id)),
                       ),
                       style: AppStyles.redButtonStyle,
-                      child: const Text("Ligar Cart"),
+                      child: const Text("Ligar Drone"),
                     ),
                 ],
               ),

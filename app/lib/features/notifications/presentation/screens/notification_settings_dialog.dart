@@ -87,12 +87,6 @@ class _NotificationSettingsDialogState
                                   channel: channel,
                                 ),
                       ),
-                      Switch(
-                        value: isEnabled,
-                        onChanged: (newValue) => context
-                            .read<NotificationCubit>()
-                            .updateChannelEnabledState(channel, newValue),
-                      ),
                       IconButton(
                         icon: const Icon(Icons.settings),
                         tooltip: 'Configurações Avançadas do Canal',
@@ -114,12 +108,6 @@ class _NotificationSettingsDialogState
                                       'This is a test notification for ${channel.description}',
                                   channel: channel,
                                 ),
-                      ),
-                      Switch(
-                        value: isEnabled,
-                        onChanged: (newValue) => context
-                            .read<NotificationCubit>()
-                            .updateChannelEnabledState(channel, newValue),
                       ),
                       IconButton(
                         icon: const Icon(Icons.settings),

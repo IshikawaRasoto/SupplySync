@@ -16,17 +16,17 @@ class FetchIncomingDrones
       FetchIncomingDronesParams params) async {
     return await repository.fetchIncomingDrones(
       jwtToken: params.jwtToken,
-      location: params.location,
+      warehouseId: params.warehouseId,
     );
   }
 }
 
 class FetchIncomingDronesParams {
   final String jwtToken;
-  final String location;
+  final int warehouseId;
 
   FetchIncomingDronesParams({
     required this.jwtToken,
-    required this.location,
+    required this.warehouseId,
   });
 }

@@ -51,9 +51,7 @@ class _EditProductDialogState extends State<EditProductDialog> {
     final quantity = int.tryParse(quantityController.text) ?? 0;
 
     final product = WarehouseProduct(
-      id: widget.product?.id ??
-          DateTime.now().millisecondsSinceEpoch.toString(),
-      productId: widget.product?.productId ?? DateTime.now().toString(),
+      id: widget.product?.id ?? DateTime.now().millisecondsSinceEpoch,
       name: nameController.text,
       description: descriptionController.text,
       quantity: quantity,

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:supplysync/core/utils/show_snackbar.dart';
 import '../../domain/entities/warehouse_product.dart';
 import '../bloc/warehouse_products/warehouse_products_bloc.dart';
 import '../bloc/warehouse_products/warehouse_products_event.dart';
 import '../bloc/warehouse_products/warehouse_products_state.dart';
 import '../widgets/edit_product_dialog.dart';
 
-class WarehouseDetailsScreen extends StatelessWidget {
+class WarehouseDetailsScreen extends StatefulWidget {
   final String warehouseId;
 
   const WarehouseDetailsScreen({
@@ -15,10 +16,29 @@ class WarehouseDetailsScreen extends StatelessWidget {
   });
 
   @override
+  State<WarehouseDetailsScreen> createState() => _WarehouseDetailsScreenState();
+}
+
+class _WarehouseDetailsScreenState extends State<WarehouseDetailsScreen> {
+  List<WarehouseProduct> _products = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProducts();
+  }
+
+  void _loadProducts() {
+    context.read<WarehouseProductsBloc>().add(
+          GetWarehouseProductsEvent(widget.warehouseId),
+        );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Warehouse Products'),
+        title: const Text('Produtos dos Armazéns'),
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
@@ -29,61 +49,52 @@ class WarehouseDetailsScreen extends StatelessWidget {
       body: BlocConsumer<WarehouseProductsBloc, WarehouseProductsState>(
         listener: (context, state) {
           if (state is WarehouseProductOperationSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message)),
-            );
+            showSnackBar(context, message: state.message, isSucess: true);
           } else if (state is WarehouseProductsError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.red,
-              ),
-            );
+            showSnackBar(context, message: state.message, isError: true);
+          } else if (state is WarehouseProductsLoaded) {
+            setState(() {
+              _products = state.products;
+            });
           }
         },
         builder: (context, state) {
-          return switch (state) {
-            WarehouseProductsInitial() => _buildInitial(context),
-            WarehouseProductsLoading() => const Center(
-                child: CircularProgressIndicator(),
-              ),
-            WarehouseProductsLoaded() => _buildLoaded(context, state.products),
-            WarehouseProductOperationLoading() => Stack(
-                children: [
-                  _buildLastState(context),
-                  const Center(child: CircularProgressIndicator()),
-                ],
-              ),
-            WarehouseProductOperationSuccess() => _buildLastState(context),
-            WarehouseProductsError() => _buildError(context, state.message),
-          };
+          if (state is WarehouseProductsLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (state is WarehouseProductsError) {
+            return _buildError(context, state.message);
+          }
+
+          if (state is WarehouseProductOperationLoading) {
+            return Stack(
+              children: [
+                _buildProductsList(),
+                const Center(child: CircularProgressIndicator()),
+              ],
+            );
+          }
+
+          return _buildProductsList();
         },
       ),
     );
   }
 
-  Widget _buildInitial(BuildContext context) {
-    context.read<WarehouseProductsBloc>().add(
-          GetWarehouseProductsEvent(warehouseId),
-        );
-    return const Center(child: CircularProgressIndicator());
-  }
-
-  Widget _buildLoaded(BuildContext context, List<WarehouseProduct> products) {
+  Widget _buildProductsList() {
     return RefreshIndicator(
       onRefresh: () async {
-        context.read<WarehouseProductsBloc>().add(
-              RefreshWarehouseProductsEvent(warehouseId),
-            );
+        _loadProducts();
       },
-      child: products.isEmpty
+      child: _products.isEmpty
           ? const Center(
-              child: Text('No products found'),
+              child: Text('Nenhum Produto Encontrado'),
             )
           : ListView.builder(
-              itemCount: products.length,
+              itemCount: _products.length,
               itemBuilder: (context, index) {
-                final product = products[index];
+                final product = _products[index];
                 return Card(
                   margin:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -121,10 +132,6 @@ class WarehouseDetailsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLastState(BuildContext context) {
-    return Container(); // The previous state will be shown behind the loading indicator
-  }
-
   Widget _buildError(BuildContext context, String message) {
     return Center(
       child: Column(
@@ -137,12 +144,8 @@ class WarehouseDetailsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           ElevatedButton(
-            onPressed: () {
-              context.read<WarehouseProductsBloc>().add(
-                    GetWarehouseProductsEvent(warehouseId),
-                  );
-            },
-            child: const Text('Try Again'),
+            onPressed: _loadProducts,
+            child: const Text('Tente Novamente'),
           ),
         ],
       ),
@@ -153,7 +156,7 @@ class WarehouseDetailsScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => EditProductDialog(
-        warehouseId: warehouseId,
+        warehouseId: widget.warehouseId,
         product: product,
       ),
     );
@@ -163,7 +166,7 @@ class WarehouseDetailsScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => EditProductDialog(
-        warehouseId: warehouseId,
+        warehouseId: widget.warehouseId,
         isNew: true,
       ),
     );
@@ -173,25 +176,25 @@ class WarehouseDetailsScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Product'),
-        content: Text('Are you sure you want to delete ${product.name}?'),
+        title: const Text('Excluir'),
+        content: Text('Você tem certeza que quer excluir ${product.name}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () {
               context.read<WarehouseProductsBloc>().add(
                     RemoveWarehouseProductEvent(
-                      warehouseId: warehouseId,
+                      warehouseId: widget.warehouseId,
                       productId: product.id,
                     ),
                   );
               Navigator.pop(context);
             },
             child: const Text(
-              'Delete',
+              'Excluir',
               style: TextStyle(color: Colors.red),
             ),
           ),

@@ -37,13 +37,13 @@ class WarehouseTransportRemoteDataSourceImplMock
   @override
   Future<List<Cart>> fetchIncomingDrones({
     required String jwtToken,
-    required String location,
+    required int warehouseId,
   }) async {
     try {
       await Future.delayed(const Duration(seconds: 1));
       List<Cart> incomingDrones = [];
       for (final drone in _incomingDrones) {
-        if (drone.destination == location) {
+        if (drone.id == warehouseId.toString()) {
           incomingDrones.add(drone);
         }
       }

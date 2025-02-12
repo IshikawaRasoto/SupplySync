@@ -366,7 +366,7 @@ class _DockTransportScreenState extends State<DockTransportScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Digitalizar QR Code'),
+        title: const Text('Docas'),
         centerTitle: true,
         actions: [
           IconButton(

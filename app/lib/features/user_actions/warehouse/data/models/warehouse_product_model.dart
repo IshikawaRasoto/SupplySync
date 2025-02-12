@@ -3,7 +3,6 @@ import '../../domain/entities/warehouse_product.dart';
 class WarehouseProductModel extends WarehouseProduct {
   WarehouseProductModel({
     required super.id,
-    required super.productId,
     required super.name,
     required super.description,
     required super.quantity,
@@ -12,8 +11,7 @@ class WarehouseProductModel extends WarehouseProduct {
 
   factory WarehouseProductModel.fromJson(Map<String, dynamic> json) {
     return WarehouseProductModel(
-      id: json['id'] as String,
-      productId: json['productId'] as String,
+      id: json['id'] as int,
       name: json['name'] as String,
       description: json['description'] as String,
       quantity: json['quantity'] as int,
@@ -24,7 +22,6 @@ class WarehouseProductModel extends WarehouseProduct {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'productId': productId,
       'name': name,
       'description': description,
       'quantity': quantity,
