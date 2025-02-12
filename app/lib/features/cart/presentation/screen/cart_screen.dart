@@ -130,7 +130,7 @@ class _CartScreenState extends State<CartScreen> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.green.withOpacity(0.1),
+                          color: getColorWithOpacity(AppColors.green, 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(

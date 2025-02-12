@@ -180,7 +180,6 @@ class _DockTransportScreenState extends State<DockTransportScreen>
                       context.read<DockTransportBloc>().add(
                             UpdateLocationManuallyEvent(location: value),
                           );
-                      print('Cachorro teste 1');
                     }
                   },
                 ),

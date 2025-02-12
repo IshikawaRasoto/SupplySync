@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supplysync/core/theme/theme.dart';
 import 'package:supplysync/core/utils/show_snackbar.dart';
 
 import '../../../../cart/domain/entities/cart.dart';
@@ -91,7 +92,8 @@ class _DroneDetailsScreenState extends State<DroneDetailsScreen> {
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.green.withOpacity(0.1),
+                                color:
+                                    getColorWithOpacity(AppColors.green, 0.1),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Row(

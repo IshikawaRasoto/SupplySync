@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supplysync/core/theme/theme.dart';
 
 import '../../../../../features/cart/domain/entities/cart.dart';
 import '../../../../../features/user_actions/warehouse/domain/entities/warehouse.dart';
@@ -178,7 +179,7 @@ class _WarehouseTransportScreenState extends State<WarehouseTransportScreen> {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.1),
+                          color: getColorWithOpacity(AppColors.green, 0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
