@@ -1,6 +1,8 @@
 #ifndef DEFINE_H
 #define DEFINE_H
 
+#define DEBUG 1
+
 #define MOTOR_INPUT_1 19
 #define MOTOR_INPUT_2 18
 
@@ -15,5 +17,13 @@
 
 #define TRIGGER_PIN 32
 #define ECHO_PIN 35
+
+#define SOUND_SPEED 0.034
+
+#define WIFI_SSID "RasotoCel"
+#define WIFI_PASS "rasoto123"
+#define MQTT_BROKER "srv689391.hstgr.cloud"
+#define MQTT_PORT 1883
+#define CARRO_ID "carro1"
 
 #endif
