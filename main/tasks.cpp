@@ -3,11 +3,15 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
+#include <Wire.h>
+#include <Adafruit_ADS1X15.h>
 
 #include "controls.h"
 
 WiFiClient espClient;
 PubSubClient client(espClient);
+
+Adafruit_ADS1115 ads;
 
 TaskHandle_t task1Handle_led = NULL;
 TaskHandle_t task2Handle_sensors = NULL;
@@ -16,13 +20,15 @@ TaskHandle_t task3Handle_mqtt_verify = NULL;
 direction cruzamento_direction = STOP;
 
 unsigned long time_cruzamento = 0;
-unsigned long time_trilho = 0;
 
 int counter_offtrack = 0;
 
 bool resposta_cruzamento = false;
 
 void create_tasks(){
+
+    ads.begin();
+  
     xTaskCreate(
         toggleLED,    // Função a ser chamada
         "Toggle LED",   // Nome da tarefa
@@ -58,6 +64,7 @@ void create_tasks(){
         2,               // Prioridade da Tarefa
         NULL             // Task handle
     );
+    
 }
 
 void mqtt_callback(char* topic, byte* payload, unsigned int length) {
@@ -76,14 +83,20 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
         else if(payload_str == "R"){
             cruzamento_direction = RIGHT;
             resposta_cruzamento = true;
+            time_cruzamento = millis();
+
         }
         else if(payload_str == "L"){
             cruzamento_direction = LEFT;
             resposta_cruzamento = true;
+            time_cruzamento = millis();
+
         }
         else if(payload_str == "S"){
             cruzamento_direction = FORWARD;
             resposta_cruzamento = true;
+            time_cruzamento = millis();
+
         }
     }
 
@@ -142,10 +155,19 @@ void verify_mqtt(void * parameter){
 
 void battery_telemetry(void * parameter){
     for(;;){
-        String topico_telemetria = "cars/" + String(CARRO_ID) + "/telemetria";
-        client.publish(topico_telemetria.c_str(), "50");
+        uint32_t soma = 0;
+        for(int i = 0; i < 10; i++){
+          soma += ads.readADC_SingleEnded(0);
+          vTaskDelay(25/portTICK_PERIOD_MS);
+        }
 
-        vTaskDelay(10000/portTICK_PERIOD_MS);
+        uint32_t leitura = soma/10;
+
+        String topico_telemetria = "cars/" + String(CARRO_ID) + "/telemetria";
+        String s_leitura = String(leitura);
+        client.publish(topico_telemetria.c_str(), s_leitura.c_str());
+
+        vTaskDelay(5000/portTICK_PERIOD_MS);
     }
 }
 
@@ -164,7 +186,7 @@ void toggleLED(void * parameter){
 }
 
 void set_direction_trilho(bool l, bool ml, bool m, bool mr, bool r){
-    if (!r && !l && (millis() - time_trilho) > 3000){
+    if (!r && !l && (millis() - time_cruzamento) > 3000){
         set_direction(STOP);
         String topico_cruzamento = "cars/" + String(CARRO_ID) + "/cruzamento";
         client.publish(topico_cruzamento.c_str(), CARRO_ID);
@@ -172,12 +194,14 @@ void set_direction_trilho(bool l, bool ml, bool m, bool mr, bool r){
         while(!resposta_cruzamento){
             vTaskDelay(50/portTICK_PERIOD_MS);
         }
-
+        time_cruzamento = millis();
         resposta_cruzamento = false;
+        set_direction(FORWARD);
+        vTaskDelay(200/portTICK_PERIOD_MS);
+        set_direction(STOP);
         // Comunicação HTTP, tem que esperar a resposta,
         // mudar estado para cruzamento
         set_state(CRUZAMENTO);
-        time_cruzamento = millis();
     }
     else if(!mr){
         set_direction(RIGHT);
@@ -205,25 +229,34 @@ void set_direction_cruzamento(bool l, bool ml, bool m, bool mr, bool r){
         set_direction(STOP);
         return; 
     }
-    
-    if (!r && !l && (millis() - time_cruzamento) > 3000){
-        // mudar estado para trilho
+
+    if (!r && !l && (millis() - time_cruzamento) > 750){
+        time_cruzamento = millis();
+        // Comunicação HTTP, tem que esperar a resposta,
+        // mudar estado para cruzamento
         set_state(TRILHO);
-        time_trilho = millis();
-        cruzamento_direction = STOP;
     }
-    else if(!mr){
+
+    if(!mr && cruzamento_direction == RIGHT){
         set_direction(RIGHT);
+        counter_offtrack = 0;
     }
-    else if(!ml){
+    else if(!ml && cruzamento_direction == LEFT){
         set_direction(LEFT);
+        counter_offtrack = 0;
     }
     else if(r && mr && m && ml && l){
-
+        counter_offtrack++;
+        if(counter_offtrack > 50){
+            set_direction(STOP);
+            counter_offtrack = 51;
+        }
     }
     else{
         set_direction(FORWARD);
+        counter_offtrack = 0;
     }
+    
 }
 
 void read_sensors(void * parameter){

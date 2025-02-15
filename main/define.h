@@ -1,7 +1,7 @@
 #ifndef DEFINE_H
 #define DEFINE_H
 
-#define DEBUG 1
+#define DEBUG 0
 
 #define MOTOR_INPUT_1 19
 #define MOTOR_INPUT_2 18

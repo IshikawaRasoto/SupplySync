@@ -37,9 +37,9 @@ void setup() {
   Serial.begin(115200);
   setup_mqtt();
   setup_controls();
-  pinMode(2, OUTPUT);
+  pinMode(2, OUTPUT);    
+  delay(3000);
   create_tasks();
-  
 }
 
 void loop(){
