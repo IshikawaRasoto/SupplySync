@@ -8,6 +8,7 @@ from flask import Flask, jsonify, request
 from tools import notifications
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from datetime import datetime
+from tools import mqtt
 
 active_tokens = list()
 
@@ -24,6 +25,9 @@ class Requests:
         self.noti = notifications.Notification()
 
         self.logger.info(("---------SISTEMA INICIADO---------"))
+
+        self.mqtt_obj = mqtt.Mqtt("Thread 1")
+        self.mqtt_obj.start()
 
         # Definindo as rotas dentro do construtor
         self.app.add_url_rule('/login', view_func=self.verify_login, methods=['POST'])
@@ -405,7 +409,7 @@ class Requests:
             self.logger.error(type(error))
             self.logger.error(f"Error Type: {error.__traceback__.tb_frame.f_locals.get('error', None)}")
             self.logger.error(f"Error File: {error.__traceback__.tb_frame}")
-            self.logger.error(f"Error Line: {werror.__traceback__.tb_lineno}")
+            self.logger.error(f"Error Line: {error.__traceback__.tb_lineno}")
             ex = exceptions.HttpError(400, "ERRO", "Verificar log do servidor para detalhes")
             return ex.to_json(), ex.error_json['error']['code']
  

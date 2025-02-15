@@ -108,11 +108,11 @@ class SqliteConfig:
             self.logger.info("Banco de dados dos drones criado")
 
             cursor.execute('''
-                    INSERT INTO carts (id, origin, destination, load, load_qnt, status, battery, destination_temp) VALUES ("1", 'doca1', 'nenhum', 'vazio', "0", 'disponivel', "50", 'nenhum')
+                    INSERT INTO carts (id, origin, destination, load, load_qnt, status, battery, destination_temp) VALUES ("1", 'Armazem 1', 'nenhum', 'vazio', "0", 'disponivel', "50", 'nenhum')
                 ''')
             
             cursor.execute('''
-                    INSERT INTO carts (id, origin, destination, load, load_qnt, status, battery, destination_temp) VALUES ("2", 'doca2', 'nenhum', 'vazio', "0", 'disponivel', "50", 'nenhum')
+                    INSERT INTO carts (id, origin, destination, load, load_qnt, status, battery, destination_temp) VALUES ("2", 'Armazem 2', 'nenhum', 'vazio', "0", 'disponivel', "50", 'nenhum')
                 ''')
 
             database.commit()
@@ -402,7 +402,7 @@ class SqliteConfig:
             database = sqlite3.connect('res/carts.db')
             cursor = database.cursor()
             cursor.execute('''
-                    UPDATE carts set status = "disponivel" WHERE id = ?
+                    UPDATE carts set status = "disponivel", destination = "nenhum", origin = "manutencao" WHERE id = ?
                 ''', (id,))
             
             database.commit()
@@ -413,7 +413,7 @@ class SqliteConfig:
         database = sqlite3.connect('res/carts.db')
         cursor = database.cursor()
         cursor.execute('''
-                            UPDATE carts set status = "manutencao" WHERE id = ? ''', (
+                            UPDATE carts set status = "manutencao", destination = "manutencao" WHERE id = ? ''', (
             id,))
         
         database.commit()
@@ -607,3 +607,32 @@ class SqliteConfig:
         
         else:
             return "error"
+        
+
+    def get_origin_destiny(self):
+
+        database = sqlite3.connect('res/carts.db')
+        cursor = database.cursor()
+        cursor.execute('''SELECT origin, destination, destination_temp FROM carts WHERE id = 1 ''')
+        
+        result = cursor.fetchone()
+        database.close()
+
+        if result:
+            return result
+        
+        else:
+            return "error"
+        
+
+    def update_battery(self, value):
+
+        database = sqlite3.connect('res/carts.db')
+        cursor = database.cursor()
+        cursor.execute('''UPDATE carts set battery = ? WHERE id = 1''', (value,))
+        
+        database.commit()
+        database.close()
+
+
+    

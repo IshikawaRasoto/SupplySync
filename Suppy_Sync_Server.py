@@ -1,7 +1,6 @@
 import time
 from tools import sqlite
 from tools import request
-from tools import mqtt
 
 running = True
 
