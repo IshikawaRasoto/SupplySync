@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/81d96502-eb8e-48d7-8172-809f39c7b11e)# Supply●Sync
+# Supply●Sync
 
 <img src="https://github.com/IshikawaRasoto/SupplySync/blob/main/imgs/logos/logo_fundo_1024p.png" width=350px>
 
