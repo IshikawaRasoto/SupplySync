@@ -7,7 +7,8 @@ enum direction {
     STOP = 0,
     LEFT = 1,
     RIGHT = 2,
-    FORWARD = 3
+    FORWARD = 3,
+    TURN = 4
 };
 
 // Macros estados de movimentação
@@ -25,6 +26,7 @@ void setup_controls();
 
 void set_direction(direction x);
 
+void turn();
 void go_forward();
 void go_left();
 void go_right();

@@ -31,8 +31,7 @@ void setup_controls(){
     pinMode(ECHO_PIN, INPUT);
 
     // variaveis
-    //state = PARADO;
-    state = TRILHO;
+    state = PARADO;
 
 }
 
@@ -50,10 +49,20 @@ void set_direction(direction x){
         case FORWARD:
             go_forward();
             break;
+        case TURN:
+            turn();
+            break;
         default:
             stand_still();
             break;
     }
+}
+
+void turn(){
+    digitalWrite(MOTOR_INPUT_1, LOW);
+    digitalWrite(MOTOR_INPUT_2, HIGH);
+    digitalWrite(MOTOR_INPUT_3, HIGH);
+    digitalWrite(MOTOR_INPUT_4, LOW);
 }
 
 void go_forward(){

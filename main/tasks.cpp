@@ -77,8 +77,12 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
 
     if(topico == "cars/" + String(CARRO_ID) + "/comandos"){
         if(payload_str == "P"){
+            set_state(PARADO);
             cruzamento_direction = STOP;
             resposta_cruzamento = true;
+        }
+        else if(payload_str == "A"){
+            set_state(TRILHO);
         }
         else if(payload_str == "R"){
             cruzamento_direction = RIGHT;
@@ -97,6 +101,11 @@ void mqtt_callback(char* topic, byte* payload, unsigned int length) {
             resposta_cruzamento = true;
             time_cruzamento = millis();
 
+        }
+        else if(payload_str == "B"){
+            cruzamento_direction = TURN;
+            resposta_cruzamento = true;
+            time_cruzamento = millis();
         }
     }
 
@@ -186,45 +195,81 @@ void toggleLED(void * parameter){
 }
 
 void set_direction_trilho(bool l, bool ml, bool m, bool mr, bool r){
-    if (!r && !l && (millis() - time_cruzamento) > 3000){
+
+    uint8_t soma_sensores = 0;
+    soma_sensores += !l ? 1 : 0;
+    soma_sensores += !ml ? 1 : 0;
+    soma_sensores += !m ? 1 : 0;
+    soma_sensores += !mr ? 1 : 0;
+    soma_sensores += !r ? 1 : 0;
+
+    if (soma_sensores >= 4 && (millis() - time_cruzamento) > 1500 && get_state() != PARADO){
         set_direction(STOP);
+        counter_offtrack = 0;
         String topico_cruzamento = "cars/" + String(CARRO_ID) + "/cruzamento";
         client.publish(topico_cruzamento.c_str(), CARRO_ID);
         
         while(!resposta_cruzamento){
             vTaskDelay(50/portTICK_PERIOD_MS);
         }
-        time_cruzamento = millis();
+
         resposta_cruzamento = false;
-        set_direction(FORWARD);
-        vTaskDelay(200/portTICK_PERIOD_MS);
+
+        switch(cruzamento_direction){
+            case STOP:
+                set_direction(STOP);
+                break;
+            case RIGHT:
+                set_direction(RIGHT);
+                vTaskDelay(500/portTICK_PERIOD_MS);
+                break;
+            case LEFT:
+                set_direction(LEFT);
+                vTaskDelay(500/portTICK_PERIOD_MS);
+                break;
+            case FORWARD:
+                set_direction(FORWARD);
+                vTaskDelay(200/portTICK_PERIOD_MS);
+                break;
+            case TURN:
+                set_direction(TURN);
+                vTaskDelay(925/portTICK_PERIOD_MS);
+                set_state(PARADO);
+                break;
+        }
+
         set_direction(STOP);
         // Comunicação HTTP, tem que esperar a resposta,
-        // mudar estado para cruzamento
-        set_state(CRUZAMENTO);
+        // mudar estado para cruzamento    
     }
-    else if(!mr){
+    else if(!mr || !r){
         set_direction(RIGHT);
+        vTaskDelay(15/portTICK_PERIOD_MS);
+        set_direction(STOP);
         counter_offtrack = 0;
     }
-    else if(!ml){
+    else if(!ml || !l){
         set_direction(LEFT);
+        vTaskDelay(15/portTICK_PERIOD_MS);
+        set_direction(STOP);
         counter_offtrack = 0;
     }
-    else if(r && mr && m && ml && l){
+    /*else if(r && mr && m && ml && l){
         counter_offtrack++;
-        if(counter_offtrack > 50){
+        if(counter_offtrack > 2000){
             set_direction(STOP);
-            counter_offtrack = 51;
+            counter_offtrack = 2001;
         }
-    }
+    }*/
     else{
         set_direction(FORWARD);
+        vTaskDelay(15/portTICK_PERIOD_MS);
+        set_direction(STOP);
         counter_offtrack = 0;
     }
 }
 
-void set_direction_cruzamento(bool l, bool ml, bool m, bool mr, bool r){
+/*void set_direction_cruzamento(bool l, bool ml, bool m, bool mr, bool r){
     if(cruzamento_direction == STOP){
         set_direction(STOP);
         return; 
@@ -239,10 +284,14 @@ void set_direction_cruzamento(bool l, bool ml, bool m, bool mr, bool r){
 
     if(!mr && cruzamento_direction == RIGHT){
         set_direction(RIGHT);
+        vTaskDelay(20/portTICK_PERIOD_MS);
+        set_direction(STOP);
         counter_offtrack = 0;
     }
     else if(!ml && cruzamento_direction == LEFT){
         set_direction(LEFT);
+        vTaskDelay(20/portTICK_PERIOD_MS);
+        set_direction(STOP);
         counter_offtrack = 0;
     }
     else if(r && mr && m && ml && l){
@@ -253,11 +302,14 @@ void set_direction_cruzamento(bool l, bool ml, bool m, bool mr, bool r){
         }
     }
     else{
-        set_direction(FORWARD);
+        set_direction(FORWARD);vTaskDelay(10/portTICK_PERIOD_MS);
+        set_direction(STOP);
+        vTaskDelay(20/portTICK_PERIOD_MS);
+        set_direction(STOP);
         counter_offtrack = 0;
     }
     
-}
+}*/
 
 void read_sensors(void * parameter){
   for(;;){
@@ -290,13 +342,10 @@ void read_sensors(void * parameter){
     if(get_state() == TRILHO){
         set_direction_trilho(l, ml, m, mr, r);
     }
-    else if(get_state() == CRUZAMENTO){
-        set_direction_cruzamento(l, ml, m, mr, r);
-    }
     else{
-        set_direction(STOP);
+      set_direction(STOP);
     }
 
-    vTaskDelay(10/portTICK_PERIOD_MS);
+    vTaskDelay(5/portTICK_PERIOD_MS);
   }
 }
