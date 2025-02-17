@@ -477,6 +477,12 @@ class Requests:
             result = self.db.request_cart(data)
 
             if result != "no_available":
+
+
+                self.mqtt_obj.update_route()
+
+                self.mqtt_obj.send_command("A")
+
                 data_w_bearer = jwt_token.replace("Bearer ", "").strip()
                 for item in active_tokens:
                     if data_w_bearer in item:  
@@ -533,7 +539,10 @@ class Requests:
             result = self.db.update_cart_status_maintenance(id)
             print("RESULT- ------------------ "+ result)
             if result == "ok1" or result == "ok2":
+
                 if result == "ok2":
+                    self.mqtt_obj.update_route()
+                    self.mqtt_obj.send_command("A")
                     for item in active_tokens:
                         key, value = list(item.items())[0] 
                         if "admin" in value or "manutencao" in value:
@@ -592,11 +601,15 @@ class Requests:
             if self.verify_jwt_token(data['Authorization']) == False:
                 raise exceptions.HttpError(401, "Usuário não autorizado", "Usuário não autorizado")
 
-            result = self.db.release_cart(id)
+            result = self.db.release_cart(id) 
 
+
+            
             warehouse = self.db.get_warehouse_by_cart(id)
 
             if result == 1:
+                self.mqtt_obj.update_route()
+                self.mqtt_obj.send_command("A")
                 for item in active_tokens:
                     key, value = list(item.items())[0] 
                     if "admin" in value or "armazem" in value:

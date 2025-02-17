@@ -67,32 +67,32 @@ class Mqtt(Thread):
         self.table = {
             "inter1": [ 
                 {"origin": "Armazem 1", "destiny": "inter2", "maneuver": "L"},
-                {"origin": "Armazem 1", "destiny": "inter3", "maneuver": "R"},
+                {"origin": "Armazem 1", "destiny": "inter3", "maneuver": "S"},
                 {"origin": "inter2", "destiny": "Armazem 1", "maneuver": "R"},
                 {"origin": "inter2", "destiny": "inter3", "maneuver": "L"},
                 {"origin": "inter3", "destiny": "inter2", "maneuver": "R"},
-                {"origin": "inter3", "destiny": "Armazem 1", "maneuver": "L"}
+                {"origin": "inter3", "destiny": "Armazem 1", "maneuver": "S"}
             ],
             "inter2": [
                 {"origin": "Armazem 2", "destiny": "inter1", "maneuver": "R"},
-                {"origin": "Armazem 2", "destiny": "inter5", "maneuver": "L"},
+                {"origin": "Armazem 2", "destiny": "inter5", "maneuver": "S"},
                 {"origin": "inter1", "destiny": "Armazem 2", "maneuver": "L"},
                 {"origin": "inter1", "destiny": "inter5", "maneuver": "R"},
                 {"origin": "inter5", "destiny": "inter1", "maneuver": "L"},
-                {"origin": "inter5", "destiny": "Armazem 2", "maneuver": "R"}
+                {"origin": "inter5", "destiny": "Armazem 2", "maneuver": "S"}
             ],
             "inter3": [
-                {"origin": "Doca 1", "destiny": "inter1", "maneuver": "L"},
+                {"origin": "Doca 1", "destiny": "inter1", "maneuver": "S"},
                 {"origin": "Doca 1", "destiny": "inter4", "maneuver": "R"},
-                {"origin": "inter1", "destiny": "Doca 1", "maneuver": "R"},
+                {"origin": "inter1", "destiny": "Doca 1", "maneuver": "S"},
                 {"origin": "inter1", "destiny": "inter4", "maneuver": "L"},
                 {"origin": "inter4", "destiny": "Doca 1", "maneuver": "L"},
                 {"origin": "inter4", "destiny": "inter1", "maneuver": "R"}
             ],
             "inter4": [
-                {"origin": "Doca 2", "destiny": "inter5", "maneuver": "R"},
+                {"origin": "Doca 2", "destiny": "inter5", "maneuver": "S"},
                 {"origin": "Doca 2", "destiny": "inter3", "maneuver": "L"},
-                {"origin": "inter5", "destiny": "Doca 2", "maneuver": "L"},
+                {"origin": "inter5", "destiny": "Doca 2", "maneuver": "S"},
                 {"origin": "inter5", "destiny": "inter3", "maneuver": "R"},
                 {"origin": "inter3", "destiny": "Doca 2", "maneuver": "R"},
                 {"origin": "inter3", "destiny": "inter5", "maneuver": "L"}
@@ -101,13 +101,13 @@ class Mqtt(Thread):
                 {"origin": "manutencao", "destiny": "inter2", "maneuver": "R"},
                 {"origin": "manutencao", "destiny": "inter4", "maneuver": "L"},
                 {"origin": "inter2", "destiny": "manutencao", "maneuver": "L"},
-                {"origin": "inter2", "destiny": "inter4", "maneuver": "R"},
-                {"origin": "inter4", "destiny": "inter2", "maneuver": "L"},
+                {"origin": "inter2", "destiny": "inter4", "maneuver": "S"},
+                {"origin": "inter4", "destiny": "inter2", "maneuver": "S"},
                 {"origin": "inter4", "destiny": "manutencao", "maneuver": "R"}
             ]
         }
 
-        self.update_route()
+        #self.update_route()
 
     def on_connect(self, client, userdata, flags, rc):
         print(f"Thread {self.nome}: Conectado ao broker MQTT ({BROKER}) com código {rc}")
@@ -128,8 +128,8 @@ class Mqtt(Thread):
 
         if msg.topic == f"cars/{CARRO_ID}/telemetria":
             print(f"Mensagem recebida do tópico battery: {mensagem}")
-            percentil = ((int(mensagem) - 20000)/10000)*100
-            self.db.update_battery(percentil)
+            percentil = (int(mensagem)/35000)*100
+            self.db.update_battery(str(int(percentil)))
 
         elif msg.topic == f"cars/{CARRO_ID}/cruzamento":
             print(f"Mensagem recebida do tópico cruzamento: {mensagem}")
@@ -254,7 +254,7 @@ class Mqtt(Thread):
             else:
                 print("Acabou o self.route")
                 self.route = None
-                return "P"
+                return "B"
 
         except Exception as error:
 
