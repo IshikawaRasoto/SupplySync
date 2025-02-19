@@ -100,7 +100,7 @@ timeline
 ```mermaid
 
 pie title Progresso atual
-    "Finalizadas" : 26
     "Não iniciadas" : 3
+    "Finalizadas" : 26
 
 ```
