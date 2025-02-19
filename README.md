@@ -20,7 +20,7 @@ Este repositório contém todo o código do projeto da matéria de Oficinas de I
 
 <a href="https://github.com/Awesteads">![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)</a>
 
-## Documentação
+## Links
 
 <a href="https://github.com/IshikawaRasoto/SupplySync/blob/main/Cronograma.md">:date: Cronograma</a>
 
