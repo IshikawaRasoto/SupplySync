@@ -80,7 +80,7 @@ O server utilizado foi desenvolvido em um VPS da Hostinger. O broker do MQTT foi
 
 <img src="https://github.com/user-attachments/assets/53c76e04-d8f2-4545-9a11-4549ee52e2dc" width=350px>
 
-<img src="https://github.com/user-attachments/assets/2d09b001-eca9-45e2-a998-052a880bfe92" width=350px>
+<img src="https://github.com/user-attachments/assets/2d09b001-eca9-45e2-a998-052a880bfe92" width=500px>
 
 Para a apresentação do sistema foi desenvolvido um drone para demonstrar a parte de locomoção, sensoriamento, além de ter a interatividade com o aplicativo.
 
