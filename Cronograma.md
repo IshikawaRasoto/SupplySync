@@ -57,38 +57,38 @@ timeline
 
 ### Drone
 
-- [ ] Desenvolvimento de Cruzamentos - Em andamento
+- [X] Desenvolvimento de Cruzamentos 
 - [X] Estudo dos Controles 
-- [ ] Desenvolver Eletrônica - Em andamento
-- [ ] Testes MQTT
-- [ ] Desenvolver Firmware do Veículo
-- [ ] Fabricação do Hardware
-- [ ] Teste de Hardware e Firmware
-- [ ] Testes de Carregamento e Descarregamento
+- [X] Desenvolver Eletrônica 
+- [X] Testes MQTT
+- [X] Desenvolver Firmware do Veículo
+- [X] Fabricação do Hardware
+- [X] Teste de Hardware e Firmware
+- [X] Testes de Carregamento e Descarregamento
 
 ### App
 
 - [X] Pesquisa Método de Autenticação 
 - [X] Criar sistema de Login
 - [X] Tela de Cadastramento
-- [ ] Tela de Abastecimento - Em andamento
+- [X] Tela de Abastecimento 
 - [X] App <-> Server - Integração
-- [ ] Tela de Pedido - Em andamento
-- [ ] Tela de Armazém Carregamento
-- [ ] Tela de Armazém Descarregamento
-- [ ] Tela de Gerenciamento
-- [ ] Tela de Inventário
-- [ ] Tela de Avisos
+- [X] Tela de Pedido 
+- [X] Tela de Armazém Carregamento
+- [X] Tela de Armazém Descarregamento
+- [X] Tela de Gerenciamento
+- [X] Tela de Inventário
+- [X] Tela de Avisos
 
 ### Server
 
 - [X] Hostear DB
 - [X] App <-> Server - Integração
-- [ ] Tabela Log - Em andamento
-- [ ] Tabela Inventário
-- [ ] Tabela Drones
-- [ ] Implementar MQTT - Em andamento
-- [ ] Controle dos Drones
+- [X] Tabela Log 
+- [X] Tabela Inventário
+- [X] Tabela Drones
+- [X] Implementar MQTT 
+- [X] Controle dos Drones
 - [ ] Simulação do controle
 - [ ] Implementar Auto Manutenção
 - [ ] Implementação Docker
@@ -100,17 +100,7 @@ timeline
 ```mermaid
 
 pie title Progresso atual
-    "Finalizadas" : 7
-    "Em desenvolvimento" : 6
-    "Não iniciadas" : 16
-
-```
-
-```mermaid
-
-pie title Progresso planejado
-    "Finalizadas" : 6
-    "Em desenvolvimento" : 5
-    "Não iniciadas" : 18
+    "Finalizadas" : 26
+    "Não iniciadas" : 3
 
 ```
