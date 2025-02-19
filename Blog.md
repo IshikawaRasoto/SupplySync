@@ -82,3 +82,20 @@ Abaixo consta as atualizações do projeto.
 - Finalização do drone
 - Finalização do servidor
 - O sensor de distância não foi implementado pois está defeituoso, entretanto a lógica foi desenvolvida.
+
+## Orçamento
+
+| Nome | Quantidade | Preço |
+| --- | --- | --- |
+| ESP32 | 1 | 40 |
+| Kit Carrinho | 1 | 80 |
+| ADS1115 | 1 | 30 |
+| L298N | 1 | 25 |
+| Sensor IR Reflexivo | 1 | 35 |
+| Placa universal | 1 | 10 |
+| Fio | 10 m | 12 |
+| Pilha 9V | 4 | 80 |
+| Pilha AA | 4 | 35 |
+| Cartolina | 10 | 14 |
+| Black Tape | 1 | 30 |
+| | Total | 391 |
