@@ -20,6 +20,18 @@ Este repositório contém todo o código do projeto da matéria de Oficinas de I
 
 <a href="https://github.com/Awesteads">![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)</a>
 
+## Documentação
+
+<a href="https://github.com/IshikawaRasoto/SupplySync/blob/main/Cronograma.md">:date: Cronograma</a>
+
+<a href="https://github.com/IshikawaRasoto/SupplySync/tree/main/firmware/main">:space_invader: Firmware</a>
+
+<a href="https://github.com/IshikawaRasoto/SupplySync/tree/main/app">:iphone: App</a>
+
+<a href="https://github.com/IshikawaRasoto/SupplySync/blob/main/Suppy_Sync_Server.py">:cloud: Server Main Code</a>
+
+<a href="https://github.com/IshikawaRasoto/SupplySync/tree/main/tools">:hammer: Server Tool Codes</a>
+
 ## Proposta
 
 Usando como inspiração os sistemas utilizados pela Amazon e pelo Mercado Livre em seus armazéns com a utilização de robôs para transporte, a equipe pretende desenvolver um sistema que permite o transporte de itens dentro de um armazém de maneira quase automatizada, desenvolvendo tanto os drones e sua eletrônicas, além de um aplicativo para ser a interface com o usuário e um servidor para armazenar as informações e controlar os drones.
