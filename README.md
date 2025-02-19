@@ -20,7 +20,7 @@ Este repositório contém todo o código do projeto da matéria de Oficinas de I
 
 <a href="https://github.com/Awesteads">![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)</a>
 
-## Links
+## Links 🔗
 
 <a href="https://github.com/IshikawaRasoto/SupplySync/blob/main/Cronograma.md">:date: Cronograma</a>
 
@@ -34,13 +34,13 @@ Este repositório contém todo o código do projeto da matéria de Oficinas de I
 
 <a href="https://github.com/IshikawaRasoto/SupplySync/tree/main/tools">:hammer: Server Tool Codes</a>
 
-## Proposta
+## Proposta ✏️
 
 Usando como inspiração os sistemas utilizados pela Amazon e pelo Mercado Livre em seus armazéns com a utilização de robôs para transporte, a equipe pretende desenvolver um sistema que permite o transporte de itens dentro de um armazém de maneira quase automatizada, desenvolvendo tanto os drones e sua eletrônicas, além de um aplicativo para ser a interface com o usuário e um servidor para armazenar as informações e controlar os drones.
 
 ![image](https://github.com/user-attachments/assets/beef84f3-fb62-4b57-bf92-fba8300585db)
 
-## Tecnologias Implementadas
+## Tecnologias Implementadas 💻
 
 No desenvolvimento do aplicativo o qual serviu de interface de usuário foram utilizados:
 
@@ -57,3 +57,11 @@ No desenvolvimento do servidor WEB alugado na Hostinger utilizou-se:
  MQTT
  
  FreeRTOS
+
+## Resultado ✅
+
+Para a apresentação do sistema foi desenvolvido um drone para demonstrar a parte de locomoção, sensoriamento, além de ter a interatividade com o aplicativo.
+
+Abaixo está o vídeo do sistema funcionando.
+
+https://github.com/user-attachments/assets/6ce1bd5b-dd48-429a-9d3f-e5969918b8e5
