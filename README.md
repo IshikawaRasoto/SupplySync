@@ -60,6 +60,8 @@ No desenvolvimento do servidor WEB alugado na Hostinger utilizou-se:
 
 ## Resultado ✅
 
+<img src="https://github.com/user-attachments/assets/53c76e04-d8f2-4545-9a11-4549ee52e2dc" width=350px>
+
 Para a apresentação do sistema foi desenvolvido um drone para demonstrar a parte de locomoção, sensoriamento, além de ter a interatividade com o aplicativo.
 
 Abaixo está o vídeo do sistema funcionando.
