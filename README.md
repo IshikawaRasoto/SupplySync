@@ -24,6 +24,8 @@ Este repositório contém todo o código do projeto da matéria de Oficinas de I
 
 <a href="https://github.com/IshikawaRasoto/SupplySync/blob/main/Cronograma.md">:date: Cronograma</a>
 
+<a href="https://github.com/IshikawaRasoto/SupplySync/blob/main/Blog.md">:memo: Blog</a>
+
 <a href="https://github.com/IshikawaRasoto/SupplySync/tree/main/firmware/main">:space_invader: Firmware</a>
 
 <a href="https://github.com/IshikawaRasoto/SupplySync/tree/main/app">:iphone: App</a>
