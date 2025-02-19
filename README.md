@@ -58,6 +58,24 @@ No desenvolvimento do servidor WEB alugado na Hostinger utilizou-se:
  
  FreeRTOS
 
+## Desenvolvimento
+
+### Firmware
+
+Tasks:
+
+- Telemetria - Status da bateria
+- Leitura de sensores | Tomada de decisão | Acionamento dos motores
+- Verificação MQTT
+
+Callback:
+
+- MQTT Receive
+
+### Servidor
+
+O server utilizado foi desenvolvido em um VPS da Hostinger. O broker do MQTT foi implementado nesse servidor, além de todo o código Python que realiza tanto a interface com o carrinho via MQTT como também a comunicação com o aplicativo. 
+
 ## Resultado ✅
 
 <img src="https://github.com/user-attachments/assets/53c76e04-d8f2-4545-9a11-4549ee52e2dc" width=350px>
